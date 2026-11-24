@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { HomeDashboard } from "@/components/home/home-dashboard"
 import { AppSidebarClient, type SidebarNavigation } from "@/components/sidebar/app-sidebar-client"
 import { SidebarCalendarProvider } from "@/components/sidebar/sidebar-calendar-provider"
@@ -11,7 +12,7 @@ import { LayoutWrapper } from "@/components/layout-wrapper"
 import { resolveNavigation } from "@/lib/navigation"
 import { resolveHomeDashboard } from "@/lib/home-dashboard"
 import { projectAccountShellAppSettings } from "@/lib/account-shell-bootstrap"
-import { useNativeRoute } from "./platform/navigation"
+import { hasNativeTimer, navigateNative, useNativeRoute } from "./platform/navigation"
 import { NativeClock } from "./native-clock"
 import { NativeAccessProvider } from "./native-access"
 import { ToolRoutes } from "./tool-routes"
@@ -27,7 +28,12 @@ const bootstrap = { ownerKey: null, syncEnabled: false, preferenceStatus: "anony
 export function WebsiteApp() {
   const route = useNativeRoute()
   const path = route.split("?")[0]
-  const clockRoute = path === "/clock" || path === "/chimer"
+  const nativeTimer = hasNativeTimer()
+  const timerRoute = path === "/chimer" || path === "/chimer/"
+  const clockRoute = path === "/clock" || !nativeTimer && timerRoute
+  useEffect(() => {
+    if (nativeTimer && timerRoute) navigateNative(route, true)
+  }, [nativeTimer, route, timerRoute])
   return <NativeAccessProvider><PwaInstallProvider installed><AccountShellBootstrapProvider initialBootstrap={bootstrap}>
     <SettingsProvider><TherapistSettingsProvider><MusicProvider>
       <SidebarProvider className="h-[100dvh] min-h-0 overflow-hidden bg-background">
@@ -37,7 +43,7 @@ export function WebsiteApp() {
             <div className="relative h-full min-w-0 overflow-hidden">
               <LayoutWrapper user={null} navigation={navigation} backgroundPurchasesAvailable={false}>
                 {path === "/" && <HomeDashboard signedIn={false} {...dashboard} />}
-                <NativeClock route={route} active={clockRoute} />
+                <NativeClock route={route} active={clockRoute} appearanceOnly={nativeTimer} />
                 <ToolRoutes />
               </LayoutWrapper>
             </div>

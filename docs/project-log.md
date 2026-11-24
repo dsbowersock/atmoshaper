@@ -1,5 +1,14 @@
 # AtmoShaper Project Log
 
+## November 24 native Android timer implementation
+
+Add Compose setup and running, paused and completed timer views for #85.
+Start, pause, resume, adjustment and end commit through an atomic file.
+Recover deadlines and skip missed cues on reopening. The isolated exporter
+reads only timer state and settings from the packaged WebView stores.
+Route packaged timer links to Compose while keeping the packaged music
+visualizer and retaining the timer records used by older previews.
+
 ## November 24 native Clock swipe and acceptance follow-up
 
 Reproduce low-contrast system icons after an immersive swipe on the guarded

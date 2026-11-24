@@ -55,13 +55,28 @@ async function readDatabase(page, name, store, key) {
   }), {name,store,key})
 }
 
+async function writeDatabase(page, name, store, key, value) {
+  await page.goto(new URL("seed.html", entry).href)
+  await page.evaluate(({ name, store, key, value }) => new Promise((resolve, reject) => {
+    const open = indexedDB.open(name, 1)
+    open.onupgradeneeded = () => open.result.createObjectStore(store)
+    open.onerror = () => reject(open.error)
+    open.onsuccess = () => {
+      const db = open.result
+      const transaction = db.transaction(store, "readwrite")
+      transaction.objectStore(store).put(value, key)
+      transaction.oncomplete = () => { db.close(); resolve() }
+      transaction.onerror = () => reject(transaction.error)
+    }
+  }), { name, store, key, value })
+}
+
 test("the packaged Clock exporter reads only appearance and leaves both generations intact", {timeout:60000}, async () => {
   const f = await fixture()
   const { page } = f
   const shared = "atmoshaper.android.chimer-runtime.v1"
   const earlier = "atmoshaper.android.offline-core.v1"
   const exporter = new URL("clock-appearance-export.html", entry).href
-  const seed = new URL("seed.html", entry).href
   await page.addInitScript(() => {
     window.AtmoShaperClockAppearance = { postMessage: value => { window.clockAppearance = value } }
   })
@@ -71,21 +86,7 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     const payload = await page.evaluate(() => window.clockAppearance)
     return payload === "unavailable" ? payload : JSON.parse(payload)
   }
-  async function write(name, store, key, value) {
-    await page.goto(seed)
-    await page.evaluate(({ name, store, key, value }) => new Promise((resolve, reject) => {
-      const open = indexedDB.open(name, 1)
-      open.onupgradeneeded = () => open.result.createObjectStore(store)
-      open.onerror = () => reject(open.error)
-      open.onsuccess = () => {
-        const db = open.result
-        const transaction = db.transaction(store, "readwrite")
-        transaction.objectStore(store).put(value, key)
-        transaction.oncomplete = () => { db.close(); resolve() }
-        transaction.onerror = () => reject(transaction.error)
-      }
-    }), { name, store, key, value })
-  }
+  const write = (...args) => writeDatabase(page, ...args)
   try {
     assert.equal((await exported()).font, "digital")
     const { backgroundRegistry, userCanUseBackground } = await import("../components/backgrounds/backgroundRegistry.ts")
@@ -163,6 +164,77 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), damaged)
     await write(shared, "clock", "state", record)
     assert.equal((await exported()).color, "#AABBCC")
+    assert.deepEqual(f.foreign, [])
+  } finally {
+    await f.close()
+  }
+})
+
+test("the native timer receives an original deadline and packaged navigation leaves the seed intact", {timeout:60000}, async () => {
+  const f = await fixture()
+  const { page } = f
+  const shared = "atmoshaper.android.chimer-runtime.v1"
+  const earlier = "atmoshaper.android.offline-core.v1"
+  const exporter = new URL("timer-export.html", entry).href
+  const deadline = Date.now() + 180_000
+  const old = { ...defaultOfflineCoreState(), timer: startOfflineTimer(240_000, deadline - 240_000) }
+  const record = { version: 1, settings: { hours: 0, minutes: 4, intervalType: "custom",
+    customInterval: 1, alertType: "chime-haptic", clockModeFontColor: "#CCAABB" },
+  timer: { status: "running", totalMs: 240_000, remainingMs: 180_000, endsAtMs: deadline,
+    intervalMs: 60_000, nextAlertAtMs: deadline - 120_000 } }
+  await page.addInitScript(() => {
+    window.AtmoShaperTimerTransfer = { postMessage: value => { window.timerSnapshot = value } }
+    window.nativeTimerRequests = []
+    window.AtmoShaperTimerNavigation = { postMessage: request => { window.nativeTimerRequests.push(request) } }
+  })
+  async function exported() {
+    await page.goto(exporter)
+    await page.waitForFunction(() => typeof window.timerSnapshot === "string")
+    const payload = await page.evaluate(() => window.timerSnapshot)
+    return payload === "unavailable" ? payload : JSON.parse(payload)
+  }
+  try {
+    assert.equal((await exported()).phase, "ready")
+    assert.deepEqual(await page.evaluate(() => indexedDB.databases()), [])
+    await page.evaluate(({ earlier, old }) => localStorage.setItem(earlier, JSON.stringify(old)), { earlier, old })
+    assert.equal((await exported()).deadlineMs, deadline)
+    await writeDatabase(page, earlier, "state", "preferences", old)
+    assert.equal((await exported()).deadlineMs, deadline)
+    await writeDatabase(page, shared, "clock", "state", record)
+    const transferred = await exported()
+    assert.equal(transferred.deadlineMs, deadline)
+    assert.equal(transferred.cueAtMs, deadline - 120_000)
+    assert.equal(transferred.setup.cue, "chime-haptic")
+    assert.equal("clockModeFontColor" in transferred.setup, false)
+    assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), old)
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+    assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), old)
+
+    const paused = { ...record, timer: { status: "paused", totalMs: 240_000, remainingMs: 90_000,
+      intervalMs: 60_000, msUntilNextAlert: 20_000 } }
+    await writeDatabase(page, shared, "clock", "state", paused)
+    assert.deepEqual(await exported(), { ...transferred, phase: "paused", pausedMs: 90_000, deadlineMs: null, cueAtMs: 20_000 })
+    const expired = { ...record, timer: { ...record.timer, endsAtMs: deadline - 360_000 } }
+    await writeDatabase(page, shared, "clock", "state", expired)
+    assert.equal((await exported()).deadlineMs, deadline - 360_000)
+
+    const damaged = { ...record, timer: { ...record.timer, endsAtMs: "invalid" } }
+    await writeDatabase(page, shared, "clock", "state", damaged)
+    assert.equal(await exported(), "unavailable")
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), damaged)
+
+    await writeDatabase(page, shared, "clock", "state", record)
+    await page.goto(entry)
+    await expect(page.getByTestId("home-launcher")).toBeVisible()
+    await go(page, "/chimer")
+    assert.deepEqual(await page.evaluate(() => window.nativeTimerRequests), ["open"])
+    assert.equal(page.url(), entry)
+    await go(page, "/chimer?source=music&returnTo=%2Fmusic")
+    await expect(page.getByRole("region", { name: "Music visualizer" })).toBeVisible()
+    await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
+    await expect.poll(() => readDatabase(page, shared, "clock", "visualizer-settings")).toMatchObject({ version: 1 })
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+    assert.deepEqual(f.errors, [])
     assert.deepEqual(f.foreign, [])
   } finally {
     await f.close()

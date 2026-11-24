@@ -250,6 +250,9 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     const readDraft=()=>page.evaluate(key=>localStorage.getItem(key),PLAN_OUTLINE_STORAGE_KEY)
     await expect.poll(readDraft).toContain(mission)
     const draft=await readDraft()
+    const readSharedTimer=()=>read(page,"atmoshaper.android.chimer-runtime.v1","clock","state")
+    await expect.poll(async()=>(await readSharedTimer())?.timer.endsAtMs).toBe(old.timer.endsAt)
+    const sharedTimer=await readSharedTimer()
     // WebView batches localStorage disk writes. Give the rendered draft time
     // to flush before simulating the process exit of an APK replacement.
     await page.waitForTimeout(5500)
@@ -301,35 +304,28 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>nativeHierarchy().includes('text="Fullscreen"')).toBe(true)
     await tapNativeLabel("Open timer")
-    page = await connect()
-    await expect(page).toHaveURL(/#\/chimer(?:\?|$)/)
-    const timer = page.getByTestId("running-timer-clock")
-    await expect(timer).toBeVisible()
-    await expect(timer).toHaveAttribute("aria-label","Pause timer from center display")
-    await expect.poll(async()=>(await read(page,"atmoshaper.android.chimer-runtime.v1","clock","state"))?.timer.endsAtMs).toBe(old.timer.endsAt)
-    // Read the primary digit layer and WebView clock together. The display
-    // can lag its deadline by one tick under emulator scheduling.
-    const digits = timer.locator('[data-display-content="true"]')
+    const readNativeTimer=()=>JSON.parse(shell("shell","run-as",pkg,"cat","files/native-timer.json"))
+    await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
+    assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
+    // Bracket the hierarchy dump with device time. Accessibility can sample
+    // the countdown anywhere in that interval under emulator scheduling.
     let previous = null
-    await expect.poll(async () => {
-      const { text, now } = await digits.evaluate(node => ({ text: node.textContent, now: Date.now() }))
-      const parts = text.replace(/\s/g,"").match(/^(?:(\d+)h:)?(\d{2})m:(\d{2})s$/)
+    await expect.poll(() => {
+      const before=Number(shell("shell","date","+%s"))
+      const hierarchy=nativeHierarchy()
+      const after=Number(shell("shell","date","+%s"))
+      if (hierarchy.includes('class="android.webkit.WebView"')) return false
+      const parts = hierarchy.match(/text="(\d{2}):(\d{2}):(\d{2})"/)
       if (!parts) return false
-      const shown = Number(parts[1] ?? 0) * 3600 + Number(parts[2]) * 60 + Number(parts[3])
-      const expected = Math.ceil((old.timer.endsAt - now) / 1000)
-      if (shown <= 0 || shown < expected || shown > expected + 1) return false
+      const shown = Number(parts[1]) * 3600 + Number(parts[2]) * 60 + Number(parts[3])
+      const target = Math.ceil(old.timer.endsAt / 1000)
+      if (shown <= 0 || shown < target - after - 2 || shown > target - before + 1) return false
       if (previous === null) { previous = shown; return false }
       return shown < previous
     }, { message:"Displayed timer matches the original deadline and counts down" }).toBe(true)
+    await writeFile(path.join(output,"android-native-timer.png"),captureAndroidScreen())
     console.log("Android check: Open timer displayed the countdown with its original deadline.")
     shell("shell","input","keyevent","KEYCODE_BACK")
-    // If the packaged host has a Home history entry, Back visits it before
-    // leaving the WebView. A direct entry without history returns immediately.
-    await expect.poll(async () => {
-      if (page.isClosed()) return "native"
-      return await page.getByTestId("home-launcher").isVisible().catch(() => false) ? "packaged home" : ""
-    }).toMatch(/^(native|packaged home)$/)
-    if (!page.isClosed()) shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>nativeHierarchy().includes('text="Close Clock"')).toBe(true)
     await tapNativeLabel("Close Clock")
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
@@ -343,8 +339,14 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     shell("shell","am","force-stop",pkg)
     await startNativeHome()
     await openPreviousTools()
-    await tap(page,page.getByRole("button",{name:"Enable timer sound",exact:true}))
-    await expect(page.getByRole("button",{name:"Enable timer sound",exact:true})).toHaveCount(0)
+    assert.deepEqual(await readSharedTimer(),sharedTimer)
+    const beforeTimer=page.url()
+    await go(page,"/chimer")
+    await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
+    assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
+    await tapNativeLabel("Close timer")
+    await expect(page).toHaveURL(beforeTimer)
+    await expect.poll(()=>page.evaluate(()=>document.visibilityState === "visible")).toBe(true)
     await writeFile(path.join(output,"android-shared-home.png"),captureAndroidScreen())
     assert.deepEqual(await read(page,"atmoshaper.android.offline-core.v1","state","preferences"),old)
     assert.deepEqual(await downloadDigests(page),packs)
@@ -353,9 +355,10 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(nextAccess.device,oldAccess.device);assert.equal(nextAccess.receipt,oldAccess.receipt)
     await tap(page,page.getByRole("link",{name:"Clock & timer",exact:true}))
     await expect(page.locator("[data-native-shared-clock]")).toBeVisible()
-    await expect.poll(async()=>(await read(page,"atmoshaper.android.chimer-runtime.v1","clock","state"))?.timer.endsAtMs).toBe(old.timer.endsAt)
-    await expect(page.getByTestId("running-timer-clock")).toBeVisible()
-    await expect(page.getByTestId("running-timer-clock")).toHaveAttribute("data-immersive-primary-display","true")
+    await expect(page.getByTestId("running-current-time")).toBeVisible()
+    await expect(page.getByTestId("running-current-time")).toHaveAttribute("data-immersive-primary-display","true")
+    await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
+    assert.deepEqual(await readSharedTimer(),sharedTimer)
     await writeFile(path.join(output,"android-shared-clock.png"),captureAndroidScreen())
     const beforeFullscreen=page.url()
     await page.mouse.move(2,2) // Wake the Clock's intentionally auto-hidden controls.
@@ -365,7 +368,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(false)
     assert.equal(page.url(),beforeFullscreen,"Back exits fullscreen before navigating away")
-    console.log("Android check: shared countdown and fullscreen Back passed.")
+    console.log("Android check: packaged routing reopened the native timer and shared Clock fullscreen Back passed.")
     await page.evaluate(()=>{
       window.__nonSilentStarts=0
       const start=AudioBufferSourceNode.prototype.start
@@ -400,7 +403,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","airplane_mode_on"),"1")
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
-    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,nativeClock:true,clockAppearanceTransferred:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions,readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
+    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,nativeClock:true,nativeTimer:true,clockAppearanceTransferred:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions,readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
   } catch (error) {
     failed = true
     if (page && !page.isClosed()) {

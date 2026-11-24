@@ -345,6 +345,7 @@ public final class MainActivity extends ComponentActivity {
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         webView.setBackgroundColor(0xff171616);
         installDocumentPort();
+        installTimerNavigation();
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public void onShowCustomView(View view, CustomViewCallback callback) {
                 if (fullscreenView != null) { callback.onCustomViewHidden(); return; }
@@ -412,6 +413,19 @@ public final class MainActivity extends ComponentActivity {
         // Incoming intents/extras never choose the WebView URL or executable code.
         webView.loadUrl(ENTRY);
         if (connectedStart) webView.post(() -> openWebsite(Uri.parse("https://www.atmoshaper.com/?android_app=1")));
+    }
+
+    /** The packaged shell can open the timer screen. It cannot read or
+     * change native timer state and cannot select an Activity or route. */
+    private void installTimerNavigation() {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
+        WebViewCompat.addWebMessageListener(webView, "AtmoShaperTimerNavigation",
+            Collections.singleton("https://appassets.androidplatform.net"), (view, message, origin, mainFrame, reply) -> {
+                if (mainFrame && isEntry() && "open".equals(message.getData())
+                    && getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                    startActivity(new Intent(this, NativeTimerActivity.class));
+                }
+            });
     }
 
     @Override

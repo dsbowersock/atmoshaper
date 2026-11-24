@@ -222,21 +222,27 @@ internal class ClockAppearanceFile(path: File) {
 }
 
 private const val origin = "https://appassets.androidplatform.net"
-private const val exportPage = "$origin/assets/core/clock-appearance-export.html"
-private const val exportScript = "$origin/assets/core/clock-appearance-export.js"
-private const val channel = "AtmoShaperClockAppearance"
+internal enum class PackagedExport(val asset: String, val channel: String) {
+    Clock("clock-appearance-export", "AtmoShaperClockAppearance"),
+    Timer("timer-export", "AtmoShaperTimerTransfer"),
+}
+
+internal suspend fun readPackagedClockAppearance(context: Context): ClockAppearance? =
+    readPackagedExport(context, PackagedExport.Clock, ClockAppearance::decode)
 
 /** Open only the packaged read-only exporter on the original WebView profile.
  * The temporary WebView has no visible surface, general bridge or network path. */
 @SuppressLint("SetJavaScriptEnabled")
-internal suspend fun readPackagedClockAppearance(context: Context): ClockAppearance? {
+internal suspend fun <T> readPackagedExport(context: Context, export: PackagedExport, decode: (String) -> T): T? {
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return null
+    val exportPage = "$origin/assets/core/${export.asset}.html"
+    val exportScript = "$origin/assets/core/${export.asset}.js"
     val webView = WebView(context)
     try {
         return withTimeoutOrNull(6000) {
             suspendCancellableCoroutine { result ->
-                fun finish(appearance: ClockAppearance?) {
-                    if (result.isActive) result.resume(appearance)
+                fun finish(value: T?) {
+                    if (result.isActive) result.resume(value)
                 }
 
                 val loader = WebViewAssetLoader.Builder()
@@ -263,9 +269,9 @@ internal suspend fun readPackagedClockAppearance(context: Context): ClockAppeara
                         return true
                     }
                 }
-                WebViewCompat.addWebMessageListener(webView, channel, setOf(origin)) { view, message, source, mainFrame, _ ->
+                WebViewCompat.addWebMessageListener(webView, export.channel, setOf(origin)) { view, message, source, mainFrame, _ ->
                     if (mainFrame && source == Uri.parse(origin) && view.url == exportPage) {
-                        finish(runCatching { ClockAppearance.decode(checkNotNull(message.data)) }.getOrNull())
+                        finish(runCatching { decode(checkNotNull(message.data)) }.getOrNull())
                     }
                 }
                 webView.loadUrl(exportPage)

@@ -109,6 +109,8 @@ type ChimerPageProps = {
     initialSettings?: unknown
     initialTimer?: TimerState
     onChange?: (settings: ChimerSettings, timer: TimerState) => void
+    /** Installed Android delegates countdown setup to the native timer. */
+    onOpenTimer?: () => void
   }
   /** A retained timer may keep ticking while another native route is visible. */
   active?: boolean
@@ -1624,7 +1626,12 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
         </>
       )}
       <div className="relative z-10 mx-auto max-w-5xl">
-        {!isTimerActive ? (
+        {!isTimerActive && deviceRuntime?.onOpenTimer ? (
+          <div className="flex flex-wrap gap-3 p-6">
+            <Button onClick={deviceRuntime.onOpenTimer}>Open timer</Button>
+            <Button onClick={startClock}>Show Clock</Button>
+          </div>
+        ) : !isTimerActive ? (
           <SetTimer
             settings={settings}
             totalDurationMs={totalDurationMs}
