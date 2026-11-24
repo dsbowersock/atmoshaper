@@ -53,6 +53,7 @@ public final class MainActivity extends ComponentActivity {
     private WebView webView;
     private String pendingReceipt;
     private String pendingRoute;
+    private boolean packagedPageLoaded;
     private TwaLauncher websiteLauncher;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
@@ -231,6 +232,9 @@ public final class MainActivity extends ComponentActivity {
             pendingRoute = null;
             return;
         }
+        // The packaged script installs its navigation listener during load.
+        // A resume callback can run earlier than the first completed load.
+        if (!packagedPageLoaded) return;
         String path = JSONObject.quote(pendingRoute); pendingRoute = null;
         webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('atmoshaper:native-navigation',{detail:" + path + "}));", null);
     }
@@ -406,7 +410,17 @@ public final class MainActivity extends ComponentActivity {
                 return !isLocal(request.getUrl());
             }
 
-            @Override public void onPageFinished(WebView view, String url) { deliverReceipt(); deliverRoute(); }
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                packagedPageLoaded = false;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                packagedPageLoaded = isEntry();
+                deliverReceipt();
+                deliverRoute();
+            }
         });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override

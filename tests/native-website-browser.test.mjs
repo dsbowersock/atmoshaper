@@ -227,6 +227,9 @@ test("the native timer receives an original deadline and packaged navigation lea
       intervalMs: 60_000, msUntilNextAlert: 20_000 } }
     await writeDatabase(page, shared, "clock", "state", paused)
     assert.deepEqual(await exported(), { ...transferred, phase: "paused", pausedMs: 90_000, deadlineMs: null, cueAtMs: 20_000 })
+    const overdue = { ...paused, timer: { ...paused.timer, msUntilNextAlert: 0 } }
+    await writeDatabase(page, shared, "clock", "state", overdue)
+    assert.deepEqual(await exported(), { ...transferred, phase: "paused", pausedMs: 90_000, deadlineMs: null, cueAtMs: 60_000 })
     const expired = { ...record, timer: { ...record.timer, endsAtMs: deadline - 360_000 } }
     await writeDatabase(page, shared, "clock", "state", expired)
     assert.equal((await exported()).deadlineMs, deadline - 360_000)
