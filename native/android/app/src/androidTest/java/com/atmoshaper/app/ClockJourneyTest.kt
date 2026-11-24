@@ -13,7 +13,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -64,24 +63,32 @@ class ClockJourneyTest {
                 val width = device.displayWidth
                 val height = device.displayHeight
                 val sampleX = width * 3 / 5
-                val topY = top / 2
-                val bottomY = height - bottom / 2
-                val normalStatus = screenshotPixel(sampleX, topY)
-                val normalNavigation = screenshotPixel(sampleX, bottomY)
-                assertTrue(Color(normalStatus).luminance() < 0.1f)
-                assertTrue(Color(normalNavigation).luminance() > 0.8f)
+                // Stay inside the bars and above the Clock controls on compact displays.
+                val edgeSample = (4 * instrumentation.targetContext.resources.displayMetrics.density).toInt()
+                val topY = minOf(top / 2, edgeSample)
+                val bottomY = height - 1 - minOf(bottom / 2, edgeSample)
+                val normalStatus = awaitScreenshotPixel(sampleX, topY, "The status band is dark") {
+                    Color(it).luminance() < 0.1f
+                }
+                val normalNavigation = awaitScreenshotPixel(sampleX, bottomY, "The navigation band is light") {
+                    Color(it).luminance() > 0.8f
+                }
 
                 text("Fullscreen").click()
                 acknowledgeImmersiveTutorial()
                 awaitBarVisibility(scenario, false, status, navigation)
-                assertTrue("The hidden status bar leaves the gradient visible",
-                    Color(screenshotPixel(sampleX, topY)).luminance() > 0.8f)
-                assertTrue("The hidden navigation bar leaves the gradient visible",
-                    Color(screenshotPixel(sampleX, bottomY)).luminance() < 0.1f)
+                awaitScreenshotPixel(sampleX, topY, "The hidden status bar leaves the gradient visible") {
+                    Color(it).luminance() > 0.8f
+                }
+                awaitScreenshotPixel(sampleX, bottomY, "The hidden navigation bar leaves the gradient visible") {
+                    Color(it).luminance() < 0.1f
+                }
 
                 assertTrue(device.swipe(width / 2, 0, width / 2, height / 8, 30))
                 awaitBarVisibility(scenario, true, status)
-                assertEquals("Status band after top swipe", normalStatus, screenshotPixel(sampleX, topY))
+                awaitScreenshotPixel(sampleX, topY, "The top swipe restores the status band") {
+                    it == normalStatus
+                }
 
                 // Re-enter fullscreen so the bottom swipe also starts hidden.
                 text("Exit fullscreen").click()
@@ -89,14 +96,16 @@ class ClockJourneyTest {
                 awaitBarVisibility(scenario, false, status, navigation)
                 assertTrue(device.swipe(width / 2, height - 1, width / 2, height * 7 / 8, 30))
                 awaitBarVisibility(scenario, true, navigation)
-                assertEquals("Navigation band after bottom swipe", normalNavigation, screenshotPixel(sampleX, bottomY))
+                awaitScreenshotPixel(sampleX, bottomY, "The bottom swipe restores the navigation band") {
+                    it == normalNavigation
+                }
             } finally {
                 store.save(original)
             }
         }
     }
 
-    /** Read app-facing insets and allow Compose to paint the revealed bands. */
+    /** Wait for Android to report the requested bar visibility to the app. */
     private fun awaitBarVisibility(
         scenario: ActivityScenario<HomeActivity>, visible: Boolean, vararg types: Int,
     ): WindowInsetsCompat {
@@ -106,18 +115,24 @@ class ClockJourneyTest {
                 val insets = ViewCompat.getRootWindowInsets(activity.window.decorView)
                 if (insets != null && types.all { insets.isVisible(it) == visible }) matched = insets
             }
-            matched?.let {
-                device.waitForIdle()
-                return it
-            }
+            matched?.let { return it }
             SystemClock.sleep(100)
         }
         error("Expected system bar insets ${types.contentToString()} to be ${if (visible) "visible" else "hidden"} in Clock.")
     }
 
-    private fun screenshotPixel(x: Int, y: Int): Int {
-        val bitmap = checkNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-        return try { bitmap.getPixel(x, y) } finally { bitmap.recycle() }
+    /** Android can dispatch insets before the corresponding Compose frame reaches the screen. */
+    private fun awaitScreenshotPixel(x: Int, y: Int, message: String, matches: (Int) -> Boolean): Int {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val deadline = SystemClock.uptimeMillis() + 2_000
+        var pixel: Int
+        do {
+            val bitmap = checkNotNull(automation.takeScreenshot())
+            pixel = try { bitmap.getPixel(x, y) } finally { bitmap.recycle() }
+            if (matches(pixel)) return pixel
+            SystemClock.sleep(50)
+        } while (SystemClock.uptimeMillis() < deadline)
+        throw AssertionError("$message at ($x, $y), last pixel #${pixel.toUInt().toString(16)}")
     }
 
     @Test
