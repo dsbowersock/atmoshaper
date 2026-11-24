@@ -243,6 +243,7 @@ test("the native timer receives an original deadline and packaged navigation lea
     assert.deepEqual(await page.evaluate(() => window.nativeTimerRequests), ["open"])
     assert.equal(page.url(), entry)
     await go(page, "/chimer?source=music&returnTo=%2Fmusic")
+    await page.getByRole("button", { name: "Close Background panel" }).click()
     await expect(page.getByRole("region", { name: "Music visualizer" })).toBeVisible()
     await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
     await expect.poll(() => readDatabase(page, shared, "clock", "visualizer-settings")).toMatchObject({ version: 1 })
