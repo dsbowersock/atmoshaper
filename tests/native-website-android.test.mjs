@@ -5,7 +5,7 @@ import { readFile, mkdir, writeFile } from "node:fs/promises"
 import { createHash } from "node:crypto"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import { _android as android } from "playwright"
+import { chromium } from "playwright"
 import { expect as playwrightExpect } from "@playwright/test"
 import { offlineAudioCatalog } from "../lib/offline-media.js"
 import { createDefaultAtmosphereStorage, ATMOSPHERE_STORAGE_KEY } from "../lib/atmosphere/storage.js"
@@ -20,6 +20,16 @@ const serial="emulator-5582",avd="AtmoShaper_WebParity_35",pkg="com.atmoshaper.a
 const shell=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8",timeout:45000,windowsHide:true}).trim()
 const output=path.join(root,"output/native-website-android")
 
+/** Read the exact development package Android reports after each install. */
+function installedVersionCode() {
+  const entries = shell("shell","cmd","package","list","packages","--show-versioncode",pkg).split(/\r?\n/)
+  const installed = entries.find(line => line.startsWith(`package:${pkg} versionCode:`))
+  assert.ok(installed, "Android reports the installed development package version")
+  const version = Number(installed.split("versionCode:")[1])
+  assert.ok(Number.isSafeInteger(version) && version > 0)
+  return version
+}
+
 /** No serial/package argument is accepted. The owner-receipt emulator 5580 and
  * physical devices are excluded. The marker may first be created only before
  * any AtmoShaper install, then belongs solely to this synthetic test fixture. */
@@ -33,7 +43,7 @@ function assertOwnedFixture() {
   }
 }
 
-test("replacement APK opens native Home offline and retains downloads, settings and a planner draft",{timeout:360000,skip:process.env.ATMOSHAPER_ANDROID_WEBSITE_TEST!=="1"},async()=>{
+test("replacement APK opens native Home offline and retains downloads, settings and a planner draft",{timeout:420000,skip:process.env.ATMOSHAPER_ANDROID_WEBSITE_TEST!=="1"},async()=>{
   assertOwnedFixture()
   await mkdir(output,{recursive:true})
   const baseline=path.resolve(root,"../../output/android/AtmoShaper-offline-preview-0.3.0-8abbb7c3.apk")
@@ -46,21 +56,47 @@ test("replacement APK opens native Home offline and retains downloads, settings 
   assert.equal(manifest.sharedWebsite,true);assert.equal(manifest.syntheticReceiptAuthority,false)
   shell("shell","am","force-stop",pkg)
   shell("install","-r","-d",baseline)
+  const upgradeVersions = [installedVersionCode()]
   assert.equal(shell("shell","pm","clear",pkg),"Success")
   shell("shell","cmd","connectivity","airplane-mode","disable")
   shell("shell","svc","wifi","enable")
   shell("shell","am","start","-n",`${pkg}/com.atmoshaper.app.MainActivity`)
-  const devices=await android.devices({omitDriverInstall:true}),device=devices.find(value=>value.serial()===serial)
-  assert.ok(device);device.setDefaultTimeout(20000)
+  const connections=[]
   let lastPid=null,offline=false
   const errors=[],network=[]
+  /** Forward only the guarded fixture's WebView. Playwright Android discovery
+   * would contact every ADB device before the caller could select this one. */
   async function connect() {
-    if(lastPid!==null)await expect.poll(async()=>(await device.webView({pkg},{timeout:20000})).pid(),{timeout:20000}).not.toBe(lastPid)
-    const view=await device.webView({pkg},{timeout:20000});lastPid=view.pid()
-    const page=await view.page()
+    let pid, socket
+    await expect.poll(() => {
+      try {
+        pid = shell("shell","pidof",pkg)
+      } catch {
+        return false
+      }
+      if (!/^\d+$/.test(pid) || pid === lastPid) return false
+      socket = `webview_devtools_remote_${pid}`
+      return shell("shell","cat","/proc/net/unix").split(/\r?\n/).some(line => line.endsWith(`@${socket}`))
+    }).toBe(true)
+    lastPid = pid
+    const port = shell("forward","tcp:0",`localabstract:${socket}`)
+    assert.match(port, /^\d+$/)
+    const connection = { port, browser: null }
+    connections.push(connection)
+    const endpoint = `http://127.0.0.1:${port}`
+    connection.browser = await chromium.connectOverCDP(endpoint, { timeout: 20000, noDefaults: true })
+    const context = connection.browser.contexts()[0]
+    const page = context?.pages()[0]
+    assert.ok(page,"The guarded app WebView exposes its packaged page")
     page.on("pageerror",error=>errors.push(error.message))
     page.on("request",request=>{if(offline && request.url().startsWith("https://media."))network.push(request.url())})
     return page
+  }
+  function captureAndroidScreen() {
+    // The 1080 × 2400 fixture's PNG can exceed Node's default 1 MiB buffer.
+    return execFileSync(adb, ["-s",serial,"exec-out","screencap","-p"], {
+      timeout: 15000, maxBuffer: 16 * 1024 * 1024, windowsHide: true,
+    })
   }
   /** Read the existing stores without creating them if an upgrade lost them. */
   async function read(page,name,store,key,{digestFiles=false}={}) {
@@ -163,6 +199,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     } else await released
   }
   let page
+  let failed = false
   try {
     page=await connect()
     console.log("Android fixture: connected to the earlier preview.")
@@ -202,6 +239,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     // Preserve the earlier download fixture, then create the draft through the
     // last shared preview's actual UI before installing the Compose update.
     shell("install","-r",sharedBaseline)
+    upgradeVersions.push(installedVersionCode())
     shell("shell","am","start","-n",`${pkg}/com.atmoshaper.app.MainActivity`)
     page=await connect()
     await expect(page.getByTestId("home-launcher")).toBeVisible()
@@ -219,6 +257,9 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     shell("shell","am","force-stop",pkg)
     await sharedClosed
     shell("install","-r",apk)
+    upgradeVersions.push(installedVersionCode())
+    assert.ok(upgradeVersions.every((version, index) => index === 0 || version > upgradeVersions[index - 1]),
+      "Every installed update advances the package version")
     offline=true
     const launcher=shell("shell","cmd","package","resolve-activity","--brief","-a","android.intent.action.MAIN","-c","android.intent.category.LAUNCHER",pkg).split(/\r?\n/).at(-1)
     assert.ok(launcher.startsWith(`${pkg}/`),"Android resolves an installed launcher")
@@ -230,14 +271,70 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       }).toBe(true)
     }
     async function openPreviousTools() {
-      await tapNativeLabel("Clock & timer")
+      await tapNativeLabel("Music")
       await expect.poll(()=>nativeHierarchy().includes('text="Coming to the native app"')).toBe(true)
       await tapNativeLabel("Open previous tools")
       page=await connect()
       await expect(page.getByTestId("home-launcher")).toBeVisible()
+      // CDP can see the rendered page before Android hands it window focus.
+      // Back and touch must target the foreground packaged host.
+      await expect.poll(()=>shell("shell","dumpsys","window","displays"))
+        .toMatch(/mCurrentFocus=Window\{[^\n]*com\.atmoshaper\.app\.development\/com\.atmoshaper\.app\.MainActivity/)
+      await expect.poll(()=>page.evaluate(()=>document.visibilityState === "visible" && document.readyState === "complete")).toBe(true)
     }
     await startNativeHome()
-    await writeFile(path.join(output,"android-native-home.png"),await device.screenshot())
+    await writeFile(path.join(output,"android-native-home.png"),captureAndroidScreen())
+    await tapNativeLabel("Clock & timer")
+    await expect.poll(()=>nativeHierarchy()).toMatch(/content-desc="Current time [^"]+"/)
+    const clockAppearance = JSON.parse(shell("shell","run-as",pkg,"cat","files/clock-appearance.json"))
+    assert.equal(clockAppearance.version,1)
+    assert.equal(clockAppearance.format,old.timeFormat)
+    assert.equal(clockAppearance.seconds,old.showSeconds)
+    assert.equal(clockAppearance.firstColor.toLowerCase(),"#146b73")
+    await tapNativeLabel("Fullscreen")
+    await acknowledgeImmersiveTutorial()
+    await tapNativeLabel("Exit fullscreen")
+    await expect.poll(()=>nativeHierarchy().includes('text="Fullscreen"')).toBe(true)
+    await tapNativeLabel("Close Clock")
+    await tapNativeLabel("Clock & timer")
+    await tapNativeLabel("Fullscreen")
+    shell("shell","input","keyevent","KEYCODE_BACK")
+    await expect.poll(()=>nativeHierarchy().includes('text="Fullscreen"')).toBe(true)
+    await tapNativeLabel("Open timer")
+    page = await connect()
+    await expect(page).toHaveURL(/#\/chimer(?:\?|$)/)
+    const timer = page.getByTestId("running-timer-clock")
+    await expect(timer).toBeVisible()
+    await expect(timer).toHaveAttribute("aria-label","Pause timer from center display")
+    await expect.poll(async()=>(await read(page,"atmoshaper.android.chimer-runtime.v1","clock","state"))?.timer.endsAtMs).toBe(old.timer.endsAt)
+    // Read the primary digit layer and WebView clock together. The display
+    // can lag its deadline by one tick under emulator scheduling.
+    const digits = timer.locator('[data-display-content="true"]')
+    let previous = null
+    await expect.poll(async () => {
+      const { text, now } = await digits.evaluate(node => ({ text: node.textContent, now: Date.now() }))
+      const parts = text.replace(/\s/g,"").match(/^(?:(\d+)h:)?(\d{2})m:(\d{2})s$/)
+      if (!parts) return false
+      const shown = Number(parts[1] ?? 0) * 3600 + Number(parts[2]) * 60 + Number(parts[3])
+      const expected = Math.ceil((old.timer.endsAt - now) / 1000)
+      if (shown <= 0 || shown < expected || shown > expected + 1) return false
+      if (previous === null) { previous = shown; return false }
+      return shown < previous
+    }, { message:"Displayed timer matches the original deadline and counts down" }).toBe(true)
+    console.log("Android check: Open timer displayed the countdown with its original deadline.")
+    shell("shell","input","keyevent","KEYCODE_BACK")
+    // If the packaged host has a Home history entry, Back visits it before
+    // leaving the WebView. A direct entry without history returns immediately.
+    await expect.poll(async () => {
+      if (page.isClosed()) return "native"
+      return await page.getByTestId("home-launcher").isVisible().catch(() => false) ? "packaged home" : ""
+    }).toMatch(/^(native|packaged home)$/)
+    if (!page.isClosed()) shell("shell","input","keyevent","KEYCODE_BACK")
+    await expect.poll(()=>nativeHierarchy().includes('text="Close Clock"')).toBe(true)
+    await tapNativeLabel("Close Clock")
+    await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
+    shell("shell","am","force-stop",pkg)
+    await startNativeHome()
     await openPreviousTools()
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>nativeHierarchy().includes('text="Coming to the native app"')).toBe(true)
@@ -248,7 +345,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await openPreviousTools()
     await tap(page,page.getByRole("button",{name:"Enable timer sound",exact:true}))
     await expect(page.getByRole("button",{name:"Enable timer sound",exact:true})).toHaveCount(0)
-    await writeFile(path.join(output,"android-shared-home.png"),await device.screenshot())
+    await writeFile(path.join(output,"android-shared-home.png"),captureAndroidScreen())
     assert.deepEqual(await read(page,"atmoshaper.android.offline-core.v1","state","preferences"),old)
     assert.deepEqual(await downloadDigests(page),packs)
     assert.equal(await readDraft(),draft)
@@ -259,7 +356,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(async()=>(await read(page,"atmoshaper.android.chimer-runtime.v1","clock","state"))?.timer.endsAtMs).toBe(old.timer.endsAt)
     await expect(page.getByTestId("running-timer-clock")).toBeVisible()
     await expect(page.getByTestId("running-timer-clock")).toHaveAttribute("data-immersive-primary-display","true")
-    await writeFile(path.join(output,"android-shared-clock.png"),await device.screenshot())
+    await writeFile(path.join(output,"android-shared-clock.png"),captureAndroidScreen())
     const beforeFullscreen=page.url()
     await page.mouse.move(2,2) // Wake the Clock's intentionally auto-hidden controls.
     await tap(page,page.getByRole("button",{name:"Toggle fullscreen",exact:true}),true)
@@ -281,7 +378,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await go(page,"/wellness/breathing")
     await tap(page,page.getByRole("button",{name:"Start breathing",exact:true}))
     await expect(page.getByRole("button",{name:"Pause breathing",exact:true})).toBeVisible()
-    await writeFile(path.join(output,"android-shared-breathing.png"),await device.screenshot())
+    await writeFile(path.join(output,"android-shared-breathing.png"),captureAndroidScreen())
     console.log("Android check: actual saved music and shared breathing passed offline.")
     await go(page,"/downloads")
     await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
@@ -303,7 +400,33 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","airplane_mode_on"),"1")
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
-    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions:[3,6,7],readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
-  } catch(error) { if(page&&!page.isClosed())await writeFile(path.join(output,"failure.json"),JSON.stringify({body:await page.locator("body").innerText(),errors,network},null,2));throw error }
-  finally {await Promise.all(devices.map(value=>value.close()))}
+    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,nativeClock:true,clockAppearanceTransferred:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions,readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
+  } catch (error) {
+    failed = true
+    if (page && !page.isClosed()) {
+      try {
+        await writeFile(path.join(output,"failure.json"), JSON.stringify({
+          body: await page.locator("body").innerText({ timeout: 3000 }), errors, network,
+        }, null, 2))
+      } catch (diagnosticError) {
+        console.error("Android fixture could not save failure diagnostics", diagnosticError)
+      }
+    }
+    throw error
+  } finally {
+    // Browser and relay ownership are independent. A failed close must still
+    // release its relay and leave every later connection eligible for cleanup.
+    const cleanupErrors = []
+    for (const { port, browser } of connections) {
+      try { await browser?.close() }
+      catch (error) { cleanupErrors.push(error) }
+      try { shell("forward","--remove",`tcp:${port}`) }
+      catch (error) { cleanupErrors.push(error) }
+    }
+    if (cleanupErrors.length) {
+      const error = new AggregateError(cleanupErrors, "Android fixture cleanup failed")
+      if (!failed) throw error
+      console.error(error)
+    }
+  }
 })

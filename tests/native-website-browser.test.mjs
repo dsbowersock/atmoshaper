@@ -55,6 +55,120 @@ async function readDatabase(page, name, store, key) {
   }), {name,store,key})
 }
 
+test("the packaged Clock exporter reads only appearance and leaves both generations intact", {timeout:60000}, async () => {
+  const f = await fixture()
+  const { page } = f
+  const shared = "atmoshaper.android.chimer-runtime.v1"
+  const earlier = "atmoshaper.android.offline-core.v1"
+  const exporter = new URL("clock-appearance-export.html", entry).href
+  const seed = new URL("seed.html", entry).href
+  await page.addInitScript(() => {
+    window.AtmoShaperClockAppearance = { postMessage: value => { window.clockAppearance = value } }
+  })
+  async function exported() {
+    await page.goto(exporter)
+    await page.waitForFunction(() => typeof window.clockAppearance === "string")
+    const payload = await page.evaluate(() => window.clockAppearance)
+    return payload === "unavailable" ? payload : JSON.parse(payload)
+  }
+  async function write(name, store, key, value) {
+    await page.goto(seed)
+    await page.evaluate(({ name, store, key, value }) => new Promise((resolve, reject) => {
+      const open = indexedDB.open(name, 1)
+      open.onupgradeneeded = () => open.result.createObjectStore(store)
+      open.onerror = () => reject(open.error)
+      open.onsuccess = () => {
+        const db = open.result
+        const transaction = db.transaction(store, "readwrite")
+        transaction.objectStore(store).put(value, key)
+        transaction.oncomplete = () => { db.close(); resolve() }
+        transaction.onerror = () => reject(transaction.error)
+      }
+    }), { name, store, key, value })
+  }
+  try {
+    assert.equal((await exported()).font, "digital")
+    const { backgroundRegistry, userCanUseBackground } = await import("../components/backgrounds/backgroundRegistry.ts")
+    const publicIds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
+    assert.equal(await page.locator("script[data-public-backgrounds]").getAttribute("data-public-backgrounds"), publicIds.join(","))
+    assert.deepEqual(await page.evaluate(async () => await indexedDB.databases()), [])
+
+    const simple = { version: 1, timeFormat: "24h", showSeconds: true, mainColor: "#112233", motion: false,
+      backgroundId: "solid-color", timer: { endsAt: 987654321 } }
+    await page.evaluate(({ earlier, simple }) => localStorage.setItem(earlier, JSON.stringify(simple)), { earlier, simple })
+    const prototype = await exported()
+    assert.equal(prototype.format, "24h")
+    assert.equal(prototype.seconds, true)
+    assert.equal(prototype.firstColor, "#112233")
+    assert.equal(prototype.background, "solid-color")
+    assert.equal(prototype.motion, false)
+    assert.equal("timer" in prototype, false)
+
+    const storedEarlier = { ...simple, mainColor: "#223344" }
+    await write(earlier, "state", "preferences", storedEarlier)
+    assert.equal((await exported()).firstColor, "#223344")
+
+    const record = { version: 1, settings: {
+      timeFormat: "12h", clockFontFamily: "serif", clockModeFontColor: "#AABBCC", backgroundId: "static-gradient",
+      clockShadowStrength: 0.25, clockGlowStrength: 0.8, clockStrokeEnabled: true,
+      staticGradientColorCount: 3, staticGradientAngle: 270, staticGradientStopPositions: [0, 30, 100],
+      backgroundVisualPreferences: {
+        palette: { mode: "harmony", harmony: "complementary", primaryColor: "#FF0000",
+          swatches: ["#FF0000", "#000000", "#ABCDEF"] },
+        mappingsByBackground: { "static-gradient": { "color-one": 1, "color-two": 0, "color-three": 1 } },
+      },
+    }, timer: { endsAtMs: 876543210 } }
+    await write(shared, "clock", "state", record)
+    const current = await exported()
+    assert.equal(current.format, "12h")
+    assert.equal(current.font, "serif")
+    assert.equal(current.color, "#AABBCC")
+    assert.equal(current.background, "static-gradient")
+    assert.equal(current.shadowStrength, 0.25)
+    assert.equal(current.glowStrength, 0.8)
+    assert.equal(current.stroke, true)
+    assert.deepEqual(current.gradientColors, ["#00ffff", "#ff0000", "#00ffff"])
+    assert.deepEqual(current.gradientStops, [0, 30, 100])
+    assert.equal(current.gradientAngle, 270)
+    assert.equal("timer" in current, false)
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+    assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), storedEarlier)
+    assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), simple)
+
+    // Keep the same compatible renderer and saved colors. Remove only its
+    // public access from the generated document for one exporter visit.
+    const withoutGradient = publicIds.filter(id => id !== "static-gradient")
+    assert.equal(withoutGradient.length, publicIds.length - 1)
+    const exportHtml = await readFile(path.join(core,"clock-appearance-export.html"), "utf8")
+    const deniedHtml = exportHtml.replace(`data-public-backgrounds="${publicIds.join(",")}"`,
+      `data-public-backgrounds="${withoutGradient.join(",")}"`)
+    assert.notEqual(deniedHtml, exportHtml)
+    await page.route(exporter, route => route.fulfill({ contentType:"text/html", body:deniedHtml }), { times:1 })
+    const denied = await exported()
+    assert.equal(denied.background, "neutral")
+    assert.deepEqual(denied.gradientColors, [])
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+
+    await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: "not-supported" } })
+    assert.equal((await exported()).background, "neutral")
+    const premium = backgroundRegistry.find(entry => entry.enabled && entry.requiresSubscription)
+    assert.ok(premium)
+    await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: premium.id } })
+    const locked = await exported()
+    assert.equal(locked.background, "neutral")
+    assert.deepEqual(locked.gradientColors, [])
+    const damaged = { ...record, settings: { ...record.settings, clockModeFontColor: "invalid" } }
+    await write(shared, "clock", "state", damaged)
+    assert.equal(await exported(), "unavailable")
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), damaged)
+    await write(shared, "clock", "state", record)
+    assert.equal((await exported()).color, "#AABBCC")
+    assert.deepEqual(f.foreign, [])
+  } finally {
+    await f.close()
+  }
+})
+
 test("mobile sidebar closes after selecting device tools", {timeout:60000}, async()=>{
   const f=await fixture(),{page}=f
   try {

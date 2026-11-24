@@ -2,6 +2,7 @@ package com.atmoshaper.app
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -74,8 +75,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.IOException
 
-/** The launcher owns presentation only. Saved work remains with the existing
- * WebView and browser sessions, which are opened only through explicit actions. */
+/** Native launcher and Clock share a task. Previous tools retain their
+ * existing separate host and open through explicit actions. */
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +86,7 @@ class HomeActivity : ComponentActivity() {
         )
         setContent {
             HomeTheme {
-                Home(onOpenPreviousTools = ::openPreviousTools)
+                Home(this, onOpenPreviousTools = ::openPreviousTools, onOpenTimer = ::openPreviousTimer)
             }
         }
     }
@@ -94,6 +95,14 @@ class HomeActivity : ComponentActivity() {
     private fun openPreviousTools() {
         startActivity(Intent(Intent.ACTION_MAIN).setClass(this, MainActivity::class.java))
     }
+
+    /** The packaged host still owns the existing timer and its deadline. */
+    private fun openPreviousTimer() {
+        val timer = Uri.Builder().scheme("atmoshaper").authority("tool")
+            .appendQueryParameter("path", "/chimer").build()
+        startActivity(Intent(Intent.ACTION_VIEW, timer).setClass(this, MainActivity::class.java))
+    }
+
 }
 
 private enum class HomeTool(
@@ -113,10 +122,14 @@ private enum class HomeTool(
 }
 
 @Composable
-private fun Home(onOpenPreviousTools: () -> Unit) {
+private fun Home(activity: HomeActivity, onOpenPreviousTools: () -> Unit, onOpenTimer: () -> Unit) {
     var tool by rememberSaveable { mutableStateOf<HomeTool?>(null) }
     val selectedTool = tool
     val gridState = rememberLazyGridState()
+    if (selectedTool == HomeTool.Clock) {
+        ClockScreen(activity, onClose = { tool = null }, onOpenTimer = onOpenTimer)
+        return
+    }
     BackHandler(enabled = selectedTool != null) { tool = null }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {

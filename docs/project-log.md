@@ -1,5 +1,47 @@
 # AtmoShaper Project Log
 
+## November 24 native Clock swipe and acceptance follow-up
+
+Reproduce low-contrast system icons after an immersive swipe on the guarded
+Android 35 emulator. Use Android's standard reveal so the Clock receives
+visible insets and restores its contrast bands. Add top and bottom swipe
+regression coverage. Verify the timer's visible countdown against its
+original deadline, exercise the exporter's public-access gate independently
+of renderer compatibility, and attempt every fixture connection cleanup.
+
+The swipe regression failed on the retained APK and passed on the correction.
+Android build and lint, the guarded upgrade, and all seven installed tests
+at both text scales passed. A Home-to-WebView timeout also reproduced on
+the retained APK. Full details remain in the implementation plan.
+
+## November 24 native Clock independent review corrections
+
+Protect Clock digits and the system bars on mixed and light backgrounds.
+Keep the digital readout ordered under RTL and restore proportional AM/PM.
+Use canonical public background access during packaging and share native
+appearance ranges between the settings editor and decoder. The guarded
+upgrade now checks the timer and deadline from **Open timer** and reads each
+installed version from Android.
+
+The corrected Android build and lint, guarded v3 → v6 → v8 upgrade, and
+six installed-app tests at both text scales passed on the synthetic
+emulator. The implementation plan records the focused Windows and visual
+results and the remaining acceptance gates.
+
+## November 24 native Clock and repeatable fullscreen
+
+Build issue #84 on the reviewed native Home head `ea3cbce`. Introduce a Compose
+Clock with the existing bold DSEG faces, a bounded leading AM/PM inset, native
+fullscreen ownership and a separate verified appearance file. The one-time
+transfer reads only the packaged Clock settings generations and leaves legacy
+state, including the timer deadline, with the existing host.
+
+Android build and lint passed. All five installed-app tests passed at 100%
+and 160% text scale on the synthetic emulator. The guarded v3 → v6 → v8
+update retained the two download byte digests, settings, timer deadline and
+planner draft. Physical Galaxy S24 Ultra acceptance and the rate-limited final
+CodeRabbit delta remain open.
+
 ## November 23 native Home launcher and Back correction
 
 On the guarded Android 35 emulator, a cold legacy tool link followed by the
