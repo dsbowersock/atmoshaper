@@ -34,6 +34,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -83,6 +86,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -113,12 +117,15 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
         if (fullscreen) fullscreen = false else onClose()
     }
     val window = activity.window
-    DisposableEffect(window) {
+    val darkIcons = appearance?.let {
+        it.background == ClockBackground.SolidColor && clockColor(it.firstColor).luminance() > 0.45f
+    } == true
+    DisposableEffect(window, darkIcons) {
         val bars = WindowCompat.getInsetsController(window, window.decorView)
         val lightStatus = bars.isAppearanceLightStatusBars
         val lightNavigation = bars.isAppearanceLightNavigationBars
-        bars.isAppearanceLightStatusBars = false
-        bars.isAppearanceLightNavigationBars = false
+        bars.isAppearanceLightStatusBars = darkIcons
+        bars.isAppearanceLightNavigationBars = darkIcons
         onDispose {
             bars.isAppearanceLightStatusBars = lightStatus
             bars.isAppearanceLightNavigationBars = lightNavigation
@@ -163,15 +170,20 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
                     ClockButton(R.string.clock_settings) { settingsOpen = true }
                 }
             }
-            if (loadFailed) {
-                Text(stringResource(R.string.clock_transfer_failed), color = Color.White)
-                ClockButton(R.string.clock_retry) { attempt++ }
-            }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 if (current != null) {
                     ClockReadout(current)
                 } else if (loadFailed) {
-                    ClockReadout(ClockAppearance.readOnly)
+                    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(Modifier.weight(1f)) { ClockReadout(ClockAppearance.readOnly) }
+                        Column(
+                            modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(stringResource(R.string.clock_transfer_failed), color = Color.White)
+                            ClockButton(R.string.clock_retry) { attempt++ }
+                        }
+                    }
                 } else {
                     Text(stringResource(R.string.clock_opening), color = Color.White)
                 }
@@ -229,8 +241,6 @@ private fun ClockBackdrop(appearance: ClockAppearance) {
                 ))
             }
         }
-        // Keep controls and the default light digits readable over bright palettes.
-        drawRect(Color.Black.copy(alpha = 0.55f))
     }
 }
 
@@ -323,6 +333,21 @@ private fun ClockGlyphs(text: String, style: TextStyle, appearance: ClockAppeara
     val density = LocalDensity.current
     fun pixels(value: Float) = with(density) { value.dp.toPx() }
     Box {
+        if (appearance.forwardGlow && appearance.forwardGlowStrength > 0f) {
+            val tint = style.color
+            Text(
+                text,
+                style = style.copy(shadow = Shadow(tint, blurRadius = pixels(appearance.forwardGlowBlur))),
+                modifier = Modifier.graphicsLayer {
+                    // The native reflection keeps the saved stretch and blur, and
+                    // stays out of the foreground glyphs' layout and semantics.
+                    scaleY = -0.4f
+                    translationY = size.height * (0.53f + 0.11f * appearance.forwardGlowLength)
+                    alpha = 0.22f * sqrt(appearance.forwardGlowStrength)
+                },
+                softWrap = false,
+            )
+        }
         if (appearance.shadow && appearance.shadowStrength > 0f) {
             val angle = appearance.shadowDirection * (PI / 180)
             val distance = pixels(appearance.shadowDistance)
@@ -355,23 +380,26 @@ private fun ClockSettings(
     onDismiss: () -> Unit,
     onSaved: (ClockAppearance) -> Unit,
 ) {
-    var twentyFourHour by rememberSaveable { mutableStateOf(appearance.twentyFourHour) }
-    var seconds by rememberSaveable { mutableStateOf(appearance.seconds) }
-    var font by rememberSaveable { mutableStateOf(appearance.font) }
+    val appearanceSaver = remember { Saver<ClockAppearance, String>(save = { it.encode() }, restore = { ClockAppearance.decode(it) }) }
+    var draft by rememberSaveable(stateSaver = appearanceSaver) { mutableStateOf(appearance) }
     var color by rememberSaveable { mutableStateOf(appearance.color) }
-    var keepAwake by rememberSaveable { mutableStateOf(appearance.keepAwake) }
-    var glow by rememberSaveable { mutableStateOf(appearance.glow) }
-    var shadow by rememberSaveable { mutableStateOf(appearance.shadow) }
-    var stroke by rememberSaveable { mutableStateOf(appearance.stroke) }
-    var rotation by rememberSaveable { mutableStateOf(appearance.rotation) }
+    var glowColor by rememberSaveable { mutableStateOf(appearance.glowColor) }
+    var shadowColor by rememberSaveable { mutableStateOf(appearance.shadowColor) }
+    var strokeColor by rememberSaveable { mutableStateOf(appearance.strokeColor) }
     var saving by rememberSaveable { mutableStateOf(false) }
     var failed by remember { mutableStateOf(false) }
-    val validColor = Regex("#[a-fA-F0-9]{6}").matches(color)
+    val validColors = colorPattern.matches(color) &&
+        (!draft.glow || colorPattern.matches(glowColor)) &&
+        (!draft.shadow || colorPattern.matches(shadowColor)) &&
+        (!draft.stroke || colorPattern.matches(strokeColor))
     LaunchedEffect(saving) {
         if (saving) {
-            val updated = appearance.copy(twentyFourHour = twentyFourHour, seconds = seconds, font = font,
-                color = color, keepAwake = keepAwake, glow = glow, shadow = shadow,
-                stroke = stroke, rotation = rotation)
+            val updated = draft.copy(
+                color = color,
+                glowColor = glowColor.takeIf(colorPattern::matches) ?: draft.glowColor,
+                shadowColor = shadowColor.takeIf(colorPattern::matches) ?: draft.shadowColor,
+                strokeColor = strokeColor.takeIf(colorPattern::matches) ?: draft.strokeColor,
+            )
             val saved = withContext(Dispatchers.IO) { runCatching { store.save(updated) }.getOrNull() }
             if (saved != null) onSaved(saved) else {
                 failed = true
@@ -384,35 +412,80 @@ private fun ClockSettings(
         title = { Text(stringResource(R.string.clock_settings)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                ClockToggle(R.string.clock_time_format, twentyFourHour, !saving) { twentyFourHour = it }
-                ClockToggle(R.string.clock_seconds, seconds, !saving) { seconds = it }
+                ClockToggle(R.string.clock_time_format, draft.twentyFourHour, !saving) { draft = draft.copy(twentyFourHour = it) }
+                ClockToggle(R.string.clock_seconds, draft.seconds, !saving) { draft = draft.copy(seconds = it) }
                 Text(stringResource(R.string.clock_font), style = MaterialTheme.typography.titleMedium)
                 ClockTypeface.entries.forEach { option ->
-                    ClockToggle(option.label, font == option, !saving, Role.RadioButton) { font = option }
+                    ClockToggle(option.label, draft.font == option, !saving, Role.RadioButton) { draft = draft.copy(font = option) }
                 }
-                OutlinedTextField(
-                    value = color,
-                    onValueChange = { if (it.length <= 7) color = it },
-                    label = { Text(stringResource(R.string.clock_color)) },
-                    enabled = !saving,
-                    singleLine = true,
-                    isError = !validColor,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
-                )
-                ClockToggle(R.string.clock_keep_awake, keepAwake, !saving) { keepAwake = it }
-                ClockToggle(R.string.clock_glow, glow, !saving) { glow = it }
-                ClockToggle(R.string.clock_shadow, shadow, !saving) { shadow = it }
-                ClockToggle(R.string.clock_stroke, stroke, !saving) { stroke = it }
-                ClockToggle(R.string.clock_rotation, rotation, !saving) { rotation = it }
+                ClockColorField(R.string.clock_color, color, !saving) { color = it }
+                ClockToggle(R.string.clock_keep_awake, draft.keepAwake, !saving) { draft = draft.copy(keepAwake = it) }
+                ClockToggle(R.string.clock_glow, draft.glow, !saving) { draft = draft.copy(glow = it) }
+                if (draft.glow) {
+                    ClockColorField(R.string.clock_glow_color, glowColor, !saving) { glowColor = it }
+                    ClockSlider(R.string.clock_glow_strength, draft.glowStrength, 0f..1f, !saving) { draft = draft.copy(glowStrength = it) }
+                }
+                ClockToggle(R.string.clock_shadow, draft.shadow, !saving) { draft = draft.copy(shadow = it) }
+                if (draft.shadow) {
+                    ClockColorField(R.string.clock_shadow_color, shadowColor, !saving) { shadowColor = it }
+                    ClockSlider(R.string.clock_shadow_strength, draft.shadowStrength, 0f..1f, !saving) { draft = draft.copy(shadowStrength = it) }
+                    ClockSlider(R.string.clock_shadow_direction, draft.shadowDirection, 0f..360f, !saving) { draft = draft.copy(shadowDirection = it) }
+                    ClockSlider(R.string.clock_shadow_distance, draft.shadowDistance, 0f..32f, !saving) { draft = draft.copy(shadowDistance = it) }
+                    ClockSlider(R.string.clock_shadow_feather, draft.shadowFeather, 0f..32f, !saving) { draft = draft.copy(shadowFeather = it) }
+                }
+                ClockToggle(R.string.clock_stroke, draft.stroke, !saving) { draft = draft.copy(stroke = it) }
+                if (draft.stroke) {
+                    ClockColorField(R.string.clock_stroke_color, strokeColor, !saving) { strokeColor = it }
+                    ClockSlider(R.string.clock_stroke_width, draft.strokeWidth, 0f..3f, !saving) { draft = draft.copy(strokeWidth = it) }
+                }
+                ClockToggle(R.string.clock_rotation, draft.rotation, !saving) { draft = draft.copy(rotation = it) }
+                if (draft.rotation) {
+                    ClockSlider(R.string.clock_rotation_range, draft.rotationRange, 2f..20f, !saving) { draft = draft.copy(rotationRange = it) }
+                    ClockSlider(R.string.clock_rotation_duration, draft.rotationDuration, 10f..120f, !saving) { draft = draft.copy(rotationDuration = it) }
+                }
+                ClockToggle(R.string.clock_forward_glow, draft.forwardGlow, !saving) { draft = draft.copy(forwardGlow = it) }
+                if (draft.forwardGlow) {
+                    ClockSlider(R.string.clock_forward_glow_strength, draft.forwardGlowStrength, 0f..1f, !saving) { draft = draft.copy(forwardGlowStrength = it) }
+                    ClockSlider(R.string.clock_forward_glow_length, draft.forwardGlowLength, 0.5f..4f, !saving) { draft = draft.copy(forwardGlowLength = it) }
+                    ClockSlider(R.string.clock_forward_glow_blur, draft.forwardGlowBlur, 0f..64f, !saving) { draft = draft.copy(forwardGlowBlur = it) }
+                }
                 if (failed) Text(stringResource(R.string.clock_save_failed), color = MaterialTheme.colorScheme.error)
             }
         },
         confirmButton = {
-            TextButton(onClick = { saving = true }, enabled = validColor && !saving) { Text(stringResource(R.string.clock_done)) }
+            TextButton(onClick = { saving = true }, enabled = validColors && !saving) { Text(stringResource(R.string.clock_done)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, enabled = !saving) { Text(stringResource(android.R.string.cancel)) }
         },
+    )
+}
+
+private val colorPattern = Regex("#[a-fA-F0-9]{6}")
+
+@Composable
+private fun ClockColorField(label: Int, value: String, enabled: Boolean, onChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { if (it.length <= 7) onChange(it) },
+        label = { Text(stringResource(label)) },
+        enabled = enabled,
+        singleLine = true,
+        isError = !colorPattern.matches(value),
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
+    )
+}
+
+@Composable
+private fun ClockSlider(label: Int, value: Float, range: ClosedFloatingPointRange<Float>, enabled: Boolean, onChange: (Float) -> Unit) {
+    val title = stringResource(label)
+    Text(title)
+    Slider(
+        value = value,
+        onValueChange = onChange,
+        valueRange = range,
+        enabled = enabled,
+        modifier = Modifier.semantics { contentDescription = title },
     )
 }
 

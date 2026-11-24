@@ -36,10 +36,10 @@ The packaged DSEG notice covers both representations.
 ## Preview scope
 
 Compose applies time format, seconds, the four Clock fonts, digit color,
-keep-awake, outer glow, drop shadow, stroke and display rotation. Imported
-effect parameters are retained, and the native dialog edits the corresponding
-on/off settings and digit color. The background projection uses the canonical
+keep-awake, outer glow, drop shadow, stroke, display rotation and forward glow.
+Imported parameters can be changed in the native dialog. Forward glow uses an
+Android text reflection. The background projection uses canonical
 color mappings for Solid Color, linear Static gradient and a native Lava Lamp
-approximation. Other background geometry and forward glow remain available
-through the existing packaged tools. An unavailable transfer still shows a
+approximation. Other background geometry remains available through the
+existing packaged tools. An unavailable transfer still shows a
 read-only Clock, and retry never replaces either source.

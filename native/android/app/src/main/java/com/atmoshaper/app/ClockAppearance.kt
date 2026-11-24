@@ -59,6 +59,10 @@ internal data class ClockAppearance(
     val rotation: Boolean = false,
     val rotationRange: Float = 10f,
     val rotationDuration: Float = 40f,
+    val forwardGlow: Boolean = false,
+    val forwardGlowStrength: Float = 1f,
+    val forwardGlowLength: Float = 1f,
+    val forwardGlowBlur: Float = 28f,
     val gradientColors: List<String> = emptyList(),
     val gradientStops: List<Float> = emptyList(),
     val gradientAngle: Float = 145f,
@@ -85,6 +89,10 @@ internal data class ClockAppearance(
         .put("rotation", rotation)
         .put("rotationRange", rotationRange.toDouble())
         .put("rotationDuration", rotationDuration.toDouble())
+        .put("forwardGlow", forwardGlow)
+        .put("forwardGlowStrength", forwardGlowStrength.toDouble())
+        .put("forwardGlowLength", forwardGlowLength.toDouble())
+        .put("forwardGlowBlur", forwardGlowBlur.toDouble())
         .put("gradientColors", JSONArray(gradientColors))
         .put("gradientStops", JSONArray(gradientStops))
         .put("gradientAngle", gradientAngle.toDouble())
@@ -110,11 +118,13 @@ internal data class ClockAppearance(
                 ((if (json.has(key)) json.get(key) else checkNotNull(default)) as String).also { require(hexColor.matches(it)) }
             fun number(key: String, default: Float, min: Float, max: Float): Float =
                 (if (json.has(key)) (json.get(key) as Number).toFloat() else default).also { require(it in min..max) }
-            val gradientColors = json.optJSONArray("gradientColors")?.let { values ->
+            val colors = if (json.has("gradientColors")) json.getJSONArray("gradientColors") else null
+            val stops = if (json.has("gradientStops")) json.getJSONArray("gradientStops") else null
+            val gradientColors = colors?.let { values ->
                 require(values.length() in 0..7)
                 List(values.length()) { (values.get(it) as String).also { hex -> require(hexColor.matches(hex)) } }
             }.orEmpty()
-            val gradientStops = json.optJSONArray("gradientStops")?.let { values ->
+            val gradientStops = stops?.let { values ->
                 require(values.length() == gradientColors.size)
                 List(values.length()) { (values.get(it) as Number).toFloat().also { stop -> require(stop in 0f..100f) } }
             }.orEmpty()
@@ -145,6 +155,10 @@ internal data class ClockAppearance(
                 rotation = if (json.has("rotation")) json.get("rotation") as Boolean else false,
                 rotationRange = number("rotationRange", 10f, 2f, 20f),
                 rotationDuration = number("rotationDuration", 40f, 10f, 120f),
+                forwardGlow = if (json.has("forwardGlow")) json.get("forwardGlow") as Boolean else false,
+                forwardGlowStrength = number("forwardGlowStrength", 1f, 0f, 1f),
+                forwardGlowLength = number("forwardGlowLength", 1f, 0.5f, 4f),
+                forwardGlowBlur = number("forwardGlowBlur", 28f, 0f, 64f),
                 gradientColors = gradientColors,
                 gradientStops = gradientStops,
                 gradientAngle = number("gradientAngle", 145f, 0f, 360f),

@@ -30,6 +30,11 @@ class ClockAppearanceFileTest {
             assertEquals(earlier, store.importIfAbsent(candidate))
             assertEquals(earlier, ClockAppearanceFile(path).read())
 
+            val malformed = earlier.encode().replace("\"gradientColors\":[]", "\"gradientColors\":\"bad\"")
+            path.writeText(malformed)
+            assertThrows(Exception::class.java) { store.importIfAbsent(candidate) }
+            assertEquals(malformed, path.readText())
+
             path.writeText("{")
             assertThrows(Exception::class.java) { store.importIfAbsent(candidate) }
             assertEquals("{", path.readText())

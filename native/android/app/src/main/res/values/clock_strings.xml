@@ -19,9 +19,24 @@
     <string name="clock_color">Clock color (#RRGGBB)</string>
     <string name="clock_keep_awake">Keep screen awake</string>
     <string name="clock_glow">Clock outer glow</string>
+    <string name="clock_glow_color">Glow color (#RRGGBB)</string>
+    <string name="clock_glow_strength">Glow strength</string>
     <string name="clock_shadow">Clock drop shadow</string>
+    <string name="clock_shadow_color">Shadow color (#RRGGBB)</string>
+    <string name="clock_shadow_strength">Shadow strength</string>
+    <string name="clock_shadow_direction">Shadow direction</string>
+    <string name="clock_shadow_distance">Shadow distance</string>
+    <string name="clock_shadow_feather">Shadow feather</string>
     <string name="clock_stroke">Clock stroke</string>
+    <string name="clock_stroke_color">Stroke color (#RRGGBB)</string>
+    <string name="clock_stroke_width">Stroke width</string>
     <string name="clock_rotation">Display rotation</string>
+    <string name="clock_rotation_range">Rotation range</string>
+    <string name="clock_rotation_duration">Rotation duration</string>
+    <string name="clock_forward_glow">Forward glow</string>
+    <string name="clock_forward_glow_strength">Forward glow strength</string>
+    <string name="clock_forward_glow_length">Projection length</string>
+    <string name="clock_forward_glow_blur">Forward glow blur</string>
     <string name="clock_save_failed">Clock settings could not be saved. Try again.</string>
     <string name="clock_done">Done</string>
 </resources>
