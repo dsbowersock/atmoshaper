@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="breathing_title">Breathing guide</string>
+    <string name="breathing_open">Open breathing guide</string>
+    <string name="breathing_close">Close</string>
+    <string name="breathing_coherent">Coherent</string>
+    <string name="breathing_coherent_detail">5 in, 5 out</string>
+    <string name="breathing_box">Box</string>
+    <string name="breathing_box_detail">4 sides</string>
+    <string name="breathing_settle">Settle</string>
+    <string name="breathing_settle_detail">4, 7, 8</string>
+    <string name="breathing_ready">Ready</string>
+    <string name="breathing_paused">Paused</string>
+    <string name="breathing_inhale">Inhale</string>
+    <string name="breathing_hold">Hold</string>
+    <string name="breathing_exhale">Exhale</string>
+    <string name="breathing_start">Start breathing</string>
+    <string name="breathing_pause">Pause breathing</string>
+    <string name="breathing_resume">Resume breathing</string>
+    <string name="breathing_reset">Reset</string>
+    <string name="breathing_countdown">%1$d</string>
+    <string name="breathing_cycle">Cycle %1$d</string>
+    <string name="breathing_timing">%1$s %2$ds</string>
+    <string name="breathing_current_phase">Current phase</string>
+    <string name="breathing_comfort">Breathe comfortably. Pause whenever you need.</string>
+</resources>
