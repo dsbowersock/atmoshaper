@@ -1,5 +1,19 @@
 # AtmoShaper Project Log
 
+## November 24 native Clock swipe and acceptance follow-up
+
+Reproduce low-contrast system icons after an immersive swipe on the guarded
+Android 35 emulator. Use Android's standard reveal so the Clock receives
+visible insets and restores its contrast bands. Add top and bottom swipe
+regression coverage. Verify the timer's visible countdown against its
+original deadline, exercise the exporter's public-access gate independently
+of renderer compatibility, and attempt every fixture connection cleanup.
+
+The swipe regression failed on the retained APK and passed on the correction.
+Android build and lint, the guarded upgrade, and all seven installed tests
+at both text scales passed. A Home-to-WebView timeout also reproduced on
+the retained APK. Full details remain in the implementation plan.
+
 ## November 24 native Clock independent review corrections
 
 Protect Clock digits and the system bars on mixed and light backgrounds.

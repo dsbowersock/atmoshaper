@@ -135,6 +135,20 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), storedEarlier)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), simple)
 
+    // Keep the same compatible renderer and saved colors. Remove only its
+    // public access from the generated document for one exporter visit.
+    const withoutGradient = publicIds.filter(id => id !== "static-gradient")
+    assert.equal(withoutGradient.length, publicIds.length - 1)
+    const exportHtml = await readFile(path.join(core,"clock-appearance-export.html"), "utf8")
+    const deniedHtml = exportHtml.replace(`data-public-backgrounds="${publicIds.join(",")}"`,
+      `data-public-backgrounds="${withoutGradient.join(",")}"`)
+    assert.notEqual(deniedHtml, exportHtml)
+    await page.route(exporter, route => route.fulfill({ contentType:"text/html", body:deniedHtml }), { times:1 })
+    const denied = await exported()
+    assert.equal(denied.background, "neutral")
+    assert.deepEqual(denied.gradientColors, [])
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+
     await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: "not-supported" } })
     assert.equal((await exported()).background, "neutral")
     const premium = backgroundRegistry.find(entry => entry.enabled && entry.requiresSubscription)

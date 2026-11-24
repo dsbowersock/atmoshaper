@@ -1,9 +1,11 @@
 package com.atmoshaper.app
 
+import android.os.SystemClock
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -11,6 +13,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,6 +35,89 @@ class ClockJourneyTest {
         assertTrue(clockNeedsContrastOutline(Color.Black, listOf(Color(0xFFFF0000), Color(0xFF008800))))
         assertTrue(clockGlyphStrokeWidth(12f, 20f, smallGlyph = true) < 2f)
         assertTrue(clockGlyphStrokeWidth(12f, 140f, smallGlyph = false) == 12f)
+    }
+
+    @Test
+    fun fullscreenSwipesRevealProtectedSystemBars() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val store = ClockAppearanceFile(instrumentation.targetContext)
+        val status = WindowInsetsCompat.Type.statusBars()
+        val navigation = WindowInsetsCompat.Type.navigationBars()
+        ActivityScenario.launch(HomeActivity::class.java).use { scenario ->
+            openClock()
+            text("Close Clock").click()
+            val original = checkNotNull(store.read())
+            try {
+                // White behind status icons and black behind navigation icons
+                // make missing protective bands visible at either edge.
+                store.save(original.copy(
+                    background = ClockBackground.StaticGradient,
+                    gradientColors = listOf("#FFFFFF", "#000000"),
+                    gradientStops = listOf(0f, 100f),
+                    gradientAngle = 180f,
+                ))
+                openClock()
+                val normal = awaitBarVisibility(scenario, true, status, navigation)
+                val top = normal.getInsets(status).top
+                val bottom = normal.getInsets(navigation).bottom
+                assertTrue("The portrait fixture has top and bottom bars", top > 0 && bottom > 0)
+                val width = device.displayWidth
+                val height = device.displayHeight
+                val sampleX = width * 3 / 5
+                val topY = top / 2
+                val bottomY = height - bottom / 2
+                val normalStatus = screenshotPixel(sampleX, topY)
+                val normalNavigation = screenshotPixel(sampleX, bottomY)
+                assertTrue(Color(normalStatus).luminance() < 0.1f)
+                assertTrue(Color(normalNavigation).luminance() > 0.8f)
+
+                text("Fullscreen").click()
+                acknowledgeImmersiveTutorial()
+                awaitBarVisibility(scenario, false, status, navigation)
+                assertTrue("The hidden status bar leaves the gradient visible",
+                    Color(screenshotPixel(sampleX, topY)).luminance() > 0.8f)
+                assertTrue("The hidden navigation bar leaves the gradient visible",
+                    Color(screenshotPixel(sampleX, bottomY)).luminance() < 0.1f)
+
+                assertTrue(device.swipe(width / 2, 0, width / 2, height / 8, 30))
+                awaitBarVisibility(scenario, true, status)
+                assertEquals("Status band after top swipe", normalStatus, screenshotPixel(sampleX, topY))
+
+                // Re-enter fullscreen so the bottom swipe also starts hidden.
+                text("Exit fullscreen").click()
+                text("Fullscreen").click()
+                awaitBarVisibility(scenario, false, status, navigation)
+                assertTrue(device.swipe(width / 2, height - 1, width / 2, height * 7 / 8, 30))
+                awaitBarVisibility(scenario, true, navigation)
+                assertEquals("Navigation band after bottom swipe", normalNavigation, screenshotPixel(sampleX, bottomY))
+            } finally {
+                store.save(original)
+            }
+        }
+    }
+
+    /** Read app-facing insets and allow Compose to paint the revealed bands. */
+    private fun awaitBarVisibility(
+        scenario: ActivityScenario<HomeActivity>, visible: Boolean, vararg types: Int,
+    ): WindowInsetsCompat {
+        repeat(50) {
+            var matched: WindowInsetsCompat? = null
+            scenario.onActivity { activity ->
+                val insets = ViewCompat.getRootWindowInsets(activity.window.decorView)
+                if (insets != null && types.all { insets.isVisible(it) == visible }) matched = insets
+            }
+            matched?.let {
+                device.waitForIdle()
+                return it
+            }
+            SystemClock.sleep(100)
+        }
+        error("Expected system bar insets ${types.contentToString()} to be ${if (visible) "visible" else "hidden"} in Clock.")
+    }
+
+    private fun screenshotPixel(x: Int, y: Int): Int {
+        val bitmap = checkNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        return try { bitmap.getPixel(x, y) } finally { bitmap.recycle() }
     }
 
     @Test

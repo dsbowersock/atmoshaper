@@ -199,6 +199,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     } else await released
   }
   let page
+  let failed = false
   try {
     page=await connect()
     console.log("Android fixture: connected to the earlier preview.")
@@ -302,8 +303,24 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tapNativeLabel("Open timer")
     page = await connect()
     await expect(page).toHaveURL(/#\/chimer(?:\?|$)/)
-    await expect(page.getByTestId("running-timer-clock")).toBeVisible()
+    const timer = page.getByTestId("running-timer-clock")
+    await expect(timer).toBeVisible()
+    await expect(timer).toHaveAttribute("aria-label","Pause timer from center display")
     await expect.poll(async()=>(await read(page,"atmoshaper.android.chimer-runtime.v1","clock","state"))?.timer.endsAtMs).toBe(old.timer.endsAt)
+    // Read the primary digit layer and WebView clock together. The display
+    // can lag its deadline by one tick under emulator scheduling.
+    const digits = timer.locator('[data-display-content="true"]')
+    let previous = null
+    await expect.poll(async () => {
+      const { text, now } = await digits.evaluate(node => ({ text: node.textContent, now: Date.now() }))
+      const parts = text.replace(/\s/g,"").match(/^(?:(\d+)h:)?(\d{2})m:(\d{2})s$/)
+      if (!parts) return false
+      const shown = Number(parts[1] ?? 0) * 3600 + Number(parts[2]) * 60 + Number(parts[3])
+      const expected = Math.ceil((old.timer.endsAt - now) / 1000)
+      if (shown <= 0 || shown < expected || shown > expected + 1) return false
+      if (previous === null) { previous = shown; return false }
+      return shown < previous
+    }, { message:"Displayed timer matches the original deadline and counts down" }).toBe(true)
     console.log("Android check: Open timer displayed the countdown with its original deadline.")
     shell("shell","input","keyevent","KEYCODE_BACK")
     // If the packaged host has a Home history entry, Back visits it before
@@ -384,11 +401,32 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
     await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,nativeClock:true,clockAppearanceTransferred:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions,readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
-  } catch(error) { if(page&&!page.isClosed())await writeFile(path.join(output,"failure.json"),JSON.stringify({body:await page.locator("body").innerText(),errors,network},null,2));throw error }
-  finally {
+  } catch (error) {
+    failed = true
+    if (page && !page.isClosed()) {
+      try {
+        await writeFile(path.join(output,"failure.json"), JSON.stringify({
+          body: await page.locator("body").innerText({ timeout: 3000 }), errors, network,
+        }, null, 2))
+      } catch (diagnosticError) {
+        console.error("Android fixture could not save failure diagnostics", diagnosticError)
+      }
+    }
+    throw error
+  } finally {
+    // Browser and relay ownership are independent. A failed close must still
+    // release its relay and leave every later connection eligible for cleanup.
+    const cleanupErrors = []
     for (const { port, browser } of connections) {
       try { await browser?.close() }
-      finally { shell("forward","--remove",`tcp:${port}`) }
+      catch (error) { cleanupErrors.push(error) }
+      try { shell("forward","--remove",`tcp:${port}`) }
+      catch (error) { cleanupErrors.push(error) }
+    }
+    if (cleanupErrors.length) {
+      const error = new AggregateError(cleanupErrors, "Android fixture cleanup failed")
+      if (!failed) throw error
+      console.error(error)
     }
   }
 })

@@ -113,5 +113,31 @@ match the corrected APK digest.
 All six installed-app tests passed on that APK at both 100% and 160% text
 scale. They include the contrast regression, system-bar appearance, repeat
 visits, recreation, settings persistence, and native Home navigation.
-Full Windows-suite completion, physical Galaxy S24 Ultra acceptance, and
-CodeRabbit review of the correction remain open.
+The full Windows suite at `e3c7668` passed with 5,959 passed, seven skipped,
+and zero failures. Physical Galaxy S24 Ultra acceptance and CodeRabbit
+correction coverage remain open.
+
+## Swipe-reveal and fixture follow-up
+
+On Android 35, a swipe in fullscreen revealed a dark navigation icon against
+the selected black-and-white gradient. The sampled contrast was 2.14:1.
+With Android's standard reveal the Clock receives visible insets, paints its
+normal status and navigation bands, and keeps controls outside them. The
+same navigation sample measured 8.79:1. The bands remain hidden before
+the swipe. Re-entering fullscreen hides the bars again.
+
+The installed regression drives both edge swipes and checks the rendered
+bands. Its top-swipe assertion failed on the retained `e3c7668` APK because
+the app-facing status inset stayed hidden. The guarded upgrade now compares
+the live digits with the retained deadline and waits for a decrease. The
+browser exporter fixture withholds public access from a compatible gradient
+and checks that its saved record survives. Relay cleanup attempts every
+connection and preserves the primary test error.
+
+The corrected APK passed Android build and lint, the guarded v3 → v6 → v8
+upgrade with the live countdown assertion, and all seven installed-app
+tests at both 100% and 160% text scale. An initial 100% run timed out in the
+unchanged Home-to-WebView journey. The retained APK also timed out in that
+isolated journey, and all seven passed on the corrected APK's final 100%
+run. Focused Windows checks passed 111 Clock/timer cases, 14 native contract
+cases, and 10 packaged-browser cases with one optional media skip.

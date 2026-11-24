@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -127,9 +126,8 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         val current = appearance
         if (current != null) ClockBackdrop(current)
         ClockSystemBarProtection()
-        val insets = if (fullscreen) WindowInsets.displayCutout else WindowInsets.safeDrawing
         Column(
-            modifier = Modifier.fillMaxSize().windowInsetsPadding(insets).padding(12.dp),
+            modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             FlowRow(
@@ -201,7 +199,9 @@ private fun ClockWindowEffects(window: Window, fullscreen: Boolean, keepAwake: B
         val bars = WindowCompat.getInsetsController(window, window.decorView)
         val previousBehavior = bars.systemBarsBehavior
         if (fullscreen) {
-            bars.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            // Transient overlays keep the app's insets hidden. Use standard
+            // reveal so the bar bands can paint before the icons are used.
+            bars.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
             bars.hide(WindowInsetsCompat.Type.systemBars())
         }
         onDispose {
@@ -213,8 +213,8 @@ private fun ClockWindowEffects(window: Window, fullscreen: Boolean, keepAwake: B
     }
 }
 
-/** Paint only the visible inset bands. The chosen Clock background still fills
- * the display area, and there are no permanent bands in immersive mode. */
+/** Protect visible bars, including a swipe reveal, without reserving bands
+ * while the device is actually in immersive mode. */
 @Composable
 private fun ClockSystemBarProtection() {
     val status = WindowInsets.statusBars
@@ -400,6 +400,8 @@ private fun ClockReadout(appearance: ClockAppearance) {
         } else if (backdrop.all { it == backdrop.first() }) {
             listOf(clockContrastInk(backdrop.first()))
         } else {
+            // Paint outer-to-inner so one of the two bands stays legible
+            // along the full range of interpolated background colors.
             val inner = clockContrastInk(visibleEdge)
             listOf(if (inner == Color.Black) Color.White else Color.Black, inner)
         }
@@ -471,8 +473,11 @@ private fun ClockReadout(appearance: ClockAppearance) {
     }
 }
 
+// Black and white have equal contrast at sqrt(1.05 * 0.05) - 0.05.
+private const val clockBlackWhiteContrastCrossover = 0.179129f
+
 private fun clockContrastInk(background: Color): Color =
-    if (background.luminance() > 0.179f) Color.Black else Color.White
+    if (background.luminance() > clockBlackWhiteContrastCrossover) Color.Black else Color.White
 
 /** Paint independent layers so enabling glow never disables the drop shadow. */
 @Composable

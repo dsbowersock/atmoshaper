@@ -14,6 +14,9 @@ The independent review corrections protect glyph and system-bar contrast,
 preserve day-period placement and typography, and resolve public background
 access through the shared registry when packaging the transfer document.
 
+The swipe-reveal follow-up uses standard Android bar reveal so the app can
+restore the contrast bands and keep Clock controls clear of the revealed bars.
+
 See the [implementation and acceptance plan](superpowers/plans/2026-11-24-native-clock.md)
 for the appearance boundary, emulator evidence and remaining physical acceptance.
 
