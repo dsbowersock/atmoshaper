@@ -124,12 +124,13 @@ not a newly built copy. This linked-worktree test resolves it at
 `../../output/android/AtmoShaper-offline-preview-0.3.0-8abbb7c3.apk` relative to
 the repository root. Its required SHA-256 is
 `8abbb7c366aa75d03f207428e19bafa0f673fff104d7e34c92dc3500ff43af4a`.
-On a fresh checkout, obtain that retained artifact from the owner and place it
-at that exact path before running the opt-in Android check. The fixture then
-installs version 0.4.2 (`AtmoShaper-shared-website-preview-0.4.2-8f603319.apk` in
-the same directory), creates a draft in its planner, and applies the native
-Home update. The required 0.4.2 SHA-256 is
+The second baseline is the retained version 0.4.2 installer,
+`AtmoShaper-shared-website-preview-0.4.2-8f603319.apk`, in the same directory.
+Its required SHA-256 is
 `8f603319474beaf5650d278d1ce802e93eee37a8fd8d731536614607d0264da2`.
+On a fresh checkout, obtain both retained installers from the owner and put
+them at those exact paths before running the opt-in Android check. The fixture
+creates a draft using version 0.4.2 before applying the native Home update.
 Ordinary browser tests build their own fixtures and do not need these APKs.
 
 Actual S24 upgrade, speaker audibility, battery/OS behavior and browser origin
