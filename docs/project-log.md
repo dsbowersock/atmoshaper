@@ -8,6 +8,12 @@ fullscreen ownership and a separate verified appearance file. The one-time
 transfer reads only the packaged Clock settings generations and leaves legacy
 state, including the timer deadline, with the existing host.
 
+Android build and lint passed. All five installed-app tests passed at 100%
+and 160% text scale on the synthetic emulator. The guarded v3 → v6 → v8
+update retained the two download byte digests, settings, timer deadline and
+planner draft. Physical Galaxy S24 Ultra acceptance and the rate-limited final
+CodeRabbit delta remain open.
+
 ## November 23 native Home launcher and Back correction
 
 On the guarded Android 35 emulator, a cold legacy tool link followed by the

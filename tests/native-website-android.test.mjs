@@ -254,6 +254,9 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tapNativeLabel("Fullscreen")
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>nativeHierarchy().includes('text="Fullscreen"')).toBe(true)
+    await tapNativeLabel("Open timer")
+    await expect.poll(()=>nativeHierarchy().includes('class="android.webkit.WebView"')).toBe(true)
+    shell("shell","input","keyevent","KEYCODE_BACK")
     await tapNativeLabel("Close Clock")
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
     await openPreviousTools()
@@ -321,7 +324,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","airplane_mode_on"),"1")
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
-    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions:[3,6,7],readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
+    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,nativeClock:true,clockAppearanceTransferred:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions:[3,6,8],readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
   } catch(error) { if(page&&!page.isClosed())await writeFile(path.join(output,"failure.json"),JSON.stringify({body:await page.locator("body").innerText(),errors,network},null,2));throw error }
   finally {await Promise.all(devices.map(value=>value.close()))}
 })

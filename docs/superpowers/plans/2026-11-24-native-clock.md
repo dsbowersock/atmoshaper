@@ -43,3 +43,36 @@ color mappings for Solid Color, linear Static gradient and a native Lava Lamp
 approximation. Other background geometry remains available through the
 existing packaged tools. An unavailable transfer still shows a
 read-only Clock, and retry never replaces either source.
+
+## Local verification
+
+- The Android 35 synthetic emulator ran all five installed-app tests at
+  100% and 160% text scale. Both Clock journeys failed on reviewed v7
+  before the native Clock was present. They passed on v8, including the
+  second visit, both fullscreen exits, Close and Activity recreation.
+- The v8 development APK built and passed Android lint. It matched the
+  reviewed v7 signer and installed in place. The normal and immersive
+  emulator captures at both text scales show bold DSEG numerals and
+  centered leading AM/PM alongside the visible hour tens.
+- Transfer coverage includes empty storage, both legacy stores, current
+  store precedence, saved Harmony mappings, an interrupted first write and
+  a malformed committed copy. The browser fixture verified that the input
+  records are preserved and that no timer state is exported.
+- The guarded v3 → v6 → v8 upgrade transferred the saved appearance and
+  retained both download byte digests, the established settings, the timer
+  deadline and a planner draft. It also verified Open timer, offline music,
+  breathing and the packaged PDF save dialog.
+- The existing web Clock and timer regressions passed 111 cases. The shared
+  browser suite passed ten cases with one optional media case skipped. The
+  native website contract suite passed 14 cases. The full Windows suite
+  reported failures outside those focused checks and was stopped after the
+  repository audit produced no new output for over twenty minutes. The
+  full suite has no passing receipt.
+- Codex Standards and Spec reviewed the application range and follow-up
+  changes. Mixed gradients can still reduce system-bar or digit contrast,
+  and a wide custom stroke can cover the safety outline on small AM/PM
+  glyphs. CodeRabbit completed the main range review and the atomic-write
+  and appearance-control corrections. Its CLI rate limit blocked the last
+  compatibility delta.
+- Physical Galaxy S24 Ultra acceptance remains pending. All installed-app
+  results above are from the synthetic emulator.
