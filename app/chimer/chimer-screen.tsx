@@ -1023,8 +1023,17 @@ export default function ChimerPage({
       ? (startsInClockMode ? createClockTimerState() : idleTimerState) : current)
   }, [deviceMode, startsInClockMode])
 
+  // The retained page can hide or replace RunningTimer. Keep its last handled
+  // host request here so browser history and later mounts cannot replay it.
+  const consumedNativeBackgroundPanelRequest = useRef(0)
+  const consumeNativeBackgroundPanelRequest = useCallback((request: number) => {
+    if (request <= consumedNativeBackgroundPanelRequest.current) return false
+    consumedNativeBackgroundPanelRequest.current = request
+    return true
+  }, [])
+
   useEffect(() => {
-    if (nativeBackgroundPanelRequest) {
+    if (nativeBackgroundPanelRequest && nativeBackgroundPanelRequest > consumedNativeBackgroundPanelRequest.current) {
       // The retained Clock can be on its setup screen after an explicit close.
       setTimerState(current => current.status === "idle" ? createClockTimerState() : current)
     }
@@ -1670,6 +1679,7 @@ export default function ChimerPage({
           <RunningTimer
             mode={immersiveMode}
             nativeBackgroundPanelRequest={nativeBackgroundPanelRequest}
+            consumeNativeBackgroundPanelRequest={consumeNativeBackgroundPanelRequest}
             timeDisplay={timeDisplay}
             activeTimeDisplay={activeTimeDisplay}
             currentTime={currentTime}

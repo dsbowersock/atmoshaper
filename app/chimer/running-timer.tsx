@@ -254,6 +254,7 @@ export interface ImmersiveDisplayMode {
 interface RunningTimerProps {
   mode: ImmersiveDisplayMode
   nativeBackgroundPanelRequest?: number
+  consumeNativeBackgroundPanelRequest?: (request: number) => boolean
   timeDisplay: { hours: string; minutes: string; seconds: string }
   activeTimeDisplay: { hours: string; minutes: string; seconds: string }
   currentTime: CurrentTimeParts
@@ -930,6 +931,7 @@ interface RunningTimerProps {
 export function RunningTimer({
   mode,
   nativeBackgroundPanelRequest,
+  consumeNativeBackgroundPanelRequest,
   timeDisplay,
   activeTimeDisplay,
   currentTime,
@@ -1719,7 +1721,6 @@ export function RunningTimer({
   const visualPanelOpenedHydratedRef = useRef(false)
   const visualHintTimeoutRef = useRef<number | null>(null)
   const initialPanelAppliedRef = useRef(false)
-  const handledNativeBackgroundPanelRequest = useRef(0)
 
   useEffect(() => {
     if (nativeBackgroundPanelRequest) {
@@ -2410,15 +2411,14 @@ export function RunningTimer({
   )
 
   useEffect(() => {
-    if (!nativeBackgroundPanelRequest || handledNativeBackgroundPanelRequest.current === nativeBackgroundPanelRequest) return
-    handledNativeBackgroundPanelRequest.current = nativeBackgroundPanelRequest
+    if (!nativeBackgroundPanelRequest || !consumeNativeBackgroundPanelRequest?.(nativeBackgroundPanelRequest)) return
     // The external picker action respects the same dirty draft decision as
     // the toolbar and leaves any open decision dialog in control.
     if (pendingVisualIntent || activePanel === "background") return
     if (activePanel !== "visual" || handlePanelChangeRequest("background")) {
       handleActivePanelChange("background")
     }
-  }, [activePanel, handleActivePanelChange, handlePanelChangeRequest, nativeBackgroundPanelRequest, pendingVisualIntent])
+  }, [activePanel, consumeNativeBackgroundPanelRequest, handleActivePanelChange, handlePanelChangeRequest, nativeBackgroundPanelRequest, pendingVisualIntent])
 
   const handleVisualNavigationAttempt = useCallback(
     (navigation: VisualDraftNavigationIntent) => {
