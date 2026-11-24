@@ -2,6 +2,7 @@
 <resources>
     <string name="clock_title">Clock</string>
     <string name="clock_close">Close Clock</string>
+    <string name="clock_open_timer">Open timer</string>
     <string name="clock_fullscreen">Fullscreen</string>
     <string name="clock_exit_fullscreen">Exit fullscreen</string>
     <string name="clock_settings">Clock settings</string>

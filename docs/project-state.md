@@ -7,8 +7,8 @@ Clock on `codex/native-clock-84`, stacked from reviewed #83 commit `ea3cbce`.
 The Home tile opens it offline. Close returns to Home and Android Back exits
 fullscreen before leaving Clock. Clock settings are saved in a separate,
 verified native appearance file. The shared and earlier packaged Clock stores
-remain the originals. Open previous tools from Home for the existing timer,
-other tools and saved work.
+remain the originals. **Open timer** leads to the existing packaged timer.
+Open previous tools from Home for the other tools and saved work.
 
 See the [implementation and acceptance plan](superpowers/plans/2026-11-24-native-clock.md)
 for the appearance boundary, emulator evidence and remaining physical acceptance.

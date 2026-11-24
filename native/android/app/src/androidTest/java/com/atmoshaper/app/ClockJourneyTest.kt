@@ -1,6 +1,7 @@
 package com.atmoshaper.app
 
-import android.view.WindowInsets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -35,8 +36,8 @@ class ClockJourneyTest {
             text("Exit fullscreen")
             assertTrue(device.wait(Until.gone(By.text("Fullscreen")), 10_000))
             scenario.onActivity { activity ->
-                val insets = checkNotNull(activity.window.decorView.rootWindowInsets)
-                assertFalse(insets.isVisible(WindowInsets.Type.statusBars()))
+                val insets = checkNotNull(ViewCompat.getRootWindowInsets(activity.window.decorView))
+                assertFalse(insets.isVisible(WindowInsetsCompat.Type.statusBars()))
             }
             device.pressBack()
             text("Fullscreen").click()

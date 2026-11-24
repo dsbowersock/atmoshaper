@@ -90,7 +90,7 @@ import kotlin.math.sqrt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
+internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTimer: () -> Unit) {
     var fullscreen by rememberSaveable { mutableStateOf(false) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     var attempt by remember { mutableIntStateOf(0) }
@@ -167,6 +167,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
                 if (current != null && !fullscreen) {
                     ClockButton(R.string.clock_settings) { settingsOpen = true }
                 }
+                if (!fullscreen) ClockButton(R.string.clock_open_timer, onOpenTimer)
             }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 if (current != null) {
