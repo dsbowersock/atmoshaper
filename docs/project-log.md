@@ -1,5 +1,13 @@
 # AtmoShaper Project Log
 
+## November 24 native Clock and repeatable fullscreen
+
+Build issue #84 on the reviewed native Home head `ea3cbce`. Introduce a Compose
+Clock with the existing bold DSEG faces, a bounded leading AM/PM inset, native
+fullscreen ownership and a separate verified appearance file. The one-time
+transfer reads only the packaged Clock settings generations and leaves legacy
+state, including the timer deadline, with the existing host.
+
 ## November 23 native Home launcher and Back correction
 
 On the guarded Android 35 emulator, a cold legacy tool link followed by the

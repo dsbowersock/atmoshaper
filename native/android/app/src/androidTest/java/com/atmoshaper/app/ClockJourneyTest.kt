@@ -12,6 +12,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.regex.Pattern
 
 @RunWith(AndroidJUnit4::class)
 class ClockJourneyTest {
@@ -56,16 +57,16 @@ class ClockJourneyTest {
             text("Clock settings").click()
             text("24-hour time").click()
             text("Done").click()
-            assertTrue(clockShowsDayPeriod() != original)
+            assertClockFormat(!original)
             text("Close Clock").click()
 
             openClock()
             scenario.recreate()
-            assertTrue(clockShowsDayPeriod() != original)
+            assertClockFormat(!original)
             text("Clock settings").click()
             text("24-hour time").click()
             text("Done").click()
-            assertTrue(clockShowsDayPeriod() == original)
+            assertClockFormat(original)
         }
     }
 
@@ -81,6 +82,12 @@ class ClockJourneyTest {
         checkNotNull(device.wait(Until.findObject(By.descStartsWith("Current time ")), 10_000)).contentDescription
 
     private fun clockShowsDayPeriod() = readout().contains(Regex(" [AP]M$"))
+
+    private fun assertClockFormat(showsDayPeriod: Boolean) {
+        val pattern = if (showsDayPeriod) "Current time .+ [AP]M" else "Current time [0-9:]+"
+        assertTrue("Expected the saved format in the Clock readout",
+            device.wait(Until.hasObject(By.desc(Pattern.compile(pattern))), 10_000))
+    }
 
     private fun text(label: String): UiObject2 =
         checkNotNull(device.wait(Until.findObject(By.text(label)), 10_000)) { "Expected '$label'" }

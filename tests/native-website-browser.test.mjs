@@ -106,19 +106,34 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.equal((await exported()).firstColor, "#223344")
 
     const record = { version: 1, settings: {
-      timeFormat: "12h", clockFontFamily: "serif", clockModeFontColor: "#AABBCC", backgroundId: "not-supported",
+      timeFormat: "12h", clockFontFamily: "serif", clockModeFontColor: "#AABBCC", backgroundId: "static-gradient",
+      clockShadowStrength: 0.25, clockGlowStrength: 0.8, clockStrokeEnabled: true,
+      staticGradientColorCount: 3, staticGradientAngle: 270, staticGradientStopPositions: [0, 30, 100],
+      backgroundVisualPreferences: {
+        palette: { mode: "harmony", harmony: "complementary", primaryColor: "#FF0000",
+          swatches: ["#FF0000", "#000000", "#ABCDEF"] },
+        mappingsByBackground: { "static-gradient": { "color-one": 1, "color-two": 0, "color-three": 1 } },
+      },
     }, timer: { endsAtMs: 876543210 } }
     await write(shared, "clock", "state", record)
     const current = await exported()
     assert.equal(current.format, "12h")
     assert.equal(current.font, "serif")
     assert.equal(current.color, "#AABBCC")
-    assert.equal(current.background, "neutral")
+    assert.equal(current.background, "static-gradient")
+    assert.equal(current.shadowStrength, 0.25)
+    assert.equal(current.glowStrength, 0.8)
+    assert.equal(current.stroke, true)
+    assert.deepEqual(current.gradientColors, ["#00ffff", "#ff0000", "#00ffff"])
+    assert.deepEqual(current.gradientStops, [0, 30, 100])
+    assert.equal(current.gradientAngle, 270)
     assert.equal("timer" in current, false)
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
     assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), storedEarlier)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), simple)
 
+    await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: "not-supported" } })
+    assert.equal((await exported()).background, "neutral")
     const damaged = { ...record, settings: { ...record.settings, clockModeFontColor: "invalid" } }
     await write(shared, "clock", "state", damaged)
     assert.equal(await exported(), "unavailable")

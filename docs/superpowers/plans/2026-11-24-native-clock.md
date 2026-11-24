@@ -32,3 +32,14 @@ The packaged DSEG notice covers both representations.
 | --- | --- |
 | `dseg7_bold.ttf` | `8784d18d00e94ff587e5ac6da3d04feae013f45febb9e7c6e0297c32e221135b` |
 | `dseg14_bold.ttf` | `dfe44821ef1dbc61ecceec717cab6d776771ad253717004be1af3621e58b7909` |
+
+## Preview scope
+
+Compose applies time format, seconds, the four Clock fonts, digit color,
+keep-awake, outer glow, drop shadow, stroke and display rotation. Imported
+effect parameters are retained, and the native dialog edits the corresponding
+on/off settings and digit color. The background projection uses the canonical
+color mappings for Solid Color, linear Static gradient and a native Lava Lamp
+approximation. Other background geometry and forward glow remain available
+through the existing packaged tools. An unavailable transfer still shows a
+read-only Clock, and retry never replaces either source.

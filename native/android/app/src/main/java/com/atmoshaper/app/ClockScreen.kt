@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
@@ -50,6 +51,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -76,6 +79,10 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -106,6 +113,17 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
         if (fullscreen) fullscreen = false else onClose()
     }
     val window = activity.window
+    DisposableEffect(window) {
+        val bars = WindowCompat.getInsetsController(window, window.decorView)
+        val lightStatus = bars.isAppearanceLightStatusBars
+        val lightNavigation = bars.isAppearanceLightNavigationBars
+        bars.isAppearanceLightStatusBars = false
+        bars.isAppearanceLightNavigationBars = false
+        onDispose {
+            bars.isAppearanceLightStatusBars = lightStatus
+            bars.isAppearanceLightNavigationBars = lightNavigation
+        }
+    }
     val keepAwake = appearance?.keepAwake == true
     DisposableEffect(window, keepAwake) {
         if (keepAwake) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -145,17 +163,17 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit) {
                     ClockButton(R.string.clock_settings) { settingsOpen = true }
                 }
             }
+            if (loadFailed) {
+                Text(stringResource(R.string.clock_transfer_failed), color = Color.White)
+                ClockButton(R.string.clock_retry) { attempt++ }
+            }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 if (current != null) {
                     ClockReadout(current)
+                } else if (loadFailed) {
+                    ClockReadout(ClockAppearance.readOnly)
                 } else {
-                    Column(
-                        modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(stringResource(if (loadFailed) R.string.clock_transfer_failed else R.string.clock_opening), color = Color.White)
-                        if (loadFailed) ClockButton(R.string.clock_retry) { attempt++ }
-                    }
+                    Text(stringResource(R.string.clock_opening), color = Color.White)
                 }
             }
         }
@@ -189,7 +207,19 @@ private fun ClockBackdrop(appearance: ClockAppearance) {
         when (appearance.background) {
             ClockBackground.Neutral -> Unit
             ClockBackground.SolidColor -> drawRect(first)
-            ClockBackground.StaticGradient -> drawRect(Brush.linearGradient(listOf(first, second)))
+            ClockBackground.StaticGradient -> {
+                val colors = appearance.gradientColors.ifEmpty { listOf(appearance.firstColor, appearance.secondColor) }
+                val stops = appearance.gradientStops.ifEmpty { listOf(0f, 100f) }
+                val angle = appearance.gradientAngle * (PI / 180)
+                val dx = sin(angle).toFloat()
+                val dy = -cos(angle).toFloat()
+                // CSS angles use the projection of the viewport onto the gradient axis.
+                val reach = (abs(dx) * size.width + abs(dy) * size.height) / 2f
+                val offset = Offset(dx * reach, dy * reach)
+                val center = Offset(size.width / 2f, size.height / 2f)
+                val colorStops = stops.zip(colors) { stop, color -> (stop / 100f) to clockColor(color) }
+                drawRect(Brush.linearGradient(*colorStops.toTypedArray(), start = center - offset, end = center + offset))
+            }
             ClockBackground.LavaLamp -> {
                 drawRect(second)
                 drawRect(Brush.radialGradient(
@@ -235,17 +265,11 @@ private fun ClockReadout(appearance: ClockAppearance) {
         ClockTypeface.Serif -> FontFamily.Serif
     }
     val letters = FontFamily(Font(R.font.dseg14_bold, FontWeight.Bold))
-    val color = clockColor(appearance.color)
-    val shadow = when {
-        appearance.glow -> Shadow(clockColor(appearance.glowColor), blurRadius = 12f)
-        appearance.shadow -> Shadow(Color.Black, Offset(2f, 4f), blurRadius = 8f)
-        else -> null
-    }
     val text = if (!leadingPeriod && period.isNotEmpty()) "$time $period" else time
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val style = TextStyle(fontFamily = digits, fontWeight = FontWeight.Bold, fontSize = 100.sp,
-        color = color, shadow = shadow, platformStyle = PlatformTextStyle(includeFontPadding = false),
+        color = clockColor(appearance.color), platformStyle = PlatformTextStyle(includeFontPadding = false),
         fontFeatureSettings = "tnum")
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp).clearAndSetSemantics { contentDescription = spoken },
@@ -258,18 +282,69 @@ private fun ClockReadout(appearance: ClockAppearance) {
         if (fit <= 0f) return@BoxWithConstraints
         val fontSize = with(density) { (style.fontSize.toPx() * fit * 0.96f).toSp() }
         val fitted = style.copy(fontSize = fontSize)
+        val rotation = if (appearance.rotation) {
+            rememberInfiniteTransition(label = "Clock rotation").animateFloat(
+                -appearance.rotationRange,
+                appearance.rotationRange,
+                infiniteRepeatable(tween((appearance.rotationDuration * 500).toInt()), RepeatMode.Reverse),
+                label = "Clock yaw",
+            )
+        } else null
+        val orientation = Modifier.graphicsLayer { rotationY = rotation?.value ?: 0f }
         if (leadingPeriod) {
-            Row(verticalAlignment = Alignment.Top) {
+            Row(modifier = orientation, verticalAlignment = Alignment.Top) {
                 Box {
-                    val visibleHour = time[0] != '0'
-                    Text(time.take(1), style = if (visibleHour) fitted else fitted.copy(color = Color.Transparent, shadow = null), softWrap = false)
-                    Text(period, style = fitted.copy(fontFamily = letters, fontSize = fontSize * 0.16f), softWrap = false)
+                    val firstDigit = time.take(1)
+                    if (firstDigit == "0") {
+                        Text(firstDigit, style = fitted.copy(color = Color.Transparent), softWrap = false)
+                    } else {
+                        ClockGlyphs(firstDigit, fitted, appearance)
+                    }
+                    val digitWidth = with(density) { measurer.measure("0", fitted).size.width.toDp() }
+                    // The day period occupies the same bounded inset as the web
+                    // Clock, centered vertically beside the visible tens glyph.
+                    Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterStart) {
+                        Box(Modifier.width(digitWidth * 0.64f), contentAlignment = Alignment.Center) {
+                            ClockGlyphs(period, fitted.copy(fontFamily = letters, fontSize = fontSize * 0.18f), appearance)
+                        }
+                    }
                 }
-                Text(time.drop(1), style = fitted, softWrap = false)
+                ClockGlyphs(time.drop(1), fitted, appearance)
             }
         } else {
-            Text(text, style = fitted, softWrap = false)
+            Box(orientation) { ClockGlyphs(text, fitted, appearance) }
         }
+    }
+}
+
+/** Paint independent layers so enabling glow never disables the drop shadow. */
+@Composable
+private fun ClockGlyphs(text: String, style: TextStyle, appearance: ClockAppearance) {
+    val density = LocalDensity.current
+    fun pixels(value: Float) = with(density) { value.dp.toPx() }
+    Box {
+        if (appearance.shadow && appearance.shadowStrength > 0f) {
+            val angle = appearance.shadowDirection * (PI / 180)
+            val distance = pixels(appearance.shadowDistance)
+            val shadow = Shadow(
+                clockColor(appearance.shadowColor).copy(alpha = appearance.shadowStrength),
+                Offset(distance * cos(angle).toFloat(), distance * sin(angle).toFloat()),
+                pixels(appearance.shadowFeather),
+            )
+            Text(text, style = style.copy(shadow = shadow), softWrap = false)
+        }
+        if (appearance.glow && appearance.glowStrength > 0f) {
+            val glow = Shadow(
+                clockColor(appearance.glowColor).copy(alpha = appearance.glowStrength),
+                blurRadius = pixels(16f * appearance.glowStrength),
+            )
+            Text(text, style = style.copy(shadow = glow), softWrap = false)
+        }
+        if (appearance.stroke && appearance.strokeWidth > 0f) {
+            val stroke = Stroke(width = pixels(appearance.strokeWidth * 2f))
+            Text(text, style = style.copy(color = clockColor(appearance.strokeColor), drawStyle = stroke), softWrap = false)
+        }
+        Text(text, style = style, softWrap = false)
     }
 }
 
@@ -287,13 +362,16 @@ private fun ClockSettings(
     var keepAwake by rememberSaveable { mutableStateOf(appearance.keepAwake) }
     var glow by rememberSaveable { mutableStateOf(appearance.glow) }
     var shadow by rememberSaveable { mutableStateOf(appearance.shadow) }
+    var stroke by rememberSaveable { mutableStateOf(appearance.stroke) }
+    var rotation by rememberSaveable { mutableStateOf(appearance.rotation) }
     var saving by rememberSaveable { mutableStateOf(false) }
     var failed by remember { mutableStateOf(false) }
     val validColor = Regex("#[a-fA-F0-9]{6}").matches(color)
     LaunchedEffect(saving) {
         if (saving) {
             val updated = appearance.copy(twentyFourHour = twentyFourHour, seconds = seconds, font = font,
-                color = color, keepAwake = keepAwake, glow = glow, shadow = shadow)
+                color = color, keepAwake = keepAwake, glow = glow, shadow = shadow,
+                stroke = stroke, rotation = rotation)
             val saved = withContext(Dispatchers.IO) { runCatching { store.save(updated) }.getOrNull() }
             if (saved != null) onSaved(saved) else {
                 failed = true
@@ -324,6 +402,8 @@ private fun ClockSettings(
                 ClockToggle(R.string.clock_keep_awake, keepAwake, !saving) { keepAwake = it }
                 ClockToggle(R.string.clock_glow, glow, !saving) { glow = it }
                 ClockToggle(R.string.clock_shadow, shadow, !saving) { shadow = it }
+                ClockToggle(R.string.clock_stroke, stroke, !saving) { stroke = it }
+                ClockToggle(R.string.clock_rotation, rotation, !saving) { rotation = it }
                 if (failed) Text(stringResource(R.string.clock_save_failed), color = MaterialTheme.colorScheme.error)
             }
         },

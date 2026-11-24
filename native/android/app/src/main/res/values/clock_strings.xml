@@ -20,6 +20,8 @@
     <string name="clock_keep_awake">Keep screen awake</string>
     <string name="clock_glow">Clock outer glow</string>
     <string name="clock_shadow">Clock drop shadow</string>
+    <string name="clock_stroke">Clock stroke</string>
+    <string name="clock_rotation">Display rotation</string>
     <string name="clock_save_failed">Clock settings could not be saved. Try again.</string>
     <string name="clock_done">Done</string>
 </resources>
