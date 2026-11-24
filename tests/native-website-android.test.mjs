@@ -66,7 +66,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
   const errors=[],network=[]
   /** Forward only the guarded fixture's WebView. Playwright Android discovery
    * would contact every ADB device before the caller could select this one. */
-  async function connect() {
+  async function connect({ sameProcess = false } = {}) {
     let pid, socket
     await expect.poll(() => {
       try {
@@ -74,7 +74,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       } catch {
         return false
       }
-      if (!/^\d+$/.test(pid) || pid === lastPid) return false
+      const isCurrentProcess = pid === lastPid
+      if (!/^\d+$/.test(pid) || isCurrentProcess !== sameProcess) return false
       socket = `webview_devtools_remote_${pid}`
       return shell("shell","cat","/proc/net/unix").split(/\r?\n/).some(line => line.endsWith(`@${socket}`))
     }).toBe(true)
@@ -331,7 +332,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
     shell("shell","am","force-stop",pkg)
     shell("shell","am","start","-W","-a","android.intent.action.VIEW",
-      "-n",`${pkg}/com.atmoshaper.app.MainActivity`,"-d","atmoshaper://tool?path=%2Fchimer")
+      "-n",`${pkg}/com.atmoshaper.app.MainActivity`,"-d","atmoshaper://tool?path=%2Fchimer%2F")
     await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
     assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
     shell("shell","am","force-stop",pkg)
@@ -345,13 +346,25 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await startNativeHome()
     await openPreviousTools()
     assert.deepEqual(await readSharedTimer(),sharedTimer)
-    const beforeTimer=page.url()
+    assert.equal(await page.evaluate(()=>navigator.userAgent.endsWith(" AtmoShaperNativeTimer/1")
+      && typeof window.AtmoShaperTimerTransfer === "undefined"),true)
+    const beforeTimer=await page.evaluate(()=>{
+      window.timerReturnDocument = true
+      return location.href
+    })
     await go(page,"/chimer")
     await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
     assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
     await tapNativeLabel("Close timer")
-    await expect(page).toHaveURL(beforeTimer)
-    await expect.poll(()=>page.evaluate(()=>document.visibilityState === "visible")).toBe(true)
+    // Android consumes the fixed URL without a WebView navigation commit.
+    // Check the live document, including identity across the timer visit.
+    await expect.poll(()=>page.evaluate(()=>({
+      url:location.href,visible:document.visibilityState,original:window.timerReturnDocument,
+    }))).toEqual({url:beforeTimer,visible:"visible",original:true})
+    // A new CDP connection drops Playwright's pending navigation state
+    // without reloading or restarting the document just verified above.
+    page=await connect({sameProcess:true})
+    assert.equal(await page.evaluate(()=>window.timerReturnDocument),true)
     await writeFile(path.join(output,"android-shared-home.png"),captureAndroidScreen())
     assert.deepEqual(await read(page,"atmoshaper.android.offline-core.v1","state","preferences"),old)
     assert.deepEqual(await downloadDigests(page),packs)
@@ -365,14 +378,14 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
     assert.deepEqual(await readSharedTimer(),sharedTimer)
     await writeFile(path.join(output,"android-shared-clock.png"),captureAndroidScreen())
-    const beforeFullscreen=page.url()
+    const beforeFullscreen=await page.evaluate(()=>location.href)
     await page.mouse.move(2,2) // Wake the Clock's intentionally auto-hidden controls.
     await tap(page,page.getByRole("button",{name:"Toggle fullscreen",exact:true}),true)
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(true)
     await acknowledgeImmersiveTutorial()
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(false)
-    assert.equal(page.url(),beforeFullscreen,"Back exits fullscreen before navigating away")
+    assert.equal(await page.evaluate(()=>location.href),beforeFullscreen,"Back exits fullscreen before navigating away")
     console.log("Android check: packaged routing reopened the native timer and shared Clock fullscreen Back passed.")
     await page.evaluate(()=>{
       window.__nonSilentStarts=0

@@ -2,6 +2,7 @@ package com.atmoshaper.app
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -31,10 +32,10 @@ class NativeTimerStateTest {
             assertNull(paused.deadlineMs)
             val resumed = store.update { it.resume(start + 100_000) }
             assertEquals(start + 315_000, resumed.deadlineMs)
-            assertEquals(start + 135_000, resumed.cueAtMs)
-            val adjusted = store.update { it.adjust(60_000, start + 110_000) }
+            assertEquals(TimerCuePosition.Deadline(start + 135_000), resumed.cuePosition)
+            val adjusted = store.update { it.adjust(60_000, start + 110_000).snapshot }
             assertEquals(start + 375_000, adjusted.deadlineMs)
-            assertEquals(start + 135_000, adjusted.cueAtMs)
+            assertEquals(TimerCuePosition.Deadline(start + 135_000), adjusted.cuePosition)
             assertEquals(TimerPhase.Complete, adjusted.advance(start + 400_000, false).snapshot.phase)
             assertNull(adjusted.advance(start + 400_000, false).cue)
             assertEquals(TimerPhase.Ready, store.update { it.end() }.phase)
@@ -55,8 +56,47 @@ class NativeTimerStateTest {
         assertNull(due.snapshot.advance(start + 60_200, true).cue)
         val recovered = running.advance(start + 125_000, false)
         assertNull(recovered.cue)
-        assertEquals(start + 180_000, recovered.snapshot.cueAtMs)
+        assertEquals(TimerCuePosition.Deadline(start + 180_000), recovered.snapshot.cuePosition)
         assertEquals(TimerSignal.Completion, running.advance(start + 240_100, true).cue)
+    }
+
+    @Test
+    fun adjustingToZeroCompletesOnceButAnExpiredDeadlineStaysSilent() {
+        val running = TimerSnapshot().start(TimerSetup(minutes = 2, cue = TimerCue.Flash), start)
+        val runningZero = running.adjust(-TIMER_MINUTE_MS, start + 75_000)
+        val pausedZero = running.pause(start + 75_000).setRemaining(0, start + 150_000)
+        for (transition in listOf(runningZero, pausedZero)) {
+            assertEquals(TimerPhase.Complete, transition.snapshot.phase)
+            assertEquals(TimerSignal.Completion, transition.cue)
+            assertEquals(TimerCue.Flash, transition.snapshot.setup.cue)
+            val reopened = TimerSnapshot.decode(transition.snapshot.encode())
+            assertNull(reopened.advance(start + 150_000, true).cue)
+            assertNull(reopened.setRemaining(0, start + 150_000).cue)
+        }
+        assertNull(running.setRemaining(0, start + 130_000).cue)
+    }
+
+    @Test
+    fun theBrowserTransferBoundsDecodeInAndroid() {
+        val assets = InstrumentationRegistry.getInstrumentation().context.assets
+        val fixtures = assets.open("timer-setup-bounds.json").bufferedReader().use { JSONArray(it.readText()) }
+        for (index in 0 until fixtures.length()) {
+            val expected = fixtures.getJSONObject(index)
+            val setup = TimerSetup.decode(expected)
+            val roundTrip = TimerSnapshot.decode(TimerSnapshot(setup).encode()).setup.encode()
+            val direction = if (index == 0) -1 else 1
+            for (key in expected.keys()) {
+                val value = expected.get(key)
+                if (value is Number) {
+                    assertEquals(expected.getDouble(key), roundTrip.getDouble(key), 0.0)
+                    val outside: Number = if (key == "volume") value.toDouble() + direction * 0.01 else value.toInt() + direction
+                    val invalid = JSONObject(expected.toString()).put(key, outside)
+                    assertThrows("Reject out-of-range $key", IllegalArgumentException::class.java) { TimerSetup.decode(invalid) }
+                } else {
+                    assertEquals(value, roundTrip.get(key))
+                }
+            }
+        }
     }
 
     @Test

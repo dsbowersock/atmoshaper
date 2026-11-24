@@ -67,3 +67,40 @@ opening the packaged Clock and Business Planner from cold processes.
 
 Physical-device acceptance and background alert delivery belong to
 separate verification.
+
+## Independent correction range
+
+The installed WebView identifies its timer owner independently of the
+message listener used for legacy export. Its route handler classifies both
+timer path spellings and the packaged visualizer exceptions. Android accepts
+only the fixed local launch command from the packaged entry. A first transfer
+on a WebView without export support shows the native retry state. An existing
+native snapshot opens without that export capability.
+
+Template read failures follow the retryable transfer error path. Absent or
+malformed optional templates are omitted, with the source records retained.
+Active adjustments to zero use the same commit-before-delivery rule as
+foreground deadline completion. Running cue deadlines and paused offsets use
+distinct Kotlin types with the original v1 representation. Clock and timer
+share the staged write and verified readback sequence.
+
+The correction APK assembled and passed lint. SHA-256
+`785e8838bb1b7db8fd1ae9a812588c81bdab8190ae6b52a4ef4d4d065290a0cf`.
+The guarded Android 35 emulator passed ten instrumentation tests at each of
+100% and 160% font scale. The adjustment journey observed the visible flash,
+verified durable completion, and checked that reopening did not flash again.
+Browser journeys passed 11 tests with one optional live-media case skipped.
+TypeScript, changed-file ESLint, 14 native website contracts, and 111 Clock
+and timer checks passed.
+
+The guarded v3 to v6 to v9 upgrade passed against that same APK. It kept the
+original countdown deadline, settings, two byte-identical downloads, and a
+synthetic planner draft. After closing the native timer, the test verified
+that the original packaged document was still visible, then reattached the
+test client to the same process for the remaining Clock, playback, breathing,
+and planner PDF checks.
+
+Independent Standards and Spec follow-ups found no remaining actionable
+findings in the correction. The browser fixture covered a packaged shell
+without the timer transfer channel. The Android 35 provider supports legacy
+export, so the unsupported-provider retry branch was traced in source.

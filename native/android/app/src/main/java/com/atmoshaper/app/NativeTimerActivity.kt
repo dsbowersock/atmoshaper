@@ -34,6 +34,7 @@ class NativeTimerActivity : ComponentActivity() {
     private var flash by mutableStateOf(false)
     private var pendingSetup: TimerSetup? = null
     private var setupWriter: Job? = null
+    private var flashJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,7 +123,7 @@ class NativeTimerActivity : ComponentActivity() {
         }
     }
 
-    private fun change(command: (TimerSnapshot, Long) -> TimerSnapshot) {
+    private fun change(command: TimerCommand) {
         if (busy || error != null) return
         busy = true
         lifecycleScope.launch {
@@ -130,9 +131,9 @@ class NativeTimerActivity : ComponentActivity() {
                 mutation.withLock {
                     val changedAt = System.currentTimeMillis()
                     now = changedAt
-                    showSnapshot(withContext(Dispatchers.IO) { store.update { command(it, changedAt) } })
-                    sound.stop()
-                    flash = false
+                    val transition = commitTransition { command(it, changedAt) }
+                    stopCue()
+                    deliverCue(transition)
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -152,33 +153,49 @@ class NativeTimerActivity : ComponentActivity() {
         val next = previous.advance(observedAt, false)
         if (previous == next.snapshot) return@withLock
         try {
-            var cue: TimerSignal? = null
             val foreground = hasWindowFocus()
-            val current = withContext(Dispatchers.IO) {
-                store.update {
-                    val advanced = it.advance(observedAt, foreground)
-                    cue = advanced.cue
-                    advanced.snapshot
-                }
-            }
-            // A failed save must never produce output. Commit the consumed
-            // position first so recreation cannot deliver it a second time.
-            showSnapshot(current)
-            if (cue != null && hasWindowFocus()) {
-                sound.play(current.setup)
-                if (current.setup.cue.flash) {
-                    flash = true
-                    lifecycleScope.launch {
-                        delay(600)
-                        flash = false
-                    }
-                }
-            }
+            deliverCue(commitTransition { it.advance(observedAt, foreground) })
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
             error = R.string.timer_storage_write_error
         }
+    }
+
+    /** Commit the state before exposing the cue so a failed save or a reopened
+     * screen cannot replay a completion or interval. */
+    private suspend fun commitTransition(command: (TimerSnapshot) -> TimerAdvance): TimerAdvance {
+        val transition = withContext(Dispatchers.IO) {
+            var cue: TimerSignal? = null
+            val current = store.update {
+                val result = command(it)
+                cue = result.cue
+                result.snapshot
+            }
+            TimerAdvance(current, cue)
+        }
+        showSnapshot(transition.snapshot)
+        return transition
+    }
+
+    private fun deliverCue(transition: TimerAdvance) {
+        if (transition.cue == null || !hasWindowFocus() || lifecycle.currentState != Lifecycle.State.RESUMED) return
+        val setup = transition.snapshot.setup
+        sound.play(setup)
+        if (setup.cue.flash) {
+            flashJob?.cancel()
+            flash = true
+            flashJob = lifecycleScope.launch {
+                delay(600)
+                flash = false
+            }
+        }
+    }
+
+    private fun stopCue() {
+        sound.stop()
+        flashJob?.cancel()
+        flash = false
     }
 
     private fun showSnapshot(current: TimerSnapshot) {
@@ -189,8 +206,7 @@ class NativeTimerActivity : ComponentActivity() {
     }
 
     override fun onPause() {
-        sound.stop()
-        flash = false
+        stopCue()
         super.onPause()
     }
 }

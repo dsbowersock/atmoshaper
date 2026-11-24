@@ -1,5 +1,19 @@
 # AtmoShaper Project Log
 
+## November 24 independent native timer correction
+
+Keep timer routing independent of the WebView export capability. Preserve
+the visible packaged document when it opens Compose, and keep legacy setup
+read failures retryable. Deliver the configured foreground completion cue
+after a zero-duration adjustment commits. Share verified writes with Clock
+and distinguish running cue deadlines from paused offsets while preserving
+the stored representation. Check timer-control bounds in both runtimes.
+
+The correction passed Android build and lint, ten installed tests at both
+font scales, and the guarded v3 to v6 to v9 upgrade. Chromium passed all
+11 enabled browser journeys. Independent Standards and Spec follow-ups
+reported no remaining actionable findings.
+
 ## November 24 native Android timer implementation
 
 Add Compose setup and running, paused and completed timer views for #85.

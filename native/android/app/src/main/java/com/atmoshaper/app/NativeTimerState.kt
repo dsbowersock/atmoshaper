@@ -1,14 +1,12 @@
 package com.atmoshaper.app
 
 import android.content.Context
-import androidx.core.util.AtomicFile
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.io.FileNotFoundException
 
 internal const val TIMER_MINUTE_MS = 60_000L
-private const val maxDurationMs = (23 * 60 + 59) * TIMER_MINUTE_MS
+private val maxDurationMs = (TimerSetupBounds.hours.last * 60 + TimerSetupBounds.minutes.last) * TIMER_MINUTE_MS
 private const val maxTimestamp = 9_007_199_254_740_991L
 private const val foregroundCueWindowMs = 1_250L
 
@@ -27,6 +25,17 @@ internal enum class TimerCue(val key: String, val sound: Boolean, val flash: Boo
     Silent("silent", false, false, false),
 }
 
+/** The editor and native decoder accept the same persisted timer values. */
+internal object TimerSetupBounds {
+    val hours = 0..23
+    val minutes = 0..59
+    val intervalMinutes = 1..240
+    val activeIntervalMinutes = 0..intervalMinutes.last
+    val areas = 1..24
+    val volume = 0.0..1.0
+    val vibrationMs = 10..30
+}
+
 internal data class TimerSetup(
     val hours: Int = 0,
     val minutes: Int = 0,
@@ -40,8 +49,9 @@ internal data class TimerSetup(
     val showSeconds: Boolean = true,
 ) {
     init {
-        require(hours in 0..23 && minutes in 0..59 && intervalMinutes in 1..240 && areas in 1..24)
-        require(volume in 0.0..1.0 && vibrationMs in 10..30)
+        require(hours in TimerSetupBounds.hours && minutes in TimerSetupBounds.minutes)
+        require(intervalMinutes in TimerSetupBounds.intervalMinutes && areas in TimerSetupBounds.areas)
+        require(volume in TimerSetupBounds.volume && vibrationMs in TimerSetupBounds.vibrationMs)
     }
 
     val durationMs get() = (hours * 60 + minutes) * TIMER_MINUTE_MS
@@ -81,6 +91,15 @@ internal enum class TimerPhase(val key: String) {
 
 internal enum class TimerSignal { Interval, Completion }
 internal data class TimerAdvance(val snapshot: TimerSnapshot, val cue: TimerSignal? = null)
+internal typealias TimerCommand = (TimerSnapshot, Long) -> TimerAdvance
+
+/** The v1 record stores either value as cueAtMs. Phase determines its units. */
+internal sealed interface TimerCuePosition {
+    val milliseconds: Long
+
+    data class Deadline(override val milliseconds: Long) : TimerCuePosition
+    data class PausedOffset(override val milliseconds: Long) : TimerCuePosition
+}
 
 /** One durable session. A running cue position is a wall-clock timestamp.
  * A paused position is an offset from resume, just like paused remaining time. */
@@ -91,7 +110,7 @@ internal data class TimerSnapshot(
     val pausedMs: Long = 0,
     val deadlineMs: Long? = null,
     val intervalMs: Long? = null,
-    val cueAtMs: Long? = null,
+    val cuePosition: TimerCuePosition? = null,
     val savedSetups: List<SavedTimerSetup> = emptyList(),
 ) {
     init {
@@ -101,7 +120,11 @@ internal data class TimerSnapshot(
         require(if (phase == TimerPhase.Running) deadlineMs != null && deadlineMs in 1..maxTimestamp else deadlineMs == null)
         require(if (phase == TimerPhase.Paused) pausedMs > 0 else pausedMs == 0L)
         require(intervalMs == null || (phase in activePhases && intervalMs in 1_000..maxDurationMs))
-        require(cueAtMs == null || (intervalMs != null && cueAtMs in 1 until (deadlineMs ?: pausedMs)))
+        when (cuePosition) {
+            is TimerCuePosition.Deadline -> require(intervalMs != null && deadlineMs != null && cuePosition.milliseconds in 1 until deadlineMs)
+            is TimerCuePosition.PausedOffset -> require(intervalMs != null && phase == TimerPhase.Paused && cuePosition.milliseconds in 1 until pausedMs)
+            null -> Unit
+        }
         require(savedSetups.size <= 13)
     }
 
@@ -113,7 +136,7 @@ internal data class TimerSnapshot(
         val duration = choices.durationMs
         val interval = choices.intervalMs()
         return TimerSnapshot(choices, TimerPhase.Running, duration, deadlineMs = now + duration,
-            intervalMs = interval, cueAtMs = interval?.takeIf { it < duration }?.let { now + it },
+            intervalMs = interval, cuePosition = interval?.takeIf { it < duration }?.let { TimerCuePosition.Deadline(now + it) },
             savedSetups = savedSetups)
     }
 
@@ -122,42 +145,54 @@ internal data class TimerSnapshot(
         if (current.deadlineMs == null) return current
         val remaining = current.remainingAt(now)
         return current.copy(phase = TimerPhase.Paused, pausedMs = remaining, deadlineMs = null,
-            cueAtMs = current.cueAtMs?.minus(now)?.takeIf { it < remaining })
+            cuePosition = current.cueOffsetAt(now)?.takeIf { it < remaining }?.let { TimerCuePosition.PausedOffset(it) })
     }
 
     fun resume(now: Long): TimerSnapshot = if (phase == TimerPhase.Paused) {
         copy(phase = TimerPhase.Running, pausedMs = 0, deadlineMs = now + pausedMs,
-            cueAtMs = cueAtMs?.plus(now))
+            cuePosition = cueOffsetAt(now)?.let { TimerCuePosition.Deadline(now + it) })
     } else this
 
-    fun adjust(deltaMs: Long, now: Long): TimerSnapshot =
+    fun adjust(deltaMs: Long, now: Long): TimerAdvance =
         setRemaining(remainingAt(now) + deltaMs, now)
 
-    fun setRemaining(milliseconds: Long, now: Long): TimerSnapshot {
+    /** Deliberate adjustment to zero can deliver completion. An elapsed
+     * deadline is reconciled silently here so an edit cannot replay it. */
+    fun setRemaining(milliseconds: Long, now: Long): TimerAdvance {
         val current = advance(now, false).snapshot
-        if (current.phase !in activePhases) return current
+        if (current.phase !in activePhases) return TimerAdvance(current)
         val remaining = milliseconds.coerceIn(0, maxDurationMs)
-        if (remaining == 0L) return current.completed()
-        val nextOffset = current.cueAtMs?.let { if (current.deadlineMs != null) it - now else it }
-        return current.withRemaining(remaining, current.intervalMs, nextOffset, now)
+        if (remaining == 0L) return TimerAdvance(current.completed(), TimerSignal.Completion)
+        return TimerAdvance(current.withRemaining(remaining, now))
     }
 
     fun setInterval(minutes: Int?, now: Long): TimerSnapshot {
-        require(minutes == null || minutes in 1..240)
+        require(minutes == null || minutes in TimerSetupBounds.intervalMinutes)
         val current = advance(now, false).snapshot
         if (current.phase !in activePhases) return current
         val interval = minutes?.times(TIMER_MINUTE_MS)
         val offset = interval?.takeIf { it < current.remainingAt(now) }
-        return current.copy(intervalMs = interval, cueAtMs = offset?.let { if (current.deadlineMs == null) it else now + it })
+        return current.copy(intervalMs = interval, cuePosition = offset?.let { current.positionAfter(it, now) })
     }
 
-    private fun withRemaining(remaining: Long, interval: Long?, offset: Long?, now: Long): TimerSnapshot {
+    private fun withRemaining(remaining: Long, now: Long): TimerSnapshot {
         val running = phase == TimerPhase.Running
-        val next = (offset?.takeIf { it < remaining } ?: interval)?.takeIf { it < remaining }
+        // Keep a pending cue on its original schedule if it fits. If the
+        // adjustment leaves room after the schedule ran out, start a fresh
+        // interval from the adjustment (or from resume when paused).
+        val next = (cueOffsetAt(now)?.takeIf { it < remaining } ?: intervalMs)?.takeIf { it < remaining }
         return copy(totalMs = maxOf(totalMs, remaining), pausedMs = if (running) 0 else remaining,
-            deadlineMs = if (running) now + remaining else null, intervalMs = interval,
-            cueAtMs = next?.let { if (running) now + it else it })
+            deadlineMs = if (running) now + remaining else null, cuePosition = next?.let { positionAfter(it, now) })
     }
+
+    private fun cueOffsetAt(now: Long): Long? = when (val position = cuePosition) {
+        is TimerCuePosition.Deadline -> position.milliseconds - now
+        is TimerCuePosition.PausedOffset -> position.milliseconds
+        null -> null
+    }
+
+    private fun positionAfter(offset: Long, now: Long): TimerCuePosition =
+        if (phase == TimerPhase.Running) TimerCuePosition.Deadline(now + offset) else TimerCuePosition.PausedOffset(offset)
 
     fun end() = TimerSnapshot(setup, savedSetups = savedSetups)
 
@@ -169,12 +204,12 @@ internal data class TimerSnapshot(
         val deadline = deadlineMs ?: return TimerAdvance(this)
         if (now >= deadline) return TimerAdvance(completed(),
             TimerSignal.Completion.takeIf { foreground && now - deadline < foregroundCueWindowMs })
-        val next = cueAtMs ?: return TimerAdvance(this)
+        val next = (cuePosition as? TimerCuePosition.Deadline)?.milliseconds ?: return TimerAdvance(this)
         val interval = checkNotNull(intervalMs)
         if (now < next) return TimerAdvance(this)
         val elapsed = now - next
         val future = now + interval - elapsed % interval
-        return TimerAdvance(copy(cueAtMs = future.takeIf { it < deadline }),
+        return TimerAdvance(copy(cuePosition = future.takeIf { it < deadline }?.let { TimerCuePosition.Deadline(it) }),
             TimerSignal.Interval.takeIf { foreground && elapsed < foregroundCueWindowMs })
     }
 
@@ -183,7 +218,7 @@ internal data class TimerSnapshot(
         .put("setup", setup.encode())
         .put("phase", phase.key).put("totalMs", totalMs).put("pausedMs", pausedMs)
         .put("deadlineMs", deadlineMs ?: JSONObject.NULL).put("intervalMs", intervalMs ?: JSONObject.NULL)
-        .put("cueAtMs", cueAtMs ?: JSONObject.NULL)
+        .put("cueAtMs", cuePosition?.milliseconds ?: JSONObject.NULL)
         .put("savedSetups", JSONArray().apply {
             savedSetups.forEach { saved ->
                 put(JSONObject().put("name", saved.name ?: JSONObject.NULL).put("setup", saved.setup.encode()))
@@ -214,11 +249,19 @@ internal data class TimerSnapshot(
                 val name = template.get("name").let { if (it == JSONObject.NULL) null else it as String }
                 SavedTimerSetup(name, TimerSetup.decode(template.getJSONObject("setup")))
             }
+            val phase = TimerPhase.entries.first { it.key == record.get("phase") }
+            val cuePosition = nullable("cueAtMs")?.let {
+                when (phase) {
+                    TimerPhase.Running -> TimerCuePosition.Deadline(it)
+                    TimerPhase.Paused -> TimerCuePosition.PausedOffset(it)
+                    else -> error("Inactive timer has a cue position")
+                }
+            }
             return TimerSnapshot(
                 TimerSetup.decode(record.getJSONObject("setup")),
-                TimerPhase.entries.first { it.key == record.get("phase") },
+                phase,
                 record.long("totalMs"), record.long("pausedMs"), nullable("deadlineMs"),
-                nullable("intervalMs"), nullable("cueAtMs"), saved,
+                nullable("intervalMs"), cuePosition, saved,
             )
         }
     }
@@ -227,39 +270,18 @@ internal data class TimerSnapshot(
 /** Import and all running-state mutations share one verified atomic file.
  * A partial first write can retry without replacing a committed snapshot. */
 internal class NativeTimerFile(path: File) {
-    private val file = AtomicFile(path)
+    private val file = VerifiedAtomicFile(path, TimerSnapshot::encode, TimerSnapshot::decode)
 
     constructor(context: Context) : this(File(context.filesDir, "native-timer.json"))
 
-    fun read(): TimerSnapshot? = synchronized(lock) {
-        try {
-            TimerSnapshot.decode(file.readFully().toString(Charsets.UTF_8))
-        } catch (error: FileNotFoundException) {
-            if (file.baseFile.exists()) throw error
-            null
-        }
-    }
+    fun read(): TimerSnapshot? = synchronized(lock) { file.read() }
 
-    fun importIfAbsent(value: TimerSnapshot): TimerSnapshot = synchronized(lock) { read() ?: commit(value) }
+    fun importIfAbsent(value: TimerSnapshot): TimerSnapshot = synchronized(lock) { file.read() ?: file.write(value) }
 
     fun update(change: (TimerSnapshot) -> TimerSnapshot): TimerSnapshot = synchronized(lock) {
-        val prior = checkNotNull(read())
+        val prior = checkNotNull(file.read())
         val next = change(prior)
-        if (prior == next) prior else commit(next)
-    }
-
-    private fun commit(value: TimerSnapshot): TimerSnapshot {
-        val output = file.startWrite()
-        try {
-            output.write(value.encode().toByteArray())
-            output.fd.sync()
-            file.finishWrite(output)
-        } catch (error: Exception) {
-            file.failWrite(output)
-            throw error
-        }
-        check(read() == value) { "Timer readback did not match" }
-        return value
+        if (prior == next) prior else file.write(next)
     }
 
     private companion object {

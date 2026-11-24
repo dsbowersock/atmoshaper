@@ -50,6 +50,8 @@ import org.json.JSONObject;
  * tools remain on the isolated local origin, with no account-cookie bridge. */
 public final class MainActivity extends ComponentActivity {
     private static final String ENTRY = "https://appassets.androidplatform.net/assets/core/index.html";
+    private static final String OPEN_TIMER = "https://appassets.androidplatform.net/assets/core/open-native-timer";
+    private static final String TIMER_HOST_MARKER = " AtmoShaperNativeTimer/1";
     private WebView webView;
     private String pendingReceipt;
     private String pendingRoute;
@@ -207,6 +209,7 @@ public final class MainActivity extends ComponentActivity {
             || value.matches(".*[\\\\#\\p{Cntrl}].*")) return;
         Uri route = Uri.parse(value);
         String path = route.getPath();
+        if ("/chimer/".equals(path)) path = "/chimer";
         for (String allowed : new String[]{"/", "/clock", "/chimer", "/music", "/downloads", "/wellness/breathing", "/account/offline-access", "/tools/business-planner", "/tools/business-planner/income", "/tools/business-planner/break-even", "/tools/business-planner/launch-checklist", "/tools/business-planner/service-menu", "/tools/business-planner/plan-outline", "/tools/business-planner/add-on-profit"}) {
             if (allowed.equals(path)) {
                 Uri.Builder canonical = new Uri.Builder().path(path);
@@ -223,15 +226,6 @@ public final class MainActivity extends ComponentActivity {
 
     private void deliverRoute() {
         if (pendingRoute == null || !isEntry() || !getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) return;
-        Uri route = Uri.parse(pendingRoute);
-        // A validated external timer link remains pending while the host is
-        // stopped. Open it directly once resumed, before clearing the request.
-        if ("/chimer".equals(route.getPath()) && !"music".equals(route.getQueryParameter("source"))
-            && !"background".equals(route.getQueryParameter("panel"))) {
-            startActivity(new Intent(this, NativeTimerActivity.class));
-            pendingRoute = null;
-            return;
-        }
         // The packaged script installs its navigation listener during load.
         // A resume callback can run earlier than the first completed load.
         if (!packagedPageLoaded) return;
@@ -351,6 +345,9 @@ public final class MainActivity extends ComponentActivity {
         controller.setAppearanceLightNavigationBars(false);
 
         WebSettings settings = webView.getSettings();
+        // Timer ownership follows the installed host, even when its WebView
+        // cannot run the message listener used for legacy storage transfer.
+        settings.setUserAgentString(settings.getUserAgentString() + TIMER_HOST_MARKER);
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false);
@@ -364,7 +361,6 @@ public final class MainActivity extends ComponentActivity {
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         webView.setBackgroundColor(0xff171616);
         installDocumentPort();
-        installTimerNavigation();
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public void onShowCustomView(View view, CustomViewCallback callback) {
                 if (fullscreenView != null) { callback.onCustomViewHidden(); return; }
@@ -395,6 +391,15 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
+                // Accept only this local main-frame command from the packaged entry.
+                // It carries no arguments and leaves the current document intact.
+                if (OPEN_TIMER.equals(uri.toString())) {
+                    if (request.isForMainFrame() && "GET".equals(request.getMethod()) && isEntry()
+                        && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                        startActivity(new Intent(MainActivity.this, NativeTimerActivity.class));
+                    }
+                    return true;
+                }
                 if (request.isForMainFrame() && isEntry() && isWebsitePage(uri)) {
                     openWebsite(uri);
                     return true;
@@ -442,19 +447,6 @@ public final class MainActivity extends ComponentActivity {
         // Incoming intents/extras never choose the WebView URL or executable code.
         webView.loadUrl(ENTRY);
         if (connectedStart) webView.post(() -> openWebsite(Uri.parse("https://www.atmoshaper.com/?android_app=1")));
-    }
-
-    /** The packaged shell can open the timer screen. It cannot read or
-     * change native timer state and cannot select an Activity or route. */
-    private void installTimerNavigation() {
-        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
-        WebViewCompat.addWebMessageListener(webView, "AtmoShaperTimerNavigation",
-            Collections.singleton("https://appassets.androidplatform.net"), (view, message, origin, mainFrame, reply) -> {
-                if (mainFrame && isEntry() && "open".equals(message.getData())
-                    && getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
-                    startActivity(new Intent(this, NativeTimerActivity.class));
-                }
-            });
     }
 
     @Override

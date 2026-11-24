@@ -63,7 +63,7 @@ internal fun NativeTimerScreen(
     onClose: () -> Unit,
     onRetry: () -> Unit,
     onSetupChange: (TimerSetup) -> Unit,
-    onChange: ((TimerSnapshot, Long) -> TimerSnapshot) -> Unit,
+    onChange: (TimerCommand) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     Surface(
@@ -93,12 +93,12 @@ internal fun NativeTimerScreen(
                     Text(stringResource(R.string.timer_foreground), style = MaterialTheme.typography.bodySmall)
                     when (snapshot.phase) {
                         TimerPhase.Ready -> TimerSetupForm(snapshot, !busy, onSetupChange) { choices ->
-                            onChange { state, time -> state.start(choices, time) }
+                            onChange { state, time -> TimerAdvance(state.start(choices, time)) }
                         }
                         TimerPhase.Running, TimerPhase.Paused -> ActiveTimer(snapshot, now, !busy, onChange)
                         TimerPhase.Complete -> {
                             TimerStatus(R.string.timer_complete)
-                            TextButton(onClick = { onChange { state, _ -> state.end() } }, enabled = !busy) {
+                            TextButton(onClick = { onChange { state, _ -> TimerAdvance(state.end()) } }, enabled = !busy) {
                                 Text(stringResource(R.string.timer_again))
                             }
                         }
@@ -126,10 +126,10 @@ private fun TimerSetupForm(
     var showSeconds by rememberSaveable { mutableStateOf(setup.showSeconds) }
 
     fun validChoices(): TimerSetup? {
-        val validHours = hours.numberIn(0..23) ?: return null
-        val validMinutes = minutes.numberIn(0..59) ?: return null
-        val validInterval = intervalMinutes.numberIn(1..240)
-        val validAreas = areas.numberIn(1..24)
+        val validHours = hours.numberIn(TimerSetupBounds.hours) ?: return null
+        val validMinutes = minutes.numberIn(TimerSetupBounds.minutes) ?: return null
+        val validInterval = intervalMinutes.numberIn(TimerSetupBounds.intervalMinutes)
+        val validAreas = areas.numberIn(TimerSetupBounds.areas)
         if (interval == TimerInterval.Custom && validInterval == null || interval == TimerInterval.Areas && validAreas == null) {
             return null
         }
@@ -160,8 +160,8 @@ private fun TimerSetupForm(
             }
         }
     }
-    NumberInput(R.string.timer_hours, hours, 0..23, enabled) { edit { hours = it } }
-    NumberInput(R.string.timer_minutes, minutes, 0..59, enabled) { edit { minutes = it } }
+    NumberInput(R.string.timer_hours, hours, TimerSetupBounds.hours, enabled) { edit { hours = it } }
+    NumberInput(R.string.timer_minutes, minutes, TimerSetupBounds.minutes, enabled) { edit { minutes = it } }
     TimerMenu(R.string.timer_interval, interval, TimerInterval.entries, enabled, TimerInterval::label) { choice ->
         edit {
             if (choice == TimerInterval.Preset && (intervalMinutes.toIntOrNull() ?: 0) !in presets) intervalMinutes = "15"
@@ -178,8 +178,8 @@ private fun TimerSetupForm(
                 { pluralStringResource(R.plurals.timer_minute_choice, it, it) }, { edit { intervalMinutes = it.toString() } },
             )
         }
-        TimerInterval.Custom -> NumberInput(R.string.timer_custom_minutes, intervalMinutes, 1..240, enabled) { edit { intervalMinutes = it } }
-        TimerInterval.Areas -> NumberInput(R.string.timer_areas, areas, 1..24, enabled) { edit { areas = it } }
+        TimerInterval.Custom -> NumberInput(R.string.timer_custom_minutes, intervalMinutes, TimerSetupBounds.intervalMinutes, enabled) { edit { intervalMinutes = it } }
+        TimerInterval.Areas -> NumberInput(R.string.timer_areas, areas, TimerSetupBounds.areas, enabled) { edit { areas = it } }
     }
     TimerMenu(R.string.timer_cue, cue, TimerCue.entries, enabled, TimerCue::label) { edit { cue = it } }
     if (cue.sound) {
@@ -191,7 +191,9 @@ private fun TimerSetupForm(
     if (cue.vibration) {
         val label = stringResource(R.string.timer_vibration_label)
         Text(stringResource(R.string.timer_vibration, haptics.roundToInt()))
-        Slider(value = haptics, onValueChange = { edit { haptics = it } }, enabled = enabled, valueRange = 10f..30f, steps = 19,
+        val range = TimerSetupBounds.vibrationMs
+        Slider(value = haptics, onValueChange = { edit { haptics = it } }, enabled = enabled,
+            valueRange = range.first.toFloat()..range.last.toFloat(), steps = range.last - range.first - 1,
             modifier = Modifier.semantics { contentDescription = label })
     }
     TimerCheckbox(R.string.timer_keep_awake, keepAwake, enabled) { edit { keepAwake = it } }
@@ -209,7 +211,7 @@ private fun ActiveTimer(
     snapshot: TimerSnapshot,
     now: Long,
     enabled: Boolean,
-    onChange: ((TimerSnapshot, Long) -> TimerSnapshot) -> Unit,
+    onChange: (TimerCommand) -> Unit,
 ) {
     var adjust by rememberSaveable { mutableStateOf(false) }
     val running = snapshot.phase == TimerPhase.Running
@@ -226,11 +228,11 @@ private fun ActiveTimer(
             onChange(change)
         }
     } else {
-        Button(onClick = { onChange { state, time -> if (running) state.pause(time) else state.resume(time) } }, enabled = enabled) {
+        Button(onClick = { onChange { state, time -> TimerAdvance(if (running) state.pause(time) else state.resume(time)) } }, enabled = enabled) {
             Text(stringResource(if (running) R.string.timer_pause else R.string.timer_resume))
         }
         OutlinedButton(onClick = { adjust = true }, enabled = enabled) { Text(stringResource(R.string.timer_adjust)) }
-        TextButton(onClick = { onChange { state, _ -> state.end() } }, enabled = enabled) {
+        TextButton(onClick = { onChange { state, _ -> TimerAdvance(state.end()) } }, enabled = enabled) {
             Text(stringResource(R.string.timer_end))
         }
     }
@@ -242,17 +244,20 @@ private fun TimerAdjustment(
     remaining: Long,
     enabled: Boolean,
     onClose: () -> Unit,
-    onApply: ((TimerSnapshot, Long) -> TimerSnapshot) -> Unit,
+    onApply: (TimerCommand) -> Unit,
 ) {
     val totalMinutes = remaining / TIMER_MINUTE_MS
     var hours by rememberSaveable { mutableStateOf((totalMinutes / 60).toString()) }
     var minutes by rememberSaveable { mutableStateOf((totalMinutes % 60).toString()) }
-    var interval by rememberSaveable { mutableStateOf((snapshot.intervalMs?.div(TIMER_MINUTE_MS) ?: 0).coerceAtMost(240).toString()) }
+    val intervalRange = TimerSetupBounds.activeIntervalMinutes
+    var interval by rememberSaveable {
+        mutableStateOf((snapshot.intervalMs?.div(TIMER_MINUTE_MS) ?: 0).coerceAtMost(intervalRange.last.toLong()).toString())
+    }
     var durationEdited by rememberSaveable { mutableStateOf(false) }
     var intervalEdited by rememberSaveable { mutableStateOf(false) }
-    val validHours = hours.numberIn(0..23)
-    val validMinutes = minutes.numberIn(0..59)
-    val validInterval = interval.numberIn(0..240)
+    val validHours = hours.numberIn(TimerSetupBounds.hours)
+    val validMinutes = minutes.numberIn(TimerSetupBounds.minutes)
+    val validInterval = interval.numberIn(intervalRange)
     // Keep adjustment inside the timer window so that it continues to own
     // foreground cues while the user is reading or editing these controls.
     Text(stringResource(R.string.timer_adjust), style = MaterialTheme.typography.titleMedium,
@@ -265,9 +270,9 @@ private fun TimerAdjustment(
             Text(stringResource(R.string.timer_add_minute))
         }
     }
-    NumberInput(R.string.timer_remaining_hours, hours, 0..23, enabled) { hours = it; durationEdited = true }
-    NumberInput(R.string.timer_remaining_minutes, minutes, 0..59, enabled) { minutes = it; durationEdited = true }
-    NumberInput(R.string.timer_active_interval, interval, 0..240, enabled) { interval = it; intervalEdited = true }
+    NumberInput(R.string.timer_remaining_hours, hours, TimerSetupBounds.hours, enabled) { hours = it; durationEdited = true }
+    NumberInput(R.string.timer_remaining_minutes, minutes, TimerSetupBounds.minutes, enabled) { minutes = it; durationEdited = true }
+    NumberInput(R.string.timer_active_interval, interval, intervalRange, enabled) { interval = it; intervalEdited = true }
     Text(stringResource(R.string.timer_zero_interval), style = MaterialTheme.typography.bodySmall)
     val valid = (!durationEdited || validHours != null && validMinutes != null) && (!intervalEdited || validInterval != null)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -275,8 +280,8 @@ private fun TimerAdjustment(
             val duration = if (durationEdited) (checkNotNull(validHours) * 60 + checkNotNull(validMinutes)) * TIMER_MINUTE_MS else null
             val intervalMinutes = validInterval?.takeIf { it > 0 }
             onApply { state, time ->
-                val changed = if (duration != null) state.setRemaining(duration, time) else state
-                if (intervalEdited) changed.setInterval(intervalMinutes, time) else changed
+                val change = if (duration != null) state.setRemaining(duration, time) else TimerAdvance(state)
+                if (intervalEdited) change.copy(snapshot = change.snapshot.setInterval(intervalMinutes, time)) else change
             }
         }) { Text(stringResource(R.string.timer_apply)) }
         TextButton(onClick = onClose) { Text(stringResource(R.string.timer_cancel)) }

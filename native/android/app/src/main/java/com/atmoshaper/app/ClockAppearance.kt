@@ -6,7 +6,6 @@ import android.net.Uri
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import androidx.core.util.AtomicFile
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import androidx.webkit.WebViewCompat
@@ -17,7 +16,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.FileNotFoundException
 import kotlin.coroutines.resume
 
 internal enum class ClockTypeface(val key: String, val label: Int) {
@@ -184,37 +182,17 @@ internal data class ClockAppearance(
 /** The atomic native copy is the import marker. AndroidX stages even the
  * first write on older Android releases. A damaged final copy blocks import. */
 internal class ClockAppearanceFile(path: File) {
-    private val file = AtomicFile(path)
+    private val file = VerifiedAtomicFile(path, ClockAppearance::encode, ClockAppearance::decode)
 
     constructor(context: Context) : this(File(context.filesDir, "clock-appearance.json"))
 
-    fun read(): ClockAppearance? = synchronized(lock) {
-        try {
-            ClockAppearance.decode(file.readFully().toString(Charsets.UTF_8))
-        } catch (error: FileNotFoundException) {
-            if (file.baseFile.exists()) throw error
-            null
-        }
-    }
+    fun read(): ClockAppearance? = synchronized(lock) { file.read() }
 
     fun importIfAbsent(appearance: ClockAppearance): ClockAppearance = synchronized(lock) {
-        read() ?: save(appearance)
+        file.read() ?: file.write(appearance)
     }
 
-    fun save(appearance: ClockAppearance): ClockAppearance = synchronized(lock) {
-        val bytes = appearance.encode().toByteArray()
-        val output = file.startWrite()
-        try {
-            output.write(bytes)
-            output.fd.sync()
-            file.finishWrite(output)
-        } catch (error: Exception) {
-            file.failWrite(output)
-            throw error
-        }
-        check(read() == appearance) { "Clock appearance readback did not match" }
-        appearance
-    }
+    fun save(appearance: ClockAppearance): ClockAppearance = synchronized(lock) { file.write(appearance) }
 
     private companion object {
         val lock = Any()

@@ -1,6 +1,7 @@
 package com.atmoshaper.app
 
 import android.os.Build
+import android.os.SystemClock
 import androidx.core.util.AtomicFile
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -83,6 +84,41 @@ class NativeTimerJourneyTest {
             scenario.recreate()
             text("Minutes")
             assertTrue(scrollTo("Start timer").isEnabled)
+        }
+    }
+
+    @Test
+    fun subtractingTheFinalMinuteCompletesAndReopensCompleted() {
+        val paused = TimerSnapshot().start(TimerSetup(minutes = 1, cue = TimerCue.Flash), 100_000).pause(125_000)
+        withFixture(paused) {
+            ActivityScenario.launch(NativeTimerActivity::class.java).use { scenario ->
+                text("Timer paused")
+                text("Adjust timer").click()
+                val minus = scrollTo("−1 min").visibleCenter
+                val unlit = timerSurfacePixel()
+                assertTrue(device.click(minus.x, minus.y))
+                val timeout = SystemClock.uptimeMillis() + 2_000
+                var flashed = false
+                while (!flashed && SystemClock.uptimeMillis() < timeout) {
+                    flashed = timerSurfacePixel() != unlit
+                }
+                assertTrue("Adjusting to zero visibly flashes the timer surface", flashed)
+                text("Timer complete")
+                assertEquals(TimerPhase.Complete, NativeTimerFile(instrumentation.targetContext).read()?.phase)
+                scenario.recreate()
+                text("Timer complete")
+                assertEquals("Reopening does not replay the flash", unlit, timerSurfacePixel())
+            }
+        }
+    }
+
+    /** The scroll content is inset, so the far edge only samples the surface. */
+    private fun timerSurfacePixel(): Int {
+        val screen = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+        return try {
+            screen.getPixel(screen.width / 64, screen.height / 2)
+        } finally {
+            screen.recycle()
         }
     }
 

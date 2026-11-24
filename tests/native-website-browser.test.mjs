@@ -176,6 +176,7 @@ test("the native timer receives an original deadline and packaged navigation lea
   const shared = "atmoshaper.android.chimer-runtime.v1"
   const earlier = "atmoshaper.android.offline-core.v1"
   const exporter = new URL("timer-export.html", entry).href
+  const openNativeTimer = new URL("open-native-timer", entry).href
   const deadline = Date.now() + 180_000
   const old = { ...defaultOfflineCoreState(), intervalMinutes: 1,
     timer: { ...startOfflineTimer(240_000, deadline - 240_000), lastAlertIndex: 2 } }
@@ -186,12 +187,25 @@ test("the native timer receives an original deadline and packaged navigation lea
   timer: { status: "running", totalMs: 240_000, remainingMs: 180_000, endsAtMs: deadline,
     intervalMs: 60_000, nextAlertAtMs: deadline - 120_000 } }
   await page.addInitScript(() => {
-    window.AtmoShaperTimerTransfer = { postMessage: value => { window.timerSnapshot = value } }
-    window.nativeTimerRequests = []
-    window.AtmoShaperTimerNavigation = { postMessage: request => { window.nativeTimerRequests.push(request) } }
+    if (location.pathname.endsWith("/timer-export.html")) {
+      window.AtmoShaperTimerTransfer = { postMessage: value => { window.timerSnapshot = value } }
+    }
+    Object.defineProperty(navigator, "userAgent", { value: navigator.userAgent + " AtmoShaperNativeTimer/1" })
+    if (location.search === "?deny-setup-read") {
+      const getItem = Storage.prototype.getItem
+      Storage.prototype.getItem = function (key) {
+        if (key === "chimer-last-setup-v1") throw new DOMException("Synthetic denied read", "SecurityError")
+        return getItem.call(this, key)
+      }
+    }
   })
-  async function exported() {
-    await page.goto(exporter)
+  const nativeRequests = []
+  await page.route(openNativeTimer, route => {
+    nativeRequests.push(route.request().url())
+    return route.abort("aborted")
+  })
+  async function exported(query = "") {
+    await page.goto(exporter + query)
     await page.waitForFunction(() => typeof window.timerSnapshot === "string")
     const payload = await page.evaluate(() => window.timerSnapshot)
     return payload === "unavailable" ? payload : JSON.parse(payload)
@@ -218,10 +232,29 @@ test("the native timer receives an original deadline and packaged navigation lea
     assert.equal(transferred.cueAtMs, deadline - 120_000)
     assert.equal(transferred.setup.cue, "chime-haptic")
     assert.equal("clockModeFontColor" in transferred.setup, false)
+    assert.equal(await exported("?deny-setup-read"), "unavailable")
+    assert.deepEqual(await exported(), transferred)
     assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), old)
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), old)
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("chimer-setup-presets-v1"))), templates)
+
+    const bounds = JSON.parse(await readFile(new URL("../native/android/app/src/androidTest/assets/timer-setup-bounds.json", import.meta.url), "utf8"))
+    const setupKeys = { hours: "hours", minutes: "minutes", interval: "intervalType", intervalMinutes: "customInterval",
+      areas: "areasToMassage", cue: "alertType", volume: "alertVolume", vibrationMs: "hapticIntensityMs",
+      keepAwake: "keepTimerScreenAwake", showSeconds: "showTimerSeconds" }
+    for (const [index, setup] of bounds.entries()) {
+      const settings = Object.fromEntries(Object.entries(setup).map(([key, value]) => [setupKeys[key], value]))
+      await writeDatabase(page, shared, "clock", "state", { ...record, settings })
+      assert.deepEqual((await exported()).setup, setup)
+      const direction = index === 0 ? -1 : 1
+      for (const [key, value] of Object.entries(settings)) {
+        if (typeof value !== "number") continue
+        const outside = value + direction * (key === "alertVolume" ? 0.01 : 1)
+        await writeDatabase(page, shared, "clock", "state", { ...record, settings: { ...settings, [key]: outside } })
+        assert.equal(await exported(), "unavailable", `Reject out-of-range ${key}`)
+      }
+    }
 
     const paused = { ...record, timer: { status: "paused", totalMs: 240_000, remainingMs: 90_000,
       intervalMs: 60_000, msUntilNextAlert: 20_000 } }
@@ -242,13 +275,19 @@ test("the native timer receives an original deadline and packaged navigation lea
     await writeDatabase(page, shared, "clock", "state", record)
     await page.goto(entry)
     await expect(page.getByTestId("home-launcher")).toBeVisible()
-    await go(page, "/chimer")
-    assert.deepEqual(await page.evaluate(() => window.nativeTimerRequests), ["open"])
-    assert.equal(page.url(), entry)
-    await go(page, "/chimer?source=music&returnTo=%2Fmusic")
+    assert.equal(await page.evaluate(() => typeof window.AtmoShaperTimerTransfer), "undefined")
+    for (const [index, path] of ["/chimer", "/chimer/"].entries()) {
+      const intercepted = page.waitForEvent("requestfailed", request => request.url() === openNativeTimer)
+      await go(page, path)
+      await intercepted
+      assert.equal(nativeRequests.length, index + 1)
+      assert.equal(page.url(), entry)
+    }
+    await go(page, "/chimer/?source=music&returnTo=%2Fmusic")
     await page.getByRole("button", { name: "Close Background panel" }).click()
     await expect(page.getByRole("region", { name: "Music visualizer" })).toBeVisible()
     await expect(page.getByTestId("running-timer-clock")).toHaveCount(0)
+    assert.deepEqual(nativeRequests, [openNativeTimer, openNativeTimer])
     await expect.poll(() => readDatabase(page, shared, "clock", "visualizer-settings")).toMatchObject({ version: 1 })
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
     assert.deepEqual(f.errors, [])
