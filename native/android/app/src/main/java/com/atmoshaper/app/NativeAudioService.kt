@@ -37,18 +37,39 @@ internal enum class NativeAudioStatus(@get:StringRes val label: Int) {
 internal object NativeAudio {
     const val STATION = "generative-fm-aisatsana"
     const val PLAY = "com.atmoshaper.app.nativeaudio.PLAY"
+    const val RESUME = "com.atmoshaper.app.nativeaudio.RESUME"
     const val PAUSE = "com.atmoshaper.app.nativeaudio.PAUSE"
     const val STOP = "com.atmoshaper.app.nativeaudio.STOP"
+    const val STOP_STATION = "com.atmoshaper.app.nativeaudio.STOP_STATION"
+    const val PLAY_LAYER = "com.atmoshaper.app.nativeaudio.PLAY_LAYER"
+    const val STOP_LAYER = "com.atmoshaper.app.nativeaudio.STOP_LAYER"
+    const val VOLUME_LAYER = "com.atmoshaper.app.nativeaudio.VOLUME_LAYER"
+    const val EXTRA_SOUND = "sound"
+    const val EXTRA_VOLUME = "volume"
 
     private val mutableStatus = MutableStateFlow(NativeAudioStatus.Idle)
     val status = mutableStatus.asStateFlow()
+    private val mutableStationStatus = MutableStateFlow(NativeAudioStatus.Idle)
+    val stationStatus = mutableStationStatus.asStateFlow()
+    private val mutableLayers = MutableStateFlow<Map<NativeMixSound, NativeMixLayer>>(emptyMap())
+    val layers = mutableLayers.asStateFlow()
 
     fun publish(value: NativeAudioStatus) { mutableStatus.value = value }
+    fun publishStation(value: NativeAudioStatus) { mutableStationStatus.value = value }
+    fun publishLayers(value: Map<NativeMixSound, NativeMixLayer>) { mutableLayers.value = value }
 
     fun send(context: Context, command: String) {
-        val intent = Intent(context, NativeAudioService::class.java).setAction(command)
+        send(context, Intent(context, NativeAudioService::class.java).setAction(command))
+    }
+
+    fun sendLayer(context: Context, command: String, sound: NativeMixSound, volume: Float = 0.5f) {
+        send(context, Intent(context, NativeAudioService::class.java).setAction(command)
+            .putExtra(EXTRA_SOUND, sound.id).putExtra(EXTRA_VOLUME, volume))
+    }
+
+    private fun send(context: Context, intent: Intent) {
         try {
-            if (command == PLAY) ContextCompat.startForegroundService(context, intent)
+            if (intent.action == PLAY || intent.action == PLAY_LAYER) ContextCompat.startForegroundService(context, intent)
             else context.startService(intent)
         } catch (_: IllegalStateException) {
             publish(NativeAudioStatus.Failed)
@@ -66,12 +87,19 @@ class NativeAudioService : Service() {
     private var ownsFocusRequest = false
     private var foreground = false
     private var resumeOnFocusGain = false
+    private var resumePending = false
     private var engine: NativeAudioEngine? = null
+    private var engineReady = false
     private var token = 0
-    private val startupTimeout = Runnable { finish(NativeAudioStatus.Failed) }
+    private var nextRequest = 0
+    private var stationRequest: Int? = null
+    private var stationDispatched = false
+    private var stationActive = false
+    private val dispatchedLayers = mutableSetOf<Int>()
     private val notifications get() = getSystemService(NotificationManager::class.java)
     private val status get() = NativeAudio.status.value
-    private val title get() = getString(R.string.native_audio_aisatsana)
+    private val layers get() = NativeAudio.layers.value
+    private val title get() = getString(if (stationRequest == null) R.string.native_audio_mix_title else R.string.native_audio_aisatsana)
 
     override fun onCreate() {
         super.onCreate()
@@ -91,7 +119,7 @@ class NativeAudioService : Service() {
             setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())
             setSessionActivity(openHome())
             setCallback(object : MediaSession.Callback() {
-                override fun onPlay() = play()
+                override fun onPlay() = resume()
                 override fun onPause() = pause(NativeAudioStatus.Paused)
                 override fun onStop() = finish(NativeAudioStatus.Idle)
                 override fun onCustomAction(action: String, extras: android.os.Bundle?) {
@@ -106,15 +134,63 @@ class NativeAudioService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             NativeAudio.PLAY -> play()
+            NativeAudio.RESUME -> resume()
             NativeAudio.PAUSE -> pause(NativeAudioStatus.Paused)
             NativeAudio.STOP -> finish(NativeAudioStatus.Idle)
+            NativeAudio.STOP_STATION -> stopStation()
+            NativeAudio.PLAY_LAYER, NativeAudio.STOP_LAYER, NativeAudio.VOLUME_LAYER -> {
+                val sound = NativeMixSound.entries.find { it.id == intent.getStringExtra(NativeAudio.EXTRA_SOUND) }
+                if (sound != null) when (intent.action) {
+                    NativeAudio.PLAY_LAYER -> playLayer(sound)
+                    NativeAudio.STOP_LAYER -> stopLayer(sound)
+                    NativeAudio.VOLUME_LAYER -> setLayerVolume(sound, intent.getFloatExtra(NativeAudio.EXTRA_VOLUME, 0.5f))
+                }
+                if (!foreground && engine == null) stopSelf()
+            }
             else -> finish(NativeAudioStatus.Idle)
         }
         return START_NOT_STICKY
     }
 
     private fun play() {
-        if (status in setOf(NativeAudioStatus.Loading, NativeAudioStatus.Playing, NativeAudioStatus.Interrupted)) return
+        if (status == NativeAudioStatus.Interrupted) return
+        if (stationRequest != null) {
+            if (status == NativeAudioStatus.Paused) resume()
+            return
+        }
+        val request = ++nextRequest
+        stationRequest = request
+        NativeAudio.publishStation(NativeAudioStatus.Loading)
+        mainThread.postDelayed({ if (!stationActive) failStation(request) }, STARTUP_TIMEOUT_MILLIS)
+        ensurePlayback()
+    }
+
+    private fun playLayer(sound: NativeMixSound) {
+        if (status == NativeAudioStatus.Interrupted || layers[sound]?.phase in ACTIVE_LAYER_PHASES) return
+        val request = ++nextRequest
+        updateLayer(sound, NativeMixLayer(request))
+        mainThread.postDelayed({
+            val layer = layers[sound]
+            if (layer?.request == request && layer.phase == NativeMixPhase.Loading) {
+                engine?.stopLayer(sound, layer, token)
+                failLayer(sound, layer)
+            }
+        }, STARTUP_TIMEOUT_MILLIS)
+        ensurePlayback()
+    }
+
+    private fun ensurePlayback() {
+        if (!prepareForeground() || !requestFocus()) return
+        if (status == NativeAudioStatus.Paused) {
+            startOrResume()
+            return
+        }
+        if (engine == null) openEngine()
+        else dispatchPending()
+        settleStatus()
+    }
+
+    private fun prepareForeground(): Boolean {
         if (!foreground) {
             publish(NativeAudioStatus.Loading)
             try {
@@ -128,30 +204,42 @@ class NativeAudioService : Service() {
                 session.isActive = true
             } catch (_: RuntimeException) {
                 finish(NativeAudioStatus.Failed)
-                return
+                return false
             }
         }
+        return true
+    }
+
+    private fun requestFocus(): Boolean {
         // Android 15 requires foreground service ownership before asking for focus.
         if (!ownsFocusRequest) {
             ownsFocusRequest = audio.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
             if (!ownsFocusRequest) {
                 finish(NativeAudioStatus.Failed)
-                return
+                return false
             }
         }
-        startOrResume()
+        return true
+    }
+
+    private fun resume() {
+        if (status == NativeAudioStatus.Paused && requestFocus()) startOrResume()
     }
 
     private fun startOrResume() {
         resumeOnFocusGain = false
+        resumePending = engineReady
         publish(NativeAudioStatus.Loading)
-        mainThread.removeCallbacks(startupTimeout)
-        mainThread.postDelayed(startupTimeout, STARTUP_TIMEOUT_MILLIS)
-        val retained = engine
-        if (retained != null) {
-            retained.setPaused(false, token)
-            return
+        if (engineReady) {
+            engine?.setPaused(false, token)
+            val request = token
+            mainThread.postDelayed({
+                if (token == request && resumePending) finish(NativeAudioStatus.Failed)
+            }, STARTUP_TIMEOUT_MILLIS)
         }
+    }
+
+    private fun openEngine() {
         val request = ++token
         try {
             engine = NativeAudioEngine(this) { message -> handleEngineMessage(request, message) }
@@ -164,29 +252,150 @@ class NativeAudioService : Service() {
     private fun handleEngineMessage(request: Int, message: String) {
         if (request != token) return
         when (message) {
-            "ready" -> if (status == NativeAudioStatus.Loading) engine?.play(NativeAudio.STATION, request)
-            "playing:$request" -> if (status == NativeAudioStatus.Loading) {
-                mainThread.removeCallbacks(startupTimeout)
-                publish(NativeAudioStatus.Playing)
+            "ready" -> {
+                engineReady = true
+                if (status == NativeAudioStatus.Paused || status == NativeAudioStatus.Interrupted) {
+                    engine?.setPaused(true, token)
+                } else {
+                    dispatchPending()
+                }
+            }
+            "playing:$request" -> if (resumePending) {
+                resumePending = false
+                dispatchPending()
+                settleStatus()
             }
             "failed:$request", "unavailable" -> finish(NativeAudioStatus.Failed)
+            else -> handleLayerMessage(request, message)
+        }
+    }
+
+    private fun handleLayerMessage(token: Int, message: String) {
+        val parts = message.split(':')
+        if (parts.size != 3 || parts[1].toIntOrNull() != token) return
+        val request = parts[2].toIntOrNull() ?: return
+        if (request == stationRequest) {
+            when (parts[0]) {
+                "station-playing" -> {
+                    stationActive = true
+                    settleStatus()
+                }
+                "station-failed" -> failStation(request)
+            }
+            return
+        }
+        val (sound, layer) = layers.entries.find { it.value.request == request } ?: return
+        when (parts[0]) {
+            "layer-playing" -> if (layer.phase == NativeMixPhase.Loading) {
+                updateLayer(sound, layer.copy(phase = NativeMixPhase.Playing))
+                settleStatus()
+            }
+            "layer-failed" -> if (layer.phase == NativeMixPhase.Loading || layer.phase == NativeMixPhase.Playing) {
+                failLayer(sound, layer)
+            }
+            "layer-stopped" -> if (layer.phase == NativeMixPhase.Stopping) {
+                dispatchedLayers.remove(layer.request)
+                updateLayer(sound, null)
+                settleStatus()
+            }
+        }
+    }
+
+    /** Dispatch only into a live, focus-owned document. Async replies identify
+     * both the WebView lifetime and the specific station/layer request. */
+    private fun dispatchPending() {
+        if (!engineReady || !ownsFocusRequest || resumePending ||
+            status == NativeAudioStatus.Paused || status == NativeAudioStatus.Interrupted) return
+        stationRequest?.let { request ->
+            if (!stationDispatched) {
+                stationDispatched = true
+                engine?.play(NativeAudio.STATION, token, request)
+            }
+        }
+        for ((sound, layer) in layers) {
+            if (layer.phase == NativeMixPhase.Loading && dispatchedLayers.add(layer.request)) {
+                engine?.playLayer(sound, layer, token)
+            }
+        }
+    }
+
+    private fun failStation(request: Int) {
+        if (stationRequest != request) return
+        clearStation(NativeAudioStatus.Failed)
+        settleStatus(NativeAudioStatus.Failed)
+    }
+
+    private fun stopStation() {
+        clearStation(NativeAudioStatus.Idle)
+        settleStatus()
+    }
+
+    private fun clearStation(nextStatus: NativeAudioStatus) {
+        if (stationDispatched) engine?.stopStation(token)
+        stationRequest = null
+        stationActive = false
+        stationDispatched = false
+        NativeAudio.publishStation(nextStatus)
+    }
+
+    private fun failLayer(sound: NativeMixSound, layer: NativeMixLayer) {
+        dispatchedLayers.remove(layer.request)
+        updateLayer(sound, layer.copy(phase = NativeMixPhase.Failed))
+        settleStatus(NativeAudioStatus.Failed)
+    }
+
+    private fun stopLayer(sound: NativeMixSound) {
+        val layer = layers[sound] ?: return
+        if (layer.phase == NativeMixPhase.Stopping || layer.phase == NativeMixPhase.Failed) return
+        if (layer.request in dispatchedLayers) {
+            updateLayer(sound, layer.copy(phase = NativeMixPhase.Stopping))
+            engine?.stopLayer(sound, layer, token)
+        } else {
+            updateLayer(sound, null)
+            settleStatus()
+        }
+    }
+
+    private fun setLayerVolume(sound: NativeMixSound, volume: Float) {
+        val layer = layers[sound] ?: return
+        if (!volume.isFinite() || layer.phase != NativeMixPhase.Playing) return
+        val level = volume.coerceIn(0f, 1f)
+        updateLayer(sound, layer.copy(volume = level))
+        engine?.setLayerVolume(sound, level, token)
+    }
+
+    private fun updateLayer(sound: NativeMixSound, layer: NativeMixLayer?) {
+        NativeAudio.publishLayers(if (layer == null) layers - sound else layers + (sound to layer))
+    }
+
+    private fun settleStatus(emptyStatus: NativeAudioStatus = NativeAudioStatus.Idle) {
+        if (stationRequest == null && layers.values.none { it.phase in ACTIVE_LAYER_PHASES }) {
+            finish(emptyStatus)
+        } else if (status == NativeAudioStatus.Paused || status == NativeAudioStatus.Interrupted) {
+            if (stationActive) NativeAudio.publishStation(status)
+            publish(status)
+        } else if (!resumePending) {
+            if (stationActive) NativeAudio.publishStation(NativeAudioStatus.Playing)
+            val active = stationActive || layers.values.any { it.phase == NativeMixPhase.Playing || it.phase == NativeMixPhase.Stopping }
+            publish(if (active) NativeAudioStatus.Playing else NativeAudioStatus.Loading)
         }
     }
 
     private fun pause(nextStatus: NativeAudioStatus) {
         when (status) {
-            NativeAudioStatus.Playing, NativeAudioStatus.Interrupted, NativeAudioStatus.Paused -> {
+            NativeAudioStatus.Playing, NativeAudioStatus.Interrupted, NativeAudioStatus.Paused, NativeAudioStatus.Loading -> {
+                resumePending = false
                 resumeOnFocusGain = nextStatus == NativeAudioStatus.Interrupted
                 engine?.setPaused(true, token)
                 if (!resumeOnFocusGain) abandonFocus()
+                if (stationRequest != null) NativeAudio.publishStation(nextStatus)
                 publish(nextStatus)
             }
-            NativeAudioStatus.Loading -> finish(NativeAudioStatus.Paused)
             else -> if (engine == null) stopSelf()
         }
     }
 
-    /** A transient loss can only resume an established graph. Manual Pause or
+    /** A transient loss retains the current playback requests. Manual Pause or
      * Stop revokes that permission even if the system later returns focus. */
     private fun focusChanged(change: Int) {
         if (!ownsFocusRequest) return
@@ -207,6 +416,13 @@ class NativeAudioService : Service() {
     }
 
     private fun finish(nextStatus: NativeAudioStatus) {
+        if (nextStatus == NativeAudioStatus.Failed) {
+            if (stationRequest != null) NativeAudio.publishStation(nextStatus)
+            NativeAudio.publishLayers(layers.mapValues { (_, layer) -> layer.copy(phase = NativeMixPhase.Failed) })
+        } else {
+            NativeAudio.publishStation(NativeAudioStatus.Idle)
+            NativeAudio.publishLayers(emptyMap())
+        }
         releaseEngine()
         if (foreground) {
             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -220,7 +436,13 @@ class NativeAudioService : Service() {
     private fun releaseEngine() {
         token++
         resumeOnFocusGain = false
-        mainThread.removeCallbacks(startupTimeout)
+        resumePending = false
+        stationRequest = null
+        stationDispatched = false
+        stationActive = false
+        dispatchedLayers.clear()
+        engineReady = false
+        mainThread.removeCallbacksAndMessages(null)
         engine?.close()
         engine = null
         abandonFocus()
@@ -231,6 +453,8 @@ class NativeAudioService : Service() {
         if (foreground) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             NativeAudio.publish(NativeAudioStatus.Idle)
+            NativeAudio.publishStation(NativeAudioStatus.Idle)
+            NativeAudio.publishLayers(emptyMap())
         }
         session.release()
         super.onDestroy()
@@ -238,6 +462,7 @@ class NativeAudioService : Service() {
 
     private fun publish(nextStatus: NativeAudioStatus) {
         NativeAudio.publish(nextStatus)
+        session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())
         val state = when (nextStatus) {
             NativeAudioStatus.Loading -> PlaybackState.STATE_BUFFERING
             NativeAudioStatus.Playing -> PlaybackState.STATE_PLAYING
@@ -286,7 +511,7 @@ class NativeAudioService : Service() {
             NativeAudioStatus.Playing, NativeAudioStatus.Interrupted ->
                 builder.addAction(action(android.R.drawable.ic_media_pause, R.string.native_audio_pause, NativeAudio.PAUSE))
             NativeAudioStatus.Paused ->
-                builder.addAction(action(android.R.drawable.ic_media_play, R.string.native_audio_play, NativeAudio.PLAY))
+                builder.addAction(action(android.R.drawable.ic_media_play, R.string.native_audio_play, NativeAudio.RESUME))
             else -> Unit
         }
         builder.addAction(action(android.R.drawable.ic_menu_close_clear_cancel, R.string.native_audio_stop, NativeAudio.STOP))
@@ -307,5 +532,6 @@ class NativeAudioService : Service() {
         const val CHANNEL = "native_audio"
         const val NOTIFICATION = 303
         const val STARTUP_TIMEOUT_MILLIS = 60_000L
+        val ACTIVE_LAYER_PHASES = setOf(NativeMixPhase.Loading, NativeMixPhase.Playing, NativeMixPhase.Stopping)
     }
 }
