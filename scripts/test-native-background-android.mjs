@@ -80,6 +80,10 @@ function start(activity, system = []) {
 }
 const startHome = () => start("HomeActivity", ["-f", "0x10200000", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER"])
 
+function install(apk, flags) {
+  assert.equal(adb("install", "-r", ...flags, apk).split(/\r?\n/).at(-1), "Success")
+}
+
 function installedVersion() {
   const version = Number(adb("shell", "cmd", "package", "list", "packages", "--show-versioncode", pkg)
     .match(/versionCode:(\d+)/)?.[1])
@@ -174,7 +178,7 @@ const browsers = []
 try {
   guard()
   adb("shell", "am", "force-stop", pkg)
-  assert.equal(adb("install", "-r", "-d", before), "Success")
+  install(before, ["-d"])
   const earlierVersion = installedVersion()
   assert.equal(adb("shell", "pm", "clear", pkg), "Success")
   start("MainActivity")
@@ -183,9 +187,10 @@ try {
   const oldPage = await packagedPage(earlier, "index.html")
   await expect(oldPage.getByTestId("home-launcher")).toBeVisible({ timeout })
   const original = await approve(oldPage, [effect])
+  console.log("The earlier installed verifier accepted the synthetic owned background receipt.")
   await fixtureRecord(oldPage, clockDb, "clock", "state", { version: 1, settings: { backgroundId: effect } })
   adb("shell", "am", "force-stop", pkg)
-  assert.equal(adb("install", "-r", after), "Success")
+  install(after, [])
   const candidateVersion = installedVersion()
   assert.ok(candidateVersion > earlierVersion, "The installed development version advanced in place")
   startHome()
@@ -199,6 +204,7 @@ try {
   await expect.poll(() => firstSurface.isClosed(), { timeout }).toBe(true)
   await nativeText("Clock &amp; timer", true)
   const surface = await visibleEffect(upgraded)
+  console.log("The upgraded native Clock rendered the owned effect before and after reopening.")
   await surface.screenshot({ path: path.join(output, "owned-clock-effect.png") })
   await nativeText("Backgrounds", true)
   await nativeText("Customize background")
