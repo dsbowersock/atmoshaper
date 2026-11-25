@@ -9,12 +9,21 @@ import type { InputNode } from "tone/build/esm/core/context/ToneAudioNode"
 
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
+type StationSamples = {
+  sampleIndex: Awaited<ReturnType<typeof readVerifiedOfflinePack>>["sampleIndex"]
+  has(url: string): boolean
+  read(url: string): Promise<ArrayBuffer>
+}
 // Match the website's conservative -60..-12 dB station output policy.
 const stationGain = (value: number) => value <= 0 ? 0 : 10 ** ((-60 + Math.max(0, Math.min(1, value)) * 48) / 20)
 
 /** One app-owned mixer: station replacement is serialized, ambient layers may
  * coexist, and an obsolete async start cannot claim the output after Stop. */
-export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedOfflinePack>[1], options: { destination?: InputNode; masterVolume?: number } = {}) {
+export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedOfflinePack>[1], options: {
+  destination?: InputNode
+  masterVolume?: number
+  prepareStationSamples?: (id: string) => Promise<StationSamples>
+} = {}) {
   const layers = new Map<string, Handle>()
   const generations = new Map<string, number>()
   const master = new Tone.Gain(options.masterVolume ?? 0.6)
@@ -44,36 +53,47 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
       const isCurrent = () => !disposed && generations.get(item.id) === generation
       await Promise.all([activated, previous?.stop(), retired])
       if (!isCurrent()) return false
-      const pack = item.kind === "generated" ? null : await readVerifiedOfflinePack(item.id, store)
+      const pack = item.kind !== "generated" && (item.kind !== "station" || !options.prepareStationSamples)
+        ? await readVerifiedOfflinePack(item.id, store)
+        : null
       if (!isCurrent()) return false
       let handle: Handle
       if (item.kind === "station") {
         // Imports allocate no audio graph. Failed imports can be retried without
         // leaving an unreachable gain connected to the app mixer.
-        const piece = await loadGenerativeFmPieceModule(item.station!.runtime.pieceId) as (input: object) => Promise<[() => void, () => (() => void)]>
+        const [pieceModule, source] = await Promise.all([
+          loadGenerativeFmPieceModule(item.station!.runtime.pieceId),
+          options.prepareStationSamples?.(item.id),
+        ])
+        const piece = pieceModule as (input: object) => Promise<[() => void, () => (() => void)]>
         if (!isCurrent()) return false
         // Set the requested level before connecting/scheduling. A paused layer
         // starts silent; callers without an explicit level retain the old gain.
         const output = new Tone.Gain(stationGain(initialStationVolume)).connect(master)
-        const decoded = new Map<string, AudioBuffer>()
+        const decoded = new Map<string, Promise<AudioBuffer>>()
         const raw = Tone.getContext().rawContext as AudioContext
+        const files = new Map<string, ArrayBuffer>(pack?.files.map((file: PackFile) => [file.url, file.data]))
         const provider = {
-          async has(urls: string[]) { return urls.every(url => decoded.has(url) || pack.files.some((file: PackFile) => file.url === url)) },
+          async has(urls: string[]) { return urls.every(url => decoded.has(url) || (source?.has(url) ?? files.has(url))) },
           async request(_context: unknown, urls: string[]) {
             const result = []
             for (const url of urls) {
               if (!isCurrent()) throw new Error("Playback was stopped.")
-              if (decoded.has(url)) { result.push(decoded.get(url)!); continue }
-              const file = pack.files.find((file: PackFile) => file.url === url)
-              if (!file) throw new Error("A required sample is missing. Download the station again.")
-              if (!decoded.has(url)) decoded.set(url, await raw.decodeAudioData(file.data.slice(0)))
-              result.push(decoded.get(url)!)
+              if (!decoded.has(url)) {
+                const bytes = source?.read(url) ?? Promise.resolve(files.get(url))
+                decoded.set(url, bytes.then(data => {
+                  if (!isCurrent()) throw new Error("Playback was stopped.")
+                  if (!data) throw new Error("A required sample is missing. Download the station again.")
+                  return raw.decodeAudioData(data.slice(0))
+                }))
+              }
+              result.push(await decoded.get(url)!)
             }
             return result
           },
           async save(entries: Array<[string, AudioBuffer | Record<string, AudioBuffer>]>) {
             for (const [url, buffer] of entries) {
-              if (buffer instanceof AudioBuffer) decoded.set(url, buffer)
+              if (buffer instanceof AudioBuffer) decoded.set(url, Promise.resolve(buffer))
               else throw new Error("Unsupported generated sample cache entry.")
             }
           },
@@ -87,7 +107,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
           try { unschedule?.() } finally { try { deactivate?.() } finally { output.dispose(); decoded.clear() } }
         }
         try {
-          const library = createWebLibrary({ sampleIndex: pack.sampleIndex, provider })
+          const library = createWebLibrary({ sampleIndex: source?.sampleIndex ?? pack.sampleIndex, provider })
           const result = await piece({ context: Tone.getContext(), destination: output, sampleLibrary: library, onProgress })
           deactivate = result[0]
           if (isCurrent()) { unschedule = transport.run(result[1]); Tone.Transport.start() }

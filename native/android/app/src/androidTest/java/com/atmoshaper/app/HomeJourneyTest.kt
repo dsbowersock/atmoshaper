@@ -40,7 +40,11 @@ class HomeJourneyTest {
             if (category == "Clock & timer") {
                 waitForText("Close Clock").click()
             } else {
-                waitForText(if (category == "Wellness") "Open breathing guide" else "Coming to the native app")
+                waitForText(when (category) {
+                    "Music" -> "Ready to play"
+                    "Wellness" -> "Open breathing guide"
+                    else -> "Coming to the native app"
+                })
                 waitForText(category)
                 if (index % 2 == 0) device.pressBack() else waitForText("Back to Home").click()
             }
@@ -61,12 +65,12 @@ class HomeJourneyTest {
         launchFromAppIcon()
         assertNativeHome()
         findCategory("Music").click()
-        waitForText("Coming to the native app")
+        waitForText("Ready to play")
         waitForText("Open previous tools").click()
         assertTrue("Expected previous tools to reopen the existing WebView", device.wait(Until.hasObject(webView), 10_000))
 
         device.pressBack()
-        waitForText("Coming to the native app")
+        waitForText("Ready to play")
         waitForText("Music")
         device.pressBack()
         assertNativeHome()
