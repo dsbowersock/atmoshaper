@@ -75,8 +75,9 @@ class HomeJourneyTest {
         assertTrue("Expected previous tools to reopen the existing WebView", device.wait(Until.hasObject(webView), 10_000))
 
         device.pressBack()
+        assertTrue("Expected Back to close previous tools", device.wait(Until.gone(webView), 10_000))
+        // The native Music panel retains its scroll position across this round trip.
         waitForText("Ready to play")
-        waitForText("Music")
         device.pressBack()
         assertNativeHome()
     }
