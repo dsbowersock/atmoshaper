@@ -42,13 +42,15 @@ import kotlinx.coroutines.withContext
 internal fun ClockBackgroundPicker(
     appearance: ClockAppearance,
     choices: List<ClockBackgroundChoice>,
+    access: ClockBackgroundAccess,
     store: ClockAppearanceFile,
     onDismiss: () -> Unit,
     onOpenPreviousTools: () -> Unit,
+    onOpenAccess: () -> Unit,
     onSaved: (ClockAppearance) -> Unit,
 ) {
     fun styleFor(choice: ClockBackgroundChoice): ClockBackgroundStyle? =
-        choice.defaults?.backgroundStyle?.let { defaults ->
+        choice.defaults?.backgroundStyle?.takeIf { choice.canUse(access) }?.let { defaults ->
             if (choice.id == appearance.selectedBackgroundId && appearance.background == defaults.background) {
                 appearance.backgroundStyle
             } else appearance.savedBackgroundStyles[choice.id] ?: defaults
@@ -67,7 +69,8 @@ internal fun ClockBackgroundPicker(
     val authoredGradient = source?.takeIf { it.background == ClockBackground.StaticGradient }?.gradientColors
     val primary = primaryEdit ?: authoredGradient?.getOrNull(0) ?: source?.firstColor.orEmpty()
     val secondary = secondaryEdit ?: authoredGradient?.getOrNull(1) ?: source?.secondColor.orEmpty()
-    val dualColor = source?.background == ClockBackground.LavaLamp || source?.background == ClockBackground.StaticGradient
+    val dualColor = source?.background == ClockBackground.LavaLamp || source?.background == ClockBackground.StaticGradient ||
+        source?.background == ClockBackground.Packaged
     val valid = source != null && clockHexColor.matches(primary) && (!dualColor || clockHexColor.matches(secondary))
     LaunchedEffect(saving) {
         if (saving && source != null) {
@@ -106,7 +109,17 @@ internal fun ClockBackgroundPicker(
             LazyColumn(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (source == null && selectedId != ClockBackground.Neutral.key) {
                     item {
-                        Text(stringResource(if (selected != null) R.string.clock_background_locked else R.string.clock_background_missing))
+                        val status = when {
+                            selected == null -> R.string.clock_background_missing
+                            !selected.canUse(access) -> access.denialMessage()
+                            else -> R.string.clock_background_renderer_failed
+                        }
+                        Text(stringResource(status))
+                    }
+                }
+                item {
+                    TextButton(onClick = onOpenAccess, enabled = !saving) {
+                        Text(stringResource(R.string.clock_background_verify))
                     }
                 }
                 item {
@@ -124,14 +137,14 @@ internal fun ClockBackgroundPicker(
                         singleLine = true,
                     )
                 }
-                if (source != null) {
+                if (source != null && selected.customizable) {
                     item {
-                        TextButton(onClick = { customizing = !customizing }, enabled = !saving) {
+                        TextButton(onClick = { if (selected.canUse(access)) customizing = !customizing }, enabled = !saving) {
                             Text(stringResource(if (customizing) R.string.clock_background_hide_controls else R.string.clock_background_customize))
                         }
                     }
                 }
-                if (source != null && customizing) {
+                if (source != null && selected.customizable && customizing) {
                     item {
                         BackgroundColorField(
                             if (dualColor) R.string.clock_background_first_color else R.string.clock_background_color,
@@ -142,7 +155,7 @@ internal fun ClockBackgroundPicker(
                     if (dualColor) {
                         item { BackgroundColorField(R.string.clock_background_second_color, secondary, !saving) { secondaryEdit = it } }
                     }
-                    if (source.background == ClockBackground.LavaLamp) {
+                    if (source.background == ClockBackground.LavaLamp || source.background == ClockBackground.Packaged) {
                         item {
                             Row(
                                 Modifier.fillMaxWidth().heightIn(min = 48.dp)
@@ -160,11 +173,12 @@ internal fun ClockBackgroundPicker(
                 if (results.isEmpty()) item { Text(stringResource(R.string.clock_background_no_matches)) }
                 items(results, key = { it.id }) { choice ->
                     val active = selectedId == choice.id
+                    val available = choice.canUse(access) && choice.defaults != null
                     Row(
                         Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                            .selectable(active, enabled = choice.canApply && !saving, role = Role.RadioButton) {
+                            .selectable(active, enabled = available && !saving, role = Role.RadioButton) {
                                 if (!active) {
-                                    val replacement = checkNotNull(styleFor(choice))
+                                    val replacement = styleFor(choice) ?: return@selectable
                                     selectedId = choice.id
                                     customizing = false
                                     primaryEdit = null
@@ -175,10 +189,10 @@ internal fun ClockBackgroundPicker(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        RadioButton(selected = active, onClick = null, enabled = choice.canApply && !saving)
+                        RadioButton(selected = active, onClick = null, enabled = available && !saving)
                         Column(Modifier.padding(vertical = 4.dp)) {
                             Text(choice.label)
-                            if (!choice.canApply) {
+                            if (!choice.guestAccess && !available) {
                                 Text(stringResource(R.string.clock_background_premium), style = MaterialTheme.typography.bodySmall)
                             }
                         }
@@ -187,7 +201,7 @@ internal fun ClockBackgroundPicker(
             }
         },
         confirmButton = {
-            TextButton(enabled = valid && !saving, onClick = { saving = true }) {
+            TextButton(enabled = valid && !saving, onClick = { if (selected?.canUse(access) == true) saving = true }) {
                 Text(stringResource(R.string.clock_background_apply))
             }
         },

@@ -103,6 +103,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
     var appearance by remember { mutableStateOf<ClockAppearance?>(null) }
     var appearanceLoading by remember { mutableStateOf(true) }
     val store = remember(activity) { ClockAppearanceFile(activity) }
+    val access = rememberClockBackgroundAccess(activity)
 
     LaunchedEffect(store, attempt) {
         appearanceLoading = true
@@ -110,7 +111,11 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         try {
             val saved = withContext(Dispatchers.IO) { store.read() }
             appearance = saved
-            if (saved == null || saved.needsBackgroundRecovery) {
+            if (saved == null || saved.needsBackgroundRecovery || (
+                saved.background == ClockBackground.Neutral &&
+                    catalog?.any { it.id == saved.selectedBackgroundId && it.defaults?.background == ClockBackground.Packaged } == true
+                )
+            ) {
                 val incoming = readPackagedClockAppearance(activity)
                 if (incoming != null) {
                     appearance = withContext(Dispatchers.IO) {
@@ -136,10 +141,26 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         val current = appearance
         val choices = catalog
         val selected = choices?.firstOrNull { it.id == current?.selectedBackgroundId }
+        val canUseSelection = selected?.canUse(access) == true
         val shown = current?.let {
-            if (selected?.defaults?.background == it.background) it else it.copy(background = ClockBackground.Neutral)
+            val defaults = selected?.defaults?.takeIf { canUseSelection }
+            when {
+                defaults?.background == it.background -> it
+                defaults?.background == ClockBackground.Packaged && it.background == ClockBackground.Neutral ->
+                    // An earlier native Clock may only have retained the ID.
+                    it.withBackground(defaults.backgroundStyle, it.rememberedBackgroundId)
+                else -> it.copy(background = ClockBackground.Neutral)
+            }
         }
-        if (shown != null) ClockBackdrop(shown)
+        val packagedStyle = if (shown?.background == ClockBackground.Packaged) {
+            shown.backgroundStyle.copy(motion = systemMotionEnabled() && shown.motion)
+        } else null
+        var rendererStatus by remember(selected?.id, packagedStyle) { mutableStateOf(ClockEffectStatus.Starting) }
+        if (packagedStyle != null && selected != null) {
+            PackagedClockEffect(selected.id, packagedStyle, rendererStatus) {
+                if (rendererStatus != ClockEffectStatus.Failed) rendererStatus = it
+            }
+        } else if (shown != null) ClockBackdrop(shown)
         ClockSystemBarProtection()
         Column(
             modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(12.dp),
@@ -158,10 +179,11 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 }
                 if (!fullscreen) ClockButton(R.string.clock_open_timer, onOpenTimer)
             }
-            if (!fullscreen && current != null) {
+            if (current != null) {
                 val notice = when {
                     choices == null -> R.string.clock_background_catalog_failed
-                    selected != null && !selected.canApply -> R.string.clock_background_locked
+                    selected != null && !canUseSelection -> access.denialMessage()
+                    selected != null && (shown?.background == ClockBackground.Neutral || rendererStatus == ClockEffectStatus.Failed) -> R.string.clock_background_renderer_failed
                     selected == null && current.selectedBackgroundId != ClockBackground.Neutral.key -> R.string.clock_background_missing
                     else -> null
                 }
@@ -197,6 +219,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
             ClockBackgroundPicker(
                 appearance = current,
                 choices = choices,
+                access = access,
                 store = store,
                 onDismiss = { backgroundsOpen = false },
                 onOpenPreviousTools = {
@@ -204,6 +227,11 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                     // access and opens the Backgrounds panel directly.
                     val route = Uri.Builder().scheme("atmoshaper").authority("tool")
                         .appendQueryParameter("path", "/clock?panel=background").build()
+                    activity.startActivity(Intent(Intent.ACTION_VIEW, route, activity, MainActivity::class.java))
+                },
+                onOpenAccess = {
+                    val route = Uri.Builder().scheme("atmoshaper").authority("tool")
+                        .appendQueryParameter("path", "/account/offline-access").build()
                     activity.startActivity(Intent(Intent.ACTION_VIEW, route, activity, MainActivity::class.java))
                 },
                 onSaved = {
@@ -345,6 +373,8 @@ internal fun clockColor(value: String) = Color(android.graphics.Color.parseColor
 
 private fun ClockAppearance.backdropColors(): List<Color> = when (background) {
     ClockBackground.Neutral -> listOf(clockChromeColor)
+    // The packaged effect may use the full luminance range.
+    ClockBackground.Packaged -> listOf(Color.Black, Color.White)
     ClockBackground.SolidColor -> listOf(clockColor(firstColor))
     ClockBackground.LavaLamp -> listOf(clockColor(firstColor), clockChromeColor, clockColor(secondColor))
     ClockBackground.StaticGradient -> gradientColors.ifEmpty { listOf(firstColor, secondColor) }.map(::clockColor)

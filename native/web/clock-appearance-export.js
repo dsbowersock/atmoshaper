@@ -4,7 +4,8 @@ import { exportClockAppearance } from "../../lib/native-clock-appearance-transfe
 const channel = window.AtmoShaperClockAppearance
 if (channel) {
   const publicBackgrounds = new Set(document.currentScript?.dataset.publicBackgrounds?.split(",") ?? [])
-  Promise.resolve().then(() => exportClockAppearance(window.indexedDB, window.localStorage, publicBackgrounds)).then(
+  const packagedBackgrounds = new Set(document.currentScript?.dataset.packagedBackgrounds?.split(",") ?? [])
+  Promise.resolve().then(() => exportClockAppearance(window.indexedDB, window.localStorage, publicBackgrounds, packagedBackgrounds)).then(
     appearance => channel.postMessage(JSON.stringify(appearance)),
     () => channel.postMessage("unavailable"),
   )

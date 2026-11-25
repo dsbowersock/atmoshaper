@@ -361,6 +361,13 @@ public final class MainActivity extends ComponentActivity {
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         webView.setBackgroundColor(0xff171616);
         installDocumentPort();
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(webView, "AtmoShaperBackgroundAccessChanged",
+                Collections.singleton("https://appassets.androidplatform.net"), (view, message, source, mainFrame, reply) -> {
+                    if (mainFrame && isEntry() && Uri.parse("https://appassets.androidplatform.net").equals(source)
+                        && message.getData() != null) ClockBackgroundAccessChanges.receive(this, message.getData());
+                });
+        }
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public void onShowCustomView(View view, CustomViewCallback callback) {
                 if (fullscreenView != null) { callback.onCustomViewHidden(); return; }

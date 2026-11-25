@@ -13,6 +13,12 @@
     <string name="clock_background_premium">Premium</string>
     <string name="clock_background_open_previous">Open previous background tools</string>
     <string name="clock_background_locked">Saved background needs verified access.</string>
+    <string name="clock_background_access_expired">Premium background access expired. Reconnect to refresh it.</string>
+    <string name="clock_background_access_clock">Check the device date and time, then refresh background access.</string>
+    <string name="clock_background_access_invalid">Saved background access could not be verified. Reconnect to refresh it.</string>
+    <string name="clock_background_access_not_included">Your verified access does not include this background.</string>
+    <string name="clock_background_verify">Manage offline background access</string>
+    <string name="clock_background_renderer_failed">This effect could not be displayed. Your background and appearance are saved.</string>
     <string name="clock_background_missing">Saved background is unavailable.</string>
     <string name="clock_background_catalog_failed">The background catalog could not be opened.</string>
     <string name="clock_background_no_matches">No matching backgrounds.</string>

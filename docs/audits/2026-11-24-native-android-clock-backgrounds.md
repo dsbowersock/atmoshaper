@@ -1,5 +1,9 @@
 # Native Android Clock background catalog
 
+This audit records the picker and renderer behavior delivered through #92. The
+[#93 implementation plan](../superpowers/plans/2026-11-24-native-android-93-offline-background-access.md)
+owns the verified-access and packaged renderer follow-up.
+
 This maps the 88 source definitions in the canonical [background registry](../../components/backgrounds/backgroundRegistry.ts). All 84 enabled entries are in the Compose Clock picker with their approved names and stable IDs. The Android build derives the picker labels, guest-access decisions and supported default styles from that registry. The four disabled drafts remain excluded from the picker.
 
 The existing packaged Backgrounds panel retains the canonical effect modules in the table. Render these modules through the existing Java host's verified access path. The Compose Clock renders the three free entries with native drawing primitives. Premium entries are locked in Compose Clock until [#93](https://github.com/dsbowersock/atmoshaper/issues/93) provides a native verified authority. A saved premium selection remains visible in the picker and the Clock uses a neutral surface. **Open previous background tools** opens the existing packaged Clock Backgrounds panel, where the existing access path applies.
