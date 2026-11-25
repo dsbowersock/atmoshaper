@@ -3,13 +3,13 @@ import { execFileSync } from "node:child_process"
 import { createHash, generateKeyPairSync, randomBytes } from "node:crypto"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
 import { chromium, expect } from "@playwright/test"
-import { buildOfflineCore, root } from "./build-offline-core.mjs"
 import { signOfflineBackgroundReceipt } from "../lib/server/offline-background-receipt.ts"
 
+const root = fileURLToPath(new URL("../", import.meta.url))
 const tools = path.join(root, "output/android-tools")
 const output = path.join(root, "output/native-background-android", String(Date.now()))
-const assets = path.join(root, "output/offline-acceptance-native-backgrounds")
 const candidate = path.join(root, "output/android/AtmoShaper-preview.apk")
 const predecessor = path.resolve(root, "../../output/android/AtmoShaper-shared-website-preview-0.4.2-8f603319.apk")
 const pkg = "com.atmoshaper.app.development"
@@ -85,8 +85,9 @@ function install(apk, flags) {
 }
 
 function installedVersion() {
-  const version = Number(adb("shell", "cmd", "package", "list", "packages", "--show-versioncode", pkg)
-    .match(/versionCode:(\d+)/)?.[1])
+  const installed = adb("shell", "cmd", "package", "list", "packages", "--show-versioncode", pkg)
+    .split(/\r?\n/).find(line => line.startsWith("package:" + pkg + " versionCode:"))
+  const version = Number(installed?.match(/versionCode:(\d+)/)?.[1])
   assert.ok(Number.isSafeInteger(version) && version > 0)
   return version
 }
@@ -149,12 +150,11 @@ await mkdir(output, { recursive: true })
 assert.equal(await digest(candidate), JSON.parse(await readFile(path.join(root, "output/android/build-proof.json"))).sha256)
 assert.equal(await digest(predecessor), "8f603319474beaf5650d278d1ce802e93eee37a8fd8d731536614607d0264da2")
 const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "prime256v1" })
-const publicKeyPath = path.join(root, "output/offline-acceptance-native-public-keys.json")
+const publicKeyPath = path.join(output, "synthetic-public-key.json")
 const keyId = "synthetic-native-background-acceptance"
 await writeFile(publicKeyPath, JSON.stringify([{ id: keyId, jwk: publicKey.export({ format: "jwk" }) }]))
-await buildOfflineCore({ testPublicKeysPath: publicKeyPath, outputName: "offline-acceptance-native-backgrounds" })
 const before = await fixtureApk(predecessor, "predecessor", publicKeyPath)
-const after = await fixtureApk(candidate, "candidate", assets)
+const after = await fixtureApk(candidate, "candidate", publicKeyPath)
 
 async function approve(page, owned, leaseDuration = null) {
   await expect.poll(async () => Boolean((await fixtureRecord(page, accessDb, "access", "state"))?.device), { timeout }).toBe(true)

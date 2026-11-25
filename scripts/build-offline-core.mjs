@@ -12,16 +12,11 @@ const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
 export const bundleRoot = path.join(root, "output/offline-core")
 export const coreRoot = path.join(bundleRoot, "core")
-const acceptanceKeys = new Map([
-  ["offline-acceptance-backgrounds", "offline-acceptance-public-keys.json"],
-  ["offline-acceptance-native-backgrounds", "offline-acceptance-native-public-keys.json"],
-])
-const outputNames = new Set(["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-website", ...acceptanceKeys.keys()])
 
 /** This build owns this single generated directory, never browser/user data. */
 async function resetOutput(bundleRoot) {
   const target = path.resolve(bundleRoot)
-  if (path.dirname(target) !== path.resolve(root, "output") || !outputNames.has(path.basename(target))) throw new Error("Unexpected offline build directory.")
+  if (path.dirname(target) !== path.resolve(root, "output") || !["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds", "offline-acceptance-website"].includes(path.basename(target))) throw new Error("Unexpected offline build directory.")
   const existing = await lstat(target).catch(error => { if (error.code !== "ENOENT") throw error })
   if (existing?.isSymbolicLink()) throw new Error("The offline build output cannot be a link.")
   const physicalRoot = await realpath(root)
@@ -36,13 +31,11 @@ async function resetOutput(bundleRoot) {
 export async function buildOfflineCore({ testPublicKeysPath = null, outputName = "offline-core", development = false, legacyAcceptance = false } = {}) {
   // Only acceptance can substitute an ephemeral public authority. The normal
   // Android build never supplies this argument and cannot ship a test key.
-  const keyName = acceptanceKeys.get(outputName)
-  if (testPublicKeysPath && (!keyName || path.resolve(testPublicKeysPath) !== path.join(root, "output", keyName))) {
-    throw new Error("Synthetic authority requires its isolated acceptance key and output.")
-  }
+  if (testPublicKeysPath && path.resolve(testPublicKeysPath) !== path.join(root, "output/offline-acceptance-public-keys.json")) throw new Error("Unexpected receipt acceptance key path.")
   // Acceptance readers get independent trees. Parallel wildcard tests cannot
   // delete each other's assets or replace Android's normal trust configuration.
-  if (!outputNames.has(outputName)) throw new Error("Unexpected offline build output.")
+  if (!["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds", "offline-acceptance-website"].includes(outputName)) throw new Error("Unexpected offline build output.")
+  if (testPublicKeysPath && outputName !== "offline-acceptance-backgrounds") throw new Error("Synthetic authority requires isolated acceptance output.")
   if (legacyAcceptance && outputName === "offline-core") throw new Error("The earlier preview is acceptance-only.")
   const bundleRoot = path.join(root, "output", outputName), coreRoot = path.join(bundleRoot, "core")
   await mkdir(path.dirname(bundleRoot), { recursive: true })
