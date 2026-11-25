@@ -220,9 +220,8 @@ class NativeTimerJourneyTest {
         assumeTrue(InstrumentationRegistry.getArguments().getString("timerOsFixture") == "true")
         val context = instrumentation.targetContext
         assertTrue(Build.HARDWARE == "ranchu" && context.packageName == "com.atmoshaper.app.development")
-        assertEquals("owned", device.executeShellCommand(
-            "if test -f /data/local/tmp/atmoshaper-parity-fixture; then echo owned; fi",
-        ).trim())
+        val marker = "/data/local/tmp/atmoshaper-parity-fixture"
+        assertEquals(marker, device.executeShellCommand("ls -d $marker").trim())
     }
 
     private fun hasNotice(title: String): Boolean {
