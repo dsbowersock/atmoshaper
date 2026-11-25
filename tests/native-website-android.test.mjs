@@ -66,6 +66,11 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       "8504beaecf0cf8c90dbd763a68373b9252accd3ac8b3398a8066d75943b9a39e")
   }
   const apk=path.join(root,"output/android/AtmoShaper-preview.apk")
+  const apkSha256=createHash("sha256").update(await readFile(apk)).digest("hex")
+  if (nativeBaseline) {
+    const buildProof = JSON.parse(await readFile(path.join(root,"output/android/build-proof.json"),"utf8"))
+    assert.equal(apkSha256,buildProof.sha256,"The installed candidate matches its build receipt")
+  }
   const manifest=JSON.parse(execFileSync("python",[path.join(root,"tests/helpers/offline-apk-inventory.py"),apk],{encoding:"utf8",windowsHide:true}))
   assert.deepEqual(manifest,JSON.parse(await readFile(path.join(root,"output/offline-core/bundle-proof.json"))))
   assert.equal(manifest.sharedWebsite,true);assert.equal(manifest.syntheticReceiptAuthority,false)
@@ -508,7 +513,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
     await writeFile(path.join(output,"acceptance.json"),JSON.stringify({
-      apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),
+      apkSha256,
       fixture,
       nativeHome:true,
       nativeClock:true,
