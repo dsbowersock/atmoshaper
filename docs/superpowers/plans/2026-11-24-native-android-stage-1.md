@@ -34,6 +34,8 @@ Open one draft PR following the first successful integration and link #82 and #9
 
 ## Galaxy S24 Ultra handoff
 
+Record the tested source and APK SHA-256 in one acceptance index and link to the owner observations and available verification. Keep raw device receipts local. See the [completed Stage 1 S24 acceptance index](../../audits/2026-11-25-native-android-stage-1-s24-index.md).
+
 Use the exact APK and signer in the final receipt. Start from the installed preview as an in-place update, and record the Android/One UI build and the before/after app versions. Confirm the existing setting, saved download and draft through the app. Record results by behavior and note conditions that can affect Android delivery or resource measurements, such as notification permission, battery mode, screen state and audio route.
 
 | Journey | What to observe on the S24 Ultra |
