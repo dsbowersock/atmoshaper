@@ -65,6 +65,10 @@ APK. Three backgrounds are free: Lava Lamp, In Transition (static gradient) and
 Solid Color. Paid use follows the same `premium_backgrounds`/active-ownership
 contract as the website; a cached plan name cannot unlock anything.
 
+The native Clock picker saves the free styles by background ID. Its
+**Open previous background tools** action opens the packaged picker, where
+the existing verified access decision applies to the full renderer catalog.
+
 Account verification uses the normal website in the browser-owned app window. Its explicit account
 approval returns only an ES256 signed backgrounds capability bound to this app
 installation and its latest challenge. The app verifies it before saving access.
@@ -105,13 +109,17 @@ image bytes and publisher MIT notice are committed and checksum-bound.
 Set `ATMOSHAPER_OFFLINE_REAL_MEDIA_TEST=1` to include actual public online Play
 and downloaded playback after an offline restart.
 
-`npm run test:native-website-android` verifies the normal APK on only the fixed
-synthetic `AtmoShaper_WebParity_35` emulator at serial 5582. It requires its own
-fixture marker before resetting that synthetic installation, upgrades the prior
-accepted APK, opens native Home in airplane mode and continues to the previous
+`npm run test:native-website-android` verifies the normal APK on the fixed
+synthetic `AtmoShaper_WebParity_35` emulator at serial 5582. For the breathing
+and backgrounds pilot, set `ATMOSHAPER_ANDROID_WEBSITE_FIXTURE=pilot-87-92` to
+select the fixed `AtmoShaper_Pilot_87_92_API35` emulator at serial 5594. The
+test requires its fixture marker before resetting either synthetic installation.
+It upgrades the prior accepted APK, opens native Home in airplane mode and continues to the previous
 tools. It compares actual packaged assets, retained download byte digests,
-settings and a synthetic planner draft, and checks offline playback, the
-retained deadline, fullscreen Back and Android's PDF dialog. Android CI builds
+settings and a synthetic planner draft, and checks the retained deadline across
+native breathing, fullscreen Back and Android's PDF dialog. For the saved
+station, it verifies advancing Web Audio time and scheduling of non-silent
+source buffers while native breathing is open. Android CI builds
 and lints the candidate and runs native Home instrumentation on a fresh
 emulator.
 The older Android test commands delegate to this guard. They never target the

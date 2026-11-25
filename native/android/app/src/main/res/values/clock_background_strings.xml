@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clock_backgrounds">Backgrounds</string>
+    <string name="clock_background_picker_title">Clock background</string>
+    <string name="clock_background_search">Find a background</string>
+    <string name="clock_background_customize">Customize background</string>
+    <string name="clock_background_hide_controls">Hide appearance controls</string>
+    <string name="clock_background_color">Background color</string>
+    <string name="clock_background_first_color">First background color</string>
+    <string name="clock_background_second_color">Second background color</string>
+    <string name="clock_background_color_format">#RRGGBB</string>
+    <string name="clock_background_motion">Animate background</string>
+    <string name="clock_background_premium">Premium</string>
+    <string name="clock_background_open_previous">Open previous background tools</string>
+    <string name="clock_background_locked">Saved background needs verified access.</string>
+    <string name="clock_background_missing">Saved background is unavailable.</string>
+    <string name="clock_background_catalog_failed">The background catalog could not be opened.</string>
+    <string name="clock_background_no_matches">No matching backgrounds.</string>
+    <string name="clock_background_apply">Apply background</string>
+</resources>

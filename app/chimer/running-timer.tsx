@@ -253,6 +253,8 @@ export interface ImmersiveDisplayMode {
 
 interface RunningTimerProps {
   mode: ImmersiveDisplayMode
+  nativeBackgroundPanelRequest?: number
+  consumeNativeBackgroundPanelRequest?: (request: number) => boolean
   timeDisplay: { hours: string; minutes: string; seconds: string }
   activeTimeDisplay: { hours: string; minutes: string; seconds: string }
   currentTime: CurrentTimeParts
@@ -928,6 +930,8 @@ interface RunningTimerProps {
 
 export function RunningTimer({
   mode,
+  nativeBackgroundPanelRequest,
+  consumeNativeBackgroundPanelRequest,
   timeDisplay,
   activeTimeDisplay,
   currentTime,
@@ -1719,11 +1723,13 @@ export function RunningTimer({
   const initialPanelAppliedRef = useRef(false)
 
   useEffect(() => {
-    if (!initialPanelAppliedRef.current && mode.initialPanel) {
+    if (nativeBackgroundPanelRequest) {
+      initialPanelAppliedRef.current = true
+    } else if (!initialPanelAppliedRef.current && mode.initialPanel) {
       initialPanelAppliedRef.current = true
       setActivePanel(mode.initialPanel)
     }
-  }, [mode.initialPanel])
+  }, [mode.initialPanel, nativeBackgroundPanelRequest])
 
   useEffect(() => {
     if (mode.unavailableBackgroundMessage) {
@@ -2403,6 +2409,16 @@ export function RunningTimer({
     },
     [setPendingVisualIntent, visualDraft?.dirty],
   )
+
+  useEffect(() => {
+    if (!nativeBackgroundPanelRequest || !consumeNativeBackgroundPanelRequest?.(nativeBackgroundPanelRequest)) return
+    // The external picker action respects the same dirty draft decision as
+    // the toolbar and leaves any open decision dialog in control.
+    if (pendingVisualIntent || activePanel === "background") return
+    if (activePanel !== "visual" || handlePanelChangeRequest("background")) {
+      handleActivePanelChange("background")
+    }
+  }, [activePanel, consumeNativeBackgroundPanelRequest, handleActivePanelChange, handlePanelChangeRequest, nativeBackgroundPanelRequest, pendingVisualIntent])
 
   const handleVisualNavigationAttempt = useCallback(
     (navigation: VisualDraftNavigationIntent) => {

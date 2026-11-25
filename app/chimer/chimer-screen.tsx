@@ -114,6 +114,8 @@ type ChimerPageProps = {
   }
   /** A retained timer may keep ticking while another native route is visible. */
   active?: boolean
+  /** An explicit Android Background picker request may repeat at the same route. */
+  nativeBackgroundPanelRequest?: number
 }
 
 type CurrentTimeParts = {
@@ -175,7 +177,12 @@ function areChimerSettingsEqual(left: ChimerSettings, right: ChimerSettings) {
   })
 }
 
-export default function ChimerPage({ developmentSubscriberReview = false, deviceRuntime, active = true }: ChimerPageProps) {
+export default function ChimerPage({
+  developmentSubscriberReview = false,
+  deviceRuntime,
+  active = true,
+  nativeBackgroundPanelRequest,
+}: ChimerPageProps) {
   const deviceMode = Boolean(deviceRuntime)
   const initialDeviceRuntime = useRef(deviceRuntime)
   const pathname = usePathname() ?? ""
@@ -1016,6 +1023,22 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
       ? (startsInClockMode ? createClockTimerState() : idleTimerState) : current)
   }, [deviceMode, startsInClockMode])
 
+  // The retained page can hide or replace RunningTimer. Keep its last handled
+  // host request here so browser history and later mounts cannot replay it.
+  const consumedNativeBackgroundPanelRequest = useRef(0)
+  const consumeNativeBackgroundPanelRequest = useCallback((request: number) => {
+    if (request <= consumedNativeBackgroundPanelRequest.current) return false
+    consumedNativeBackgroundPanelRequest.current = request
+    return true
+  }, [])
+
+  useEffect(() => {
+    if (nativeBackgroundPanelRequest && nativeBackgroundPanelRequest > consumedNativeBackgroundPanelRequest.current) {
+      // The retained Clock can be on its setup screen after an explicit close.
+      setTimerState(current => current.status === "idle" ? createClockTimerState() : current)
+    }
+  }, [nativeBackgroundPanelRequest])
+
   const updateSettings = (
     nextSettings: Partial<ChimerSettings>,
     accessOverride?: BackgroundAccessSnapshot,
@@ -1655,6 +1678,8 @@ export default function ChimerPage({ developmentSubscriberReview = false, device
         ) : (
           <RunningTimer
             mode={immersiveMode}
+            nativeBackgroundPanelRequest={nativeBackgroundPanelRequest}
+            consumeNativeBackgroundPanelRequest={consumeNativeBackgroundPanelRequest}
             timeDisplay={timeDisplay}
             activeTimeDisplay={activeTimeDisplay}
             currentTime={currentTime}

@@ -40,11 +40,11 @@ class HomeJourneyTest {
             if (category == "Clock & timer") {
                 waitForText("Close Clock").click()
             } else {
-                waitForText("Coming to the native app")
+                waitForText(if (category == "Wellness") "Open breathing guide" else "Coming to the native app")
                 waitForText(category)
                 if (index % 2 == 0) device.pressBack() else waitForText("Back to Home").click()
             }
-            assertTrue(device.wait(Until.gone(By.text("Coming to the native app")), 10_000))
+            assertTrue(device.wait(Until.gone(By.text("Back to Home")), 10_000))
             waitForText(category)
         }
     }

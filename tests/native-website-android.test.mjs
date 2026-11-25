@@ -16,7 +16,14 @@ const root=fileURLToPath(new URL("..",import.meta.url))
 // five-second assertion default to parse a newly opened shared tool chunk.
 const expect=playwrightExpect.configure({timeout:20000})
 const adb=path.join(root,"output/android-tools/sdk/platform-tools",process.platform==="win32"?"adb.exe":"adb")
-const serial="emulator-5582",avd="AtmoShaper_WebParity_35",pkg="com.atmoshaper.app.development"
+const fixtures = new Map([
+  ["web-parity", { serial: "emulator-5582", avd: "AtmoShaper_WebParity_35" }],
+  ["pilot-87-92", { serial: "emulator-5594", avd: "AtmoShaper_Pilot_87_92_API35", timeout: 720000 }],
+])
+const fixture = fixtures.get(process.env.ATMOSHAPER_ANDROID_WEBSITE_FIXTURE ?? "web-parity")
+assert.ok(fixture, "Select a named synthetic Android website fixture")
+const { serial, avd } = fixture
+const pkg="com.atmoshaper.app.development"
 const shell=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8",timeout:45000,windowsHide:true}).trim()
 const output=path.join(root,"output/native-website-android")
 
@@ -30,7 +37,7 @@ function installedVersionCode() {
   return version
 }
 
-/** No serial/package argument is accepted. The owner-receipt emulator 5580 and
+/** Only the fixed fixture allowlist can select a serial and AVD. The owner-receipt emulator 5580 and
  * physical devices are excluded. The marker may first be created only before
  * any AtmoShaper install, then belongs solely to this synthetic test fixture. */
 function assertOwnedFixture() {
@@ -43,7 +50,7 @@ function assertOwnedFixture() {
   }
 }
 
-test("replacement APK opens native Home offline and retains downloads, settings and a planner draft",{timeout:420000,skip:process.env.ATMOSHAPER_ANDROID_WEBSITE_TEST!=="1"},async()=>{
+test("replacement APK opens native Home offline and retains downloads, settings and a planner draft",{timeout:fixture.timeout ?? 420000,skip:process.env.ATMOSHAPER_ANDROID_WEBSITE_TEST!=="1"},async()=>{
   assertOwnedFixture()
   await mkdir(output,{recursive:true})
   const baseline=path.resolve(root,"../../output/android/AtmoShaper-offline-preview-0.3.0-8abbb7c3.apk")
@@ -267,8 +274,12 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     offline=true
     const launcher=shell("shell","cmd","package","resolve-activity","--brief","-a","android.intent.action.MAIN","-c","android.intent.category.LAUNCHER",pkg).split(/\r?\n/).at(-1)
     assert.ok(launcher.startsWith(`${pkg}/`),"Android resolves an installed launcher")
-    async function startNativeHome() {
-      shell("shell","am","start","-a","android.intent.action.MAIN","-c","android.intent.category.LAUNCHER","-n",launcher)
+    async function startNativeHome({ fromPreviousTools = false } = {}) {
+      shell("shell","am","start","-f","0x10200000","-a","android.intent.action.MAIN","-c","android.intent.category.LAUNCHER","-n",launcher)
+      if (fromPreviousTools) {
+        await expect.poll(()=>nativeHierarchy()).toMatch(/text="(?:Back to Home|Your tools)"/)
+        if (nativeHierarchy().includes('text="Back to Home"')) await tapNativeLabel("Back to Home")
+      }
       await expect.poll(()=>{
         const hierarchy=nativeHierarchy()
         return hierarchy.includes('text="Your tools"')&&!hierarchy.includes('class="android.webkit.WebView"')
@@ -291,6 +302,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tapNativeLabel("Clock & timer")
     await expect.poll(()=>nativeHierarchy()).toMatch(/content-desc="Current time [^"]+"/)
     const clockAppearance = JSON.parse(shell("shell","run-as",pkg,"cat","files/clock-appearance.json"))
+    assert.equal(clockAppearance.rememberedBackgroundId, "static-gradient", "Native Clock retains the earlier signed installation selection")
     assert.equal(clockAppearance.version,1)
     assert.equal(clockAppearance.format,old.timeFormat)
     assert.equal(clockAppearance.seconds,old.showSeconds)
@@ -330,6 +342,15 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(()=>nativeHierarchy().includes('text="Close Clock"')).toBe(true)
     await tapNativeLabel("Close Clock")
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
+    await tapNativeLabel("Open breathing guide")
+    await tapNativeLabel("Start breathing")
+    await expect.poll(()=>nativeHierarchy()).toContain('text="Pause breathing"')
+    await writeFile(path.join(output,"android-native-breathing.png"),captureAndroidScreen())
+    shell("shell","input","keyevent","KEYCODE_BACK")
+    await tapNativeLabel("Clock & timer")
+    await tapNativeLabel("Open timer")
+    await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
+    assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt,"Breathing leaves the running timer's deadline intact")
     shell("shell","am","force-stop",pkg)
     shell("shell","am","start","-W","-a","android.intent.action.VIEW",
       "-n",`${pkg}/com.atmoshaper.app.MainActivity`,"-d","atmoshaper://tool?path=%2Fchimer%2F")
@@ -390,17 +411,49 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await page.evaluate(()=>{
       window.__nonSilentStarts=0
       const start=AudioBufferSourceNode.prototype.start
-      AudioBufferSourceNode.prototype.start=function(...args){if(this.context instanceof AudioContext && this.buffer?.getChannelData(0).some(value=>Math.abs(value)>0.00001))window.__nonSilentStarts++;return start.apply(this,args)}
+      AudioBufferSourceNode.prototype.start=function(...args){
+        const result = start.apply(this,args)
+        if(this.context instanceof AudioContext && this.buffer?.getChannelData(0).some(value=>Math.abs(value)>0.00001)) {
+          window.__stationAudioContext ??= this.context
+          if (window.__stationAudioContext === this.context) window.__nonSilentStarts++
+        }
+        return result
+      }
     })
     await go(page,"/music")
     await tap(page,page.getByRole("group",{name:"Station category"}).getByRole("button",{name:"Favorites",exact:true}))
     await tap(page,page.getByRole("button",{name:"Play Little Bells",exact:true}))
     await expect.poll(()=>page.evaluate(()=>window.__nonSilentStarts),{timeout:45000}).toBeGreaterThan(0)
+    const playback = () => page.evaluate(()=>({
+      visibility: document.visibilityState,
+      starts: window.__nonSilentStarts,
+      time: window.__stationAudioContext.currentTime,
+      state: window.__stationAudioContext.state,
+    }))
+    await startNativeHome({ fromPreviousTools: true })
+    await tapNativeLabel("Open breathing guide")
+    await tapNativeLabel("Start breathing")
+    await expect.poll(()=>nativeHierarchy()).toContain('text="Pause breathing"')
+    await expect.poll(playback).toMatchObject({ visibility:"hidden",state:"running" })
+    const duringBreathing = await playback()
+    // A running media session or silent carrier alone is insufficient here.
+    // Observe Web Audio time and newly scheduled buffers containing nonzero samples.
+    await expect.poll(async()=>{
+      const current = await playback()
+      return current.visibility === "hidden" && current.state === "running"
+        && current.time > duringBreathing.time + 0.5 && current.starts > duringBreathing.starts
+    },{timeout:45000}).toBe(true)
+    await tapNativeLabel("Pause breathing")
+    await tapNativeLabel("Reset")
+    shell("shell","input","keyevent","KEYCODE_BACK")
+    await tapNativeLabel("Music")
+    await tapNativeLabel("Open previous tools")
+    await expect.poll(playback).toMatchObject({ visibility:"visible",state:"running" })
     await go(page,"/wellness/breathing")
     await tap(page,page.getByRole("button",{name:"Start breathing",exact:true}))
     await expect(page.getByRole("button",{name:"Pause breathing",exact:true})).toBeVisible()
     await writeFile(path.join(output,"android-shared-breathing.png"),captureAndroidScreen())
-    console.log("Android check: actual saved music and shared breathing passed offline.")
+    console.log("Android check: the saved station's Web Audio clock advanced and scheduled non-silent source buffers during native breathing. Shared breathing also passed offline.")
     await go(page,"/downloads")
     await tap(page,page.getByRole("button",{name:"Atmosphere sounds",exact:true}))
     await expect(page.getByRole("button",{name:"Atmosphere sounds",exact:true})).toHaveAttribute("aria-pressed","true")
@@ -421,7 +474,33 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","airplane_mode_on"),"1")
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
-    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),nativeHome:true,nativeClock:true,nativeTimer:true,clockAppearanceTransferred:true,backFromPreviousTools:true,sharedWebsite:true,upgradeVersions,readOnlyLegacyImport:true,downloadCount:2,downloadBytesRetained:true,plannerDraftRetained:true,airplaneMode:true,restoredDeadline:true,nonSilentStationPlayback:true,fullscreenAndBack:true,pdfSaveDialogAndCancel:true,physicalDeviceVerified:false,connectedOriginVerified:false,checkedAt:new Date().toISOString()},null,2))
+    await writeFile(path.join(output,"acceptance.json"),JSON.stringify({
+      apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),
+      fixture,
+      nativeHome:true,
+      nativeClock:true,
+      nativeTimer:true,
+      nativeBreathing:true,
+      breathingRetainedTimerDeadline:true,
+      webAudioAdvancedAndScheduledNonSilentSourcesDuringNativeBreathing:true,
+      clockAppearanceTransferred:true,
+      backFromPreviousTools:true,
+      sharedWebsite:true,
+      upgradeVersions,
+      readOnlyLegacyImport:true,
+      downloadCount:2,
+      downloadBytesRetained:true,
+      plannerDraftRetained:true,
+      airplaneMode:true,
+      restoredDeadline:true,
+      stationScheduledNonSilentSources:true,
+      speakerAudibilityVerified:false,
+      fullscreenAndBack:true,
+      pdfSaveDialogAndCancel:true,
+      physicalDeviceVerified:false,
+      connectedOriginVerified:false,
+      checkedAt:new Date().toISOString(),
+    },null,2))
   } catch (error) {
     failed = true
     if (page && !page.isClosed()) {

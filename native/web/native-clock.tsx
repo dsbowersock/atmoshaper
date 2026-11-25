@@ -5,13 +5,14 @@ import { createNativeClockStorage } from "@/lib/native-clock-storage"
 import { nativeClockCommitKey } from "@/lib/native-clock-state"
 import { Button } from "@/components/ui/button"
 import { useNativeAccess } from "./native-access"
-import { NativeRouteContext, navigateNative } from "./platform/navigation"
+import { NativeRouteContext, navigateNative, useNativeClockBackgroundRequest } from "./platform/navigation"
 
 /** Reuses the packaged Clock and music visualizer. Browser previews retain
  * their shared timer, while the Android host delegates countdowns to Compose
  * and saves only visualizer settings. The device stores never read a vault. */
 export function NativeClock({ route, active, appearanceOnly }: { route: string; active: boolean; appearanceOnly: boolean }) {
   const account = useNativeAccess()
+  const backgroundPanelRequest = useNativeClockBackgroundRequest()
   const [store] = useState(() => createNativeClockStorage({ appearanceOnly }))
   const [initial, setInitial] = useState<Awaited<ReturnType<typeof store.load>> | null>(null)
   const [error, setError] = useState("")
@@ -44,7 +45,7 @@ export function NativeClock({ route, active, appearanceOnly }: { route: string; 
   return <NativeRouteContext.Provider value={lastRoute}>
     <div hidden={!active} className="h-full min-h-0" data-native-shared-clock>
       {error && active && <div role="alert" className="p-2 text-sm"><p>{error}</p><Button variant="glow" onClick={save}>Retry Clock save</Button></div>}
-      <ChimerPage deviceRuntime={runtime} active={active} />
+      <ChimerPage deviceRuntime={runtime} active={active} nativeBackgroundPanelRequest={backgroundPanelRequest} />
     </div>
   </NativeRouteContext.Provider>
 }

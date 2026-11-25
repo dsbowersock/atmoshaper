@@ -66,7 +66,7 @@ internal fun ClockSettings(
                 shadowColor = shadowColor.takeIf(clockHexColor::matches) ?: draft.shadowColor,
                 strokeColor = strokeColor.takeIf(clockHexColor::matches) ?: draft.strokeColor,
             )
-            val saved = withContext(Dispatchers.IO) { runCatching { store.save(updated) }.getOrNull() }
+            val saved = withContext(Dispatchers.IO) { runCatching { store.saveSettings(updated) }.getOrNull() }
             if (saved != null) onSaved(saved) else {
                 failed = true
                 saving = false

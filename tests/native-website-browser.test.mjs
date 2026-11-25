@@ -326,6 +326,65 @@ test("the native timer receives an original deadline and packaged navigation lea
   }
 })
 
+test("repeated Android Clock background requests reuse the page and keep the Visual draft interlock", {timeout:60000}, async()=>{
+  const f = await fixture()
+  const { page } = f
+  const route = "/clock?panel=background"
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "userAgent", { value: navigator.userAgent + " AtmoShaperNativeTimer/1" })
+  })
+  try {
+    await page.goto(entry)
+    await expect(page.getByTestId("home-launcher")).toBeVisible()
+    const picker = page.getByRole("dialog", { name: "Background", exact: true })
+    const close = picker.getByRole("button", { name: "Close Background panel" })
+    await go(page, route)
+    await expect(picker).toBeVisible()
+    const originalDocument = await page.evaluate(() => ({ time: performance.timeOrigin, length: history.length }))
+    await close.click()
+    await expect(picker).toHaveCount(0)
+    await go(page, route)
+    await expect(picker).toBeVisible()
+    await close.click()
+    await expect(picker).toHaveCount(0)
+
+    await page.mouse.move(2, 2)
+    await page.getByRole("button", { name: "Visual", exact: true }).click()
+    const visual = page.getByRole("dialog", { name: "Visual controls" })
+    await visual.getByRole("radio", { name: "Custom", exact: true }).click()
+    await visual.getByLabel(/color mapping$/).first().selectOption("6")
+    await expect(visual.getByRole("button", { name: "Apply", exact: true })).toBeEnabled()
+    await go(page, route)
+    const unsaved = page.getByRole("alertdialog", { name: "Save Visual changes?" })
+    await expect(unsaved).toBeVisible()
+    await unsaved.getByRole("button", { name: "Keep editing" }).click()
+    await expect(visual).toBeVisible()
+    await expect(picker).toHaveCount(0)
+    await go(page, route)
+    await unsaved.getByRole("button", { name: "Discard changes" }).click()
+    await expect(picker).toBeVisible()
+    assert.deepEqual(await page.evaluate(() => ({ time: performance.timeOrigin, length: history.length })), originalDocument)
+    await close.click()
+    await page.mouse.move(2, 2)
+    await page.getByRole("button", { name: "Close clock", exact: true }).click()
+    const showClock = page.getByRole("button", { name: "Show Clock", exact: true })
+    await expect(showClock).toBeVisible()
+    await go(page, "/")
+    await expect(page.getByTestId("home-launcher")).toBeVisible()
+    await page.goBack()
+    await expect(showClock).toBeVisible()
+    await expect(picker).toHaveCount(0)
+    await go(page, route)
+    await expect(picker).toBeVisible()
+    assert.equal(await page.evaluate(() => performance.timeOrigin), originalDocument.time)
+    assert.equal(new URL(page.url()).hash, "#" + route)
+    assert.deepEqual(f.errors, [])
+    assert.deepEqual(f.foreign, [])
+  } finally {
+    await f.close()
+  }
+})
+
 test("mobile sidebar closes after selecting device tools", {timeout:60000}, async()=>{
   const f=await fixture(),{page}=f
   try {
