@@ -91,14 +91,15 @@ internal class NativeAudioEngine(
         view.loadUrl(ENTRY)
     }
 
-    fun play(id: String, token: Int, request: Int) = command("play(${JSONObject.quote(id)}, $token, $request)")
+    fun play(id: String, token: Int, request: Int, savedOnly: Boolean) =
+        command("play(${JSONObject.quote(id)}, $token, $request, $savedOnly)")
 
     fun stopStation(token: Int) = command("stopStation($token)")
 
     fun setPaused(paused: Boolean, token: Int) = command("setPaused($paused, $token)")
 
     fun playLayer(sound: NativeMixSound, layer: NativeMixLayer, token: Int) =
-        command("playLayer(${JSONObject.quote(sound.id)}, ${JSONObject.quote(sound.kind)}, ${layer.volume}, $token, ${layer.request})")
+        command("playLayer(${JSONObject.quote(sound.id)}, ${JSONObject.quote(sound.kind)}, ${layer.volume}, $token, ${layer.request}, ${layer.savedOnly})")
 
     fun stopLayer(sound: NativeMixSound, layer: NativeMixLayer, token: Int) =
         command("stopLayer(${JSONObject.quote(sound.id)}, $token, ${layer.request})")

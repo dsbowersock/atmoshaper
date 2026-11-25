@@ -21,9 +21,9 @@ let playingToken = 0
 let runtime: ReturnType<typeof createOfflineAudioRuntime> | undefined
 let paused = false
 let contextChange: Promise<void> = Promise.resolve()
-type StationRequest = { id: string; controller: AbortController; ready: boolean }
+type StationRequest = { id: string; controller: AbortController; ready: boolean; savedOnly: boolean }
 let stationRequest: StationRequest | undefined
-const mix = new Map<string, { request: number; controller: AbortController }>()
+const mix = new Map<string, { request: number; controller: AbortController; savedOnly: boolean }>()
 
 function ensureSession(token: number) {
   if (playingToken === 0) playingToken = token
@@ -50,10 +50,12 @@ function getRuntime() {
       if (request?.id !== id) throw new Error("The station request was superseded.")
       return prepareNativeStationSamples({ id, kind: "station", station: getAtmosphereStationById(id) }, store, {
         signal: request.controller.signal,
+        isOnline: request.savedOnly ? false : undefined,
       })
     },
     prepareAmbientPack: id => prepareNativeAmbientPack({ id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, store, {
       signal: mix.get(id)?.controller.signal,
+      isOnline: mix.get(id)?.savedOnly ? false : undefined,
     }),
   })
   return runtime
@@ -81,10 +83,10 @@ window.addEventListener("atmoshaper:offline-audio-error", event => reportLayerFa
 /** The foreground service owns this document. The UI never loads this entry
  * and cannot create a second audio graph while reattaching to the service. */
 const player = {
-  async play(id: string, token: number, revision: number) {
+  async play(id: string, token: number, revision: number, savedOnly = false) {
     if (!ensureSession(token)) return
     const previous = clearStation()
-    const request: StationRequest = { id, controller: new AbortController(), ready: false }
+    const request: StationRequest = { id, controller: new AbortController(), ready: false, savedOnly }
     stationRequest = request
     try {
       await previous
@@ -119,9 +121,9 @@ const player = {
     }
   },
 
-  async playLayer(id: string, kind: string, volume: number, token: number, request: number) {
+  async playLayer(id: string, kind: string, volume: number, token: number, request: number, savedOnly = false) {
     if (!ensureSession(token) || mix.has(id)) return
-    const attempt = { request, controller: new AbortController() }
+    const attempt = { request, controller: new AbortController(), savedOnly }
     mix.set(id, attempt)
     try {
       const validNoise = kind === "generated" && /^noise:(white|pink|brown)$/.test(id)

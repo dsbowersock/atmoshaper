@@ -49,6 +49,9 @@ internal object NativeAudio {
     const val EXTRA_SOUND = "sound"
     const val EXTRA_VOLUME = "volume"
     const val EXTRA_STATION = "stationId"
+    private const val EXTRA_SAVED_ONLY = "savedOnly"
+
+    fun savedOnly(intent: Intent): Boolean = intent.getBooleanExtra(EXTRA_SAVED_ONLY, false)
 
     private val mutableStatus = MutableStateFlow(NativeAudioStatus.Idle)
     val status = mutableStatus.asStateFlow()
@@ -61,15 +64,15 @@ internal object NativeAudio {
     fun publishStation(id: String, value: NativeAudioStatus) { mutableStation.value = NativeStationPlayback(id, value) }
     fun publishLayers(value: Map<NativeMixSound, NativeMixLayer>) { mutableLayers.value = value }
 
-    fun send(context: Context, command: String, stationId: String? = null) {
+    fun send(context: Context, command: String, stationId: String? = null, savedOnly: Boolean = false) {
         val intent = Intent(context, NativeAudioService::class.java).setAction(command)
         if (stationId != null) intent.putExtra(EXTRA_STATION, stationId)
-        send(context, intent)
+        send(context, intent.putExtra(EXTRA_SAVED_ONLY, savedOnly))
     }
 
-    fun sendLayer(context: Context, command: String, sound: NativeMixSound, volume: Float = 0.5f) {
+    fun sendLayer(context: Context, command: String, sound: NativeMixSound, volume: Float = 0.5f, savedOnly: Boolean = false) {
         send(context, Intent(context, NativeAudioService::class.java).setAction(command)
-            .putExtra(EXTRA_SOUND, sound.id).putExtra(EXTRA_VOLUME, volume))
+            .putExtra(EXTRA_SOUND, sound.id).putExtra(EXTRA_VOLUME, volume).putExtra(EXTRA_SAVED_ONLY, savedOnly))
     }
 
     private fun send(context: Context, intent: Intent) {
@@ -88,7 +91,7 @@ internal object NativeAudio {
 /** A started media playback service survives both Activity recreation and task
  * removal. It is never sticky after process death or Android Force stop. */
 class NativeAudioService : Service() {
-    private data class StationRequest(val revision: Int, val station: NativeStation)
+    private data class StationRequest(val revision: Int, val station: NativeStation, val savedOnly: Boolean)
 
     private val mainThread = Handler(Looper.getMainLooper())
     private lateinit var audio: AudioManager
@@ -143,7 +146,7 @@ class NativeAudioService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            NativeAudio.PLAY -> play(intent.getStringExtra(NativeAudio.EXTRA_STATION))
+            NativeAudio.PLAY -> play(intent.getStringExtra(NativeAudio.EXTRA_STATION), NativeAudio.savedOnly(intent))
             NativeAudio.RESUME -> resume()
             NativeAudio.PAUSE -> pause(NativeAudioStatus.Paused)
             NativeAudio.STOP -> finish(NativeAudioStatus.Idle)
@@ -151,7 +154,7 @@ class NativeAudioService : Service() {
             NativeAudio.PLAY_LAYER, NativeAudio.STOP_LAYER, NativeAudio.VOLUME_LAYER -> {
                 val sound = NativeMixSound.entries.find { it.id == intent.getStringExtra(NativeAudio.EXTRA_SOUND) }
                 if (sound != null) when (intent.action) {
-                    NativeAudio.PLAY_LAYER -> playLayer(sound)
+                    NativeAudio.PLAY_LAYER -> playLayer(sound, NativeAudio.savedOnly(intent))
                     NativeAudio.STOP_LAYER -> stopLayer(sound)
                     NativeAudio.VOLUME_LAYER -> setLayerVolume(sound, intent.getFloatExtra(NativeAudio.EXTRA_VOLUME, 0.5f))
                 }
@@ -162,7 +165,7 @@ class NativeAudioService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun play(stationId: String?) {
+    private fun play(stationId: String?, savedOnly: Boolean) {
         if (status == NativeAudioStatus.Interrupted) return
         val id = stationId ?: NativeAudio.station.value.id
         if (stationRequest?.station?.id == id) {
@@ -180,16 +183,16 @@ class NativeAudioService : Service() {
         // Retire just this station. Ambient layers and the service stay live.
         deactivateStation()
         val request = ++nextRequest
-        stationRequest = StationRequest(request, choice)
+        stationRequest = StationRequest(request, choice, savedOnly)
         publishStation(NativeAudioStatus.Loading)
         mainThread.postDelayed({ if (!stationActive) failStation(request) }, STARTUP_TIMEOUT_MILLIS)
         ensurePlayback()
     }
 
-    private fun playLayer(sound: NativeMixSound) {
+    private fun playLayer(sound: NativeMixSound, savedOnly: Boolean) {
         if (status == NativeAudioStatus.Interrupted || layers[sound]?.phase in ACTIVE_LAYER_PHASES) return
         val request = ++nextRequest
-        updateLayer(sound, NativeMixLayer(request))
+        updateLayer(sound, NativeMixLayer(request, savedOnly = savedOnly))
         mainThread.postDelayed({
             val layer = layers[sound]
             if (layer?.request == request && layer.phase == NativeMixPhase.Loading) {
@@ -330,7 +333,7 @@ class NativeAudioService : Service() {
         stationRequest?.let { request ->
             if (!stationDispatched) {
                 stationDispatched = true
-                engine?.play(request.station.id, token, request.revision)
+                engine?.play(request.station.id, token, request.revision, request.savedOnly)
             }
         }
         for ((sound, layer) in layers) {
