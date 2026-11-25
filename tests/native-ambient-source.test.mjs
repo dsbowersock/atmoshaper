@@ -38,7 +38,8 @@ test("native ambient Play uses temporary verified bytes, then plays an explicit 
 
 test("native ambient Play leaves a damaged saved pack available for the explicit repair flow", async () => {
   let saved
-  const store = { get: async () => saved, put: async pack => { saved = pack } }
+  let writes = 0
+  const store = { get: async () => saved, put: async pack => { writes++; saved = pack } }
   await downloadOfflinePack(item, store, { fetchImpl: async () => new Response(media) })
   const bytes = new Uint8Array(saved.files[0].data)
   bytes[bytes.length - 1] ^= 1
@@ -48,5 +49,5 @@ test("native ambient Play leaves a damaged saved pack available for the explicit
     fetchImpl: async () => { requests++; return new Response(media) },
   }), /saved download is damaged/)
   assert.equal(requests, 0)
-  assert.strictEqual((await store.get()).files[0].data, saved.files[0].data)
+  assert.equal(writes, 1)
 })

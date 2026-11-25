@@ -162,7 +162,7 @@ async function startConceptEngine({
       sourceNode.connect(gainNode)
       gainNode.connect(output.input)
       return {
-        resume: () => resumeContext ? rawContext.resume() : Promise.resolve(),
+        resume: () => rawContext.resume(),
         disconnect() {
           sourceNode.disconnect()
           gainNode.disconnect()

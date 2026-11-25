@@ -96,7 +96,10 @@ const player = {
     mix.set(id, attempt)
     try {
       const validNoise = kind === "generated" && /^noise:(white|pink|brown)$/.test(id)
-      if (!validNoise && kind !== "ambient") throw new Error("Unknown Atmosphere sound.")
+      // Android WebView's media elements request audio focus themselves and
+      // suspend the foreground mix. This owner can only play buffer voices.
+      const validAmbient = kind === "ambient" && getAtmoShaperProductionConcept(id).playbackMode?.kind === "prebaked-intro-loop"
+      if (!validNoise && !validAmbient) throw new Error("This sound is unavailable in the native mixer.")
       const played = await getRuntime().play({ id, kind }, undefined, volume)
       if (mix.get(id) !== attempt) return
       if (played) report(`layer-playing:${token}:${request}`)
