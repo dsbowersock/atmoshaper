@@ -91,11 +91,16 @@ test('Forget during delayed startup verification releases free-tool readiness wi
  const source=await readFile(new URL('../native/web/offline-backgrounds.tsx',import.meta.url),'utf8')
  const ast=ts.createSourceFile('offline-backgrounds.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX)
  const hook=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='useOfflineBackgroundAccess')
- assert.ok(hook)
- const code=ts.transpileModule(hook.getText(ast).replace('export function','function'),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText
+ const notify=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='notifyNativeAccessChange')
+ const mutation=ast.statements.find(node=>ts.isVariableStatement(node)&&node.declarationList.declarations.some(declaration=>declaration.name.getText(ast)==='nextAccessMutation'))
+ assert.ok(hook&&notify&&mutation)
+ const sourceWithPort=[mutation.getText(ast),notify.getText(ast),hook.getText(ast).replace('export function','function')].join('\n')
+ const code=ts.transpileModule(sourceWithPort,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText
  let cursor=0,mounted=false,releaseOld
  const values=[],effects=[],nativeChanges=[],window=new EventTarget(),now=Date.now()
  window.setInterval=()=>1;window.clearInterval=()=>{}
+ window.atmoNativeAccessDocument='fixture-document'
+ window.AtmoShaperBackgroundAccessChanged={postMessage:message=>nativeChanges.push(message)}
  const claims={device:'fixture-device',challenge:'fixture-challenge',issuedAt:now,owned:['fixture'],premiumUntil:null}
  let record={device:claims.device,receipt:'old',pending:{challenge:claims.challenge,at:now},lastIssuedAt:0,lastSeen:0},queue=Promise.resolve()
  const store={update(fn){const result=queue.then(async()=>{record=await fn(structuredClone(record));return structuredClone(record)});queue=result.catch(()=>{});return result}}
@@ -105,7 +110,6 @@ test('Forget during delayed startup verification releases free-tool readiness wi
   useEffect(fn){if(!mounted)effects.push(fn)},createOfflineAccessStore:()=>store,
   verifyOfflineAccessReceipt:receipt=>receipt==='old'?new Promise(resolve=>{releaseOld=()=>resolve({...claims})}):Promise.resolve({...claims}),
   publicKeys:[],OFFLINE_ACCESS_REQUEST_TTL:600000,randomOfflineAccessId:()=> 'replacement-device',
-  notifyNativeAccessChange:status=>nativeChanges.push(status),
   offlineBackgroundSnapshot:value=>({featureKeys:[],ownedBackgroundIds:value.owned}),window,
  }
  const executeHook=new Function(...Object.keys(context),code+';return useOfflineBackgroundAccess')(...Object.values(context))
@@ -120,6 +124,6 @@ test('Forget during delayed startup verification releases free-tool readiness wi
   const result=render();assert.equal(result.loaded,true);assert.equal(result.claims,null)
   assert.equal(result.canForget,false);assert.deepEqual(result.access.ownedBackgroundIds,[])
   assert.equal(record.receipt,null);assert.equal(record.device,'replacement-device')
-  assert.deepEqual(nativeChanges,['replacing','replaced','removing','removed'])
+  assert.deepEqual(nativeChanges,['replacing:1','replaced:1','removing:2','removed:2'].map(event=>'fixture-document:'+event))
  }finally{for(const cleanup of cleanups)cleanup?.()}
 })

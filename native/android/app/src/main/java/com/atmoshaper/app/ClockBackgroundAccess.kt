@@ -15,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import org.json.JSONObject
+import java.util.UUID
 
 internal enum class ClockAccessStatus(val key: String) {
     Verified("verified"), Expired("expired"), Rollback("clock"), Missing("missing"),
@@ -100,17 +101,54 @@ internal object ClockBackgroundAccessChanges {
     data class Generation(val serial: Long = 0, val mutating: Boolean = false)
     val changes = MutableStateFlow(Generation())
 
-    @JvmStatic
-    fun receive(context: Context, message: String) {
-        val before = changes.value
-        when (message) {
-            "replacing", "removing", "remove-failed" -> changes.value = Generation(before.serial + 1, true)
-            "removed", "replaced" -> {
-                evidence(context).edit().remove(lastSeen).remove(expired).apply()
-                changes.value = Generation(before.serial + 1, false)
+    private val activeOwners = mutableSetOf<MutationOwner>()
+
+    /** One packaged document owns its in-flight mutations. Closing it unblocks an
+     * exact store read, retaining clock evidence when the outcome is unknown. */
+    class MutationOwner(private val context: Context) {
+        val documentId = UUID.randomUUID().toString()
+        private val prefix = "$documentId:"
+        private var latest = 0L
+        private var active = 0L
+        private var closed = false
+
+        fun receive(message: String) {
+            if (closed || message.length > prefix.length + 48 || !message.startsWith(prefix)) return
+            val event = message.substring(prefix.length)
+            val status = event.substringBefore(':')
+            val sequence = event.substringAfter(':', "").toLongOrNull() ?: return
+            when {
+                (status == "replacing" || status == "removing") && sequence > latest -> {
+                    latest = sequence
+                    active = sequence
+                    activeOwners.add(this)
+                    invalidate()
+                }
+                active == 0L || sequence != active -> Unit
+                status == "removed" || status == "replaced" -> {
+                    evidence(context).edit().remove(lastSeen).remove(expired).apply()
+                    release()
+                }
+                status == "replace-failed" -> release()
+                // A failed Forget keeps the current document free-only until it
+                // retries or closes. A later visit can verify the committed record.
+                status == "remove-failed" -> Unit
             }
-            "replace-failed" -> changes.value = Generation(before.serial + 1, false)
         }
+
+        fun close() {
+            closed = true
+            release()
+        }
+
+        private fun release() {
+            active = 0L
+            if (activeOwners.remove(this)) invalidate()
+        }
+    }
+
+    private fun invalidate() {
+        changes.value = Generation(changes.value.serial + 1, activeOwners.isNotEmpty())
     }
 
     private fun evidence(context: Context) = context.getSharedPreferences(clockEvidence, Context.MODE_PRIVATE)

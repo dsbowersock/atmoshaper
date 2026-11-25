@@ -21,6 +21,8 @@ import android.os.Looper
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 internal enum class NativeAudioStatus(@get:StringRes val label: Int) {
@@ -59,10 +61,13 @@ internal object NativeAudio {
     val station = mutableStation.asStateFlow()
     private val mutableLayers = MutableStateFlow<Map<NativeMixSound, NativeMixLayer>>(emptyMap())
     val layers = mutableLayers.asStateFlow()
+    private val mutableSavedPlayFailures = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val savedPlayFailures = mutableSavedPlayFailures.asSharedFlow()
 
     fun publish(value: NativeAudioStatus) { mutableStatus.value = value }
     fun publishStation(id: String, value: NativeAudioStatus) { mutableStation.value = NativeStationPlayback(id, value) }
     fun publishLayers(value: Map<NativeMixSound, NativeMixLayer>) { mutableLayers.value = value }
+    fun reportSavedPlayFailure(id: String) { mutableSavedPlayFailures.tryEmit(id) }
 
     fun send(context: Context, command: String, stationId: String? = null, savedOnly: Boolean = false) {
         val intent = Intent(context, NativeAudioService::class.java).setAction(command)
@@ -101,6 +106,7 @@ class NativeAudioService : Service() {
     private var foreground = false
     private var resumeOnFocusGain = false
     private var resumePending = false
+    private var resumeRevision = 0
     private var engine: NativeAudioEngine? = null
     private var engineReady = false
     private var token = 0
@@ -256,9 +262,9 @@ class NativeAudioService : Service() {
         publish(NativeAudioStatus.Loading)
         if (engineReady) {
             engine?.setPaused(false, token)
-            val request = token
+            val request = ++resumeRevision
             mainThread.postDelayed({
-                if (token == request && resumePending) finish(NativeAudioStatus.Failed)
+                if (resumeRevision == request && resumePending) finish(NativeAudioStatus.Failed)
             }, STARTUP_TIMEOUT_MILLIS)
         }
     }
@@ -304,7 +310,10 @@ class NativeAudioService : Service() {
                     stationActive = true
                     settleStatus()
                 }
-                "station-failed" -> failStation(request)
+                "station-failed" -> {
+                    stationRequest?.takeIf { it.savedOnly }?.let { NativeAudio.reportSavedPlayFailure(it.station.id) }
+                    failStation(request)
+                }
             }
             return
         }
@@ -315,6 +324,7 @@ class NativeAudioService : Service() {
                 settleStatus()
             }
             "layer-failed" -> if (layer.phase == NativeMixPhase.Loading || layer.phase == NativeMixPhase.Playing) {
+                if (layer.savedOnly) NativeAudio.reportSavedPlayFailure(sound.id)
                 failLayer(sound, layer)
             }
             "layer-stopped" -> if (layer.phase == NativeMixPhase.Stopping) {
@@ -423,16 +433,32 @@ class NativeAudioService : Service() {
         }
     }
 
-    /** A transient loss retains the current playback requests. Manual Pause or
-     * Stop revokes that permission even if the system later returns focus. */
+    /** Only confirmed output may survive system interruption. Abort in-flight
+     * requests so a late ready reply or its timeout cannot start them on gain. */
+    private fun interruptPlayback(transient: Boolean) {
+        if (stationRequest != null && !stationActive) clearStation(NativeAudioStatus.Failed)
+        for ((sound, layer) in layers) {
+            if (layer.phase == NativeMixPhase.Loading) {
+                if (dispatchedLayers.remove(layer.request)) engine?.stopLayer(sound, layer, token)
+                updateLayer(sound, layer.copy(phase = NativeMixPhase.Failed))
+            }
+        }
+        val hasOutput = stationActive || layers.values.any { it.phase == NativeMixPhase.Playing }
+        if (hasOutput) {
+            pause(if (transient) NativeAudioStatus.Interrupted else NativeAudioStatus.Paused)
+        } else {
+            finish(NativeAudioStatus.Failed)
+        }
+    }
+
     private fun focusChanged(change: Int) {
         if (!ownsFocusRequest) return
         when (change) {
             AudioManager.AUDIOFOCUS_GAIN -> if (resumeOnFocusGain) startOrResume()
-            AudioManager.AUDIOFOCUS_LOSS -> pause(NativeAudioStatus.Paused)
+            AudioManager.AUDIOFOCUS_LOSS -> interruptPlayback(transient = false)
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
                 if (status == NativeAudioStatus.Playing || status == NativeAudioStatus.Loading) {
-                    pause(NativeAudioStatus.Interrupted)
+                    interruptPlayback(transient = true)
                 }
         }
     }

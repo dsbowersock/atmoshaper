@@ -17,8 +17,28 @@ internal class TimerAlarmCoordinator(context: Context) {
     private val store = NativeTimerFile(context)
     private val system = TimerAlarmSystem(context)
 
-    fun open(now: Long): TimerSnapshot = synchronized(lock) {
-        updateLocked { it.advance(now, foreground = false) }.snapshot
+    /**
+     * Reopening can deliver a fresh completion in the foreground. During
+     * window attachment, leave that opportunity and any permitted OS delivery
+     * intact. Once neither is available, recover the overdue timer silently.
+     */
+    fun open(now: Long): TimerSnapshot = observe(now, liveTick = false)
+
+    fun tick(now: Long): TimerSnapshot = observe(now, liveTick = true)
+
+    private fun observe(now: Long, liveTick: Boolean): TimerSnapshot = synchronized(lock) {
+        val current = store.read() ?: TimerSnapshot()
+        val attached = foreground != null
+        val live = current.advance(now, foreground = attached)
+        val completed = current.phase == TimerPhase.Running && live.snapshot.phase == TimerPhase.Complete
+        if (completed && live.cue == null) {
+            val awaitingWindow = !attached && current.advance(now, foreground = true).cue == TimerSignal.Completion
+            val awaitingAlarm = system.canDeliver(current.setup) && system.hasPendingOccurrence()
+            if (awaitingWindow || awaitingAlarm) return current
+        }
+        val transition = if (liveTick || live.cue == TimerSignal.Completion) live else TimerAdvance(live.snapshot)
+        if (liveTick && transition.snapshot == current) return current
+        updateLocked { transition }.also { deliverLocked(it) }.snapshot
     }
 
     fun change(command: (TimerSnapshot) -> TimerAdvance): TimerAdvance = synchronized(lock) {
@@ -27,16 +47,27 @@ internal class TimerAlarmCoordinator(context: Context) {
 
     fun status(setup: TimerSetup): TimerAlertStatus = system.status(setup)
 
-    fun restore() = synchronized(lock) {
-        // Boot and special-access grant both advance silently. The timer
-        // record is credential-protected and is available after user unlock.
-        if (store.read() != null) open(System.currentTimeMillis())
+    fun restoreAfterBoot(now: Long = System.currentTimeMillis()) = synchronized(lock) {
+        // A reboot lost delivery of past occurrences. The credential-protected
+        // record is available after unlock and can recover future alarms.
+        if (store.read() != null) updateLocked { it.advance(now, foreground = false) }
     }
 
-    fun alarm(session: String, at: Long, deadline: Long): Unit = synchronized(lock) {
+    fun refreshSchedule(now: Long = System.currentTimeMillis()): Unit = synchronized(lock) {
+        // An exact-alarm permission grant reschedules future occurrences.
+        // Keep a queued completion, and don't invent an alarm for missed work.
+        val current = store.read() ?: return
+        val deadline = current.deadlineMs
+        if (deadline != null && now >= deadline) {
+            if (!system.hasPendingOccurrence()) updateLocked { it.advance(now, foreground = false) }
+        } else {
+            system.sync(current, current)
+        }
+    }
+
+    fun alarm(session: String, at: Long, deadline: Long, now: Long = System.currentTimeMillis()): Unit = synchronized(lock) {
         val current = store.read() ?: return
         if (current.sessionId != session || current.deadlineMs != deadline || current.nextAlarmAt != at) return
-        val now = System.currentTimeMillis()
         if (now < at) {
             system.sync(current)
             return
@@ -116,7 +147,8 @@ class NativeTimerAlarmReceiver : BroadcastReceiver() {
             try {
                 val timer = TimerAlarmCoordinator(context.applicationContext)
                 when (intent.action) {
-                    Intent.ACTION_BOOT_COMPLETED, AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> timer.restore()
+                    Intent.ACTION_BOOT_COMPLETED -> timer.restoreAfterBoot()
+                    AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> timer.refreshSchedule()
                     TimerAlarmSystem.fireAction -> {
                         val session = intent.getStringExtra("session") ?: return@execute
                         timer.alarm(session, intent.getLongExtra("at", -1), intent.getLongExtra("deadline", -1))

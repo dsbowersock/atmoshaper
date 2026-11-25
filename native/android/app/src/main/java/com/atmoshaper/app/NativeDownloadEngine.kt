@@ -19,14 +19,14 @@ import java.io.IOException
  * generic app command bridge to Compose. */
 @SuppressLint("SetJavaScriptEnabled")
 internal class NativeDownloadEngine(
-    context: Context,
-    onReport: (String) -> Unit,
-    unavailable: () -> Unit,
+    private val context: Context,
+    private val onReport: (String) -> Unit,
+    private val unavailable: () -> Unit,
 ) {
     private val view = WebView(context)
     private var closed = false
 
-    init {
+    fun open() {
         val assets = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context)).build()
         view.settings.apply {

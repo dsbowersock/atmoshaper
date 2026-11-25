@@ -144,6 +144,63 @@ class NativeTimerJourneyTest {
     }
 
     @Test
+    fun reopeningConsumesFreshForegroundCompletionOnceWhileBootRecoversSilently() {
+        val due = System.currentTimeMillis() + 60_000
+        val setup = TimerSetup(minutes = 1, cue = TimerCue.Flash)
+        val initial = TimerSnapshot().start(setup, due - 60_000)
+        val coordinator = TimerAlarmCoordinator(instrumentation.targetContext)
+        withFixture(initial) {
+            val cues = mutableListOf<TimerSignal?>()
+            try {
+                val running = coordinator.open(due - 1_000)
+                val session = checkNotNull(running.sessionId)
+                TimerAlarmCoordinator.foreground = { cues += it.cue; true }
+                val reopened = coordinator.open(due + 100)
+                assertEquals(TimerPhase.Complete, reopened.phase)
+                assertFalse(reopened.missedCompletion)
+                coordinator.alarm(session, due, due, due + 100)
+                coordinator.open(due + 200)
+                instrumentation.waitForIdleSync()
+                assertEquals(listOf(TimerSignal.Completion), cues)
+            } finally {
+                TimerAlarmCoordinator.foreground = null
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+        withFixture(initial) {
+            try {
+                coordinator.open(due - 1_000)
+                coordinator.restoreAfterBoot(due + 2_000)
+                val reopened = coordinator.open(due + 2_100)
+                assertEquals(TimerPhase.Complete, reopened.phase)
+                assertTrue(reopened.missedCompletion)
+            } finally {
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+    }
+
+    @Test
+    fun reopeningLeavesPermittedLateCallbackToDeliverTheCompletion() {
+        requireOsFixture()
+        val due = System.currentTimeMillis() + 60_000
+        val initial = TimerSnapshot().start(TimerSetup(minutes = 1, cue = TimerCue.Silent), due - 60_000)
+        val coordinator = TimerAlarmCoordinator(instrumentation.targetContext)
+        withFixture(initial) {
+            try {
+                val running = coordinator.open(due - 1_000)
+                val session = checkNotNull(running.sessionId)
+                assertEquals(TimerPhase.Running, coordinator.open(due + 1_250).phase)
+                coordinator.alarm(session, due, due, due + 1_251)
+                assertFalse(coordinator.open(due + 1_252).missedCompletion)
+                assertNotNull(notice("Timer complete"))
+            } finally {
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+    }
+
+    @Test
     fun lockedBackgroundTimerPostsOneCompletionAndOngoingEndActionCancelsTheNextTimer() {
         requireOsFixture()
         val context = instrumentation.targetContext
