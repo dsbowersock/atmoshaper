@@ -25,6 +25,8 @@ const fixture = fixtures.get(process.env.ATMOSHAPER_ANDROID_WEBSITE_FIXTURE ?? "
 assert.ok(fixture, "Select a named synthetic Android website fixture")
 const { serial, avd } = fixture
 const pkg="com.atmoshaper.app.development"
+const previousToolsEntry="https://appassets.androidplatform.net/assets/core/index.html"
+const nativeAudioEntry="https://appassets.androidplatform.net/assets/core/native-audio-player.html"
 const shell=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8",timeout:45000,windowsHide:true}).trim()
 const output=path.join(root,"output/native-website-android")
 
@@ -86,7 +88,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
   const errors=[],network=[]
   /** Forward only the guarded fixture's WebView. Playwright Android discovery
    * would contact every ADB device before the caller could select this one. */
-  async function connect({ sameProcess = false } = {}) {
+  async function connect({ sameProcess = false, entry = previousToolsEntry } = {}) {
     let pid, socket
     await expect.poll(() => {
       try {
@@ -108,16 +110,28 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     connection.browser = await chromium.connectOverCDP(endpoint, { timeout: 20000, noDefaults: true })
     const context = connection.browser.contexts()[0]
     let page
-    // A native engine may open its own local WebView in the same process.
-    // Legacy preservation assertions always target the previous tool entry.
+    // Distinguish the engine and previous tools when both exist in the process.
     await expect.poll(() => {
-      page = context?.pages().find(candidate => candidate.url() ===
-        "https://appassets.androidplatform.net/assets/core/index.html")
+      page = context?.pages().find(candidate => candidate.url() === entry)
       return Boolean(page)
-    }, { message: "The guarded previous tools WebView exposes its packaged page" }).toBe(true)
+    }, { message: "The guarded WebView exposes the requested packaged entry" }).toBe(true)
     page.on("pageerror",error=>errors.push(error.message))
     page.on("request",request=>{if(offline && request.url().startsWith("https://media."))network.push(request.url())})
     return page
+  }
+  async function hearNativeAudio(audioPage, previous) {
+    let reading
+    await expect.poll(async() => {
+      reading = await audioPage.evaluate(() => ({
+        ...window.atmoNativeAudio?.outputProbe(), documentStart: performance.timeOrigin,
+      }))
+      return reading.peak > 0.00001 && (!previous || reading.currentTime > previous.currentTime)
+    }, { timeout:45000, message:"A saved station produces non-silent output" }).toBe(true)
+    if (previous) assert.equal(reading.documentStart,previous.documentStart)
+    const actor = new RegExp(`(?:pid:|/)${lastPid}\\b`)
+    const players = shell("shell","dumpsys","audio").split(/\r?\n/).filter(line=>actor.test(line))
+    assert.ok(players.some(line=>/state:started/i.test(line)),"Android started the app's audio output")
+    return reading
   }
   function captureAndroidScreen() {
     // The 1080 × 2400 fixture's PNG can exceed Node's default 1 MiB buffer.
@@ -164,9 +178,9 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     return shell("shell","cat",hierarchyPath)
   }
   /** Tap fresh accessibility bounds across APKs, including Home outside WebView. */
-  async function tapNativeLabel(label) {
+  async function tapNativeLabel(label, attribute = "text") {
     const xmlLabel=label.replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    const bounds=new RegExp(`<node\\b[^>]*text="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
+    const bounds=new RegExp(`<node\\b[^>]*${attribute}="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
     let target
     await expect.poll(()=>{
       target=nativeHierarchy().match(bounds)
@@ -380,15 +394,31 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(()=>nativeHierarchy().includes('text="Close Clock"')).toBe(true)
     await tapNativeLabel("Close Clock")
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
+    let stage1Audio = null
+    let audioPage = null
+    if (nativeBaseline) {
+      await tapNativeLabel("Music")
+      await tapNativeLabel("Search stations")
+      await tapNativeLabel("native_station_query","resource-id")
+      shell("shell","input","text","Little%sBells")
+      await tapNativeLabel("Little Bells")
+      await tapNativeLabel("Play")
+      audioPage = await connect({ entry:nativeAudioEntry })
+      await expect.poll(()=>nativeHierarchy()).toContain('text="Playing"')
+      stage1Audio = { music:await hearNativeAudio(audioPage) }
+      await tapNativeLabel("Back to Home")
+    }
     await tapNativeLabel("Open breathing guide")
     await tapNativeLabel("Start breathing")
     await expect.poll(()=>nativeHierarchy()).toContain('text="Pause breathing"')
+    if (stage1Audio) stage1Audio.breathing = await hearNativeAudio(audioPage,stage1Audio.music)
     await writeFile(path.join(output,"android-native-breathing.png"),captureAndroidScreen())
     shell("shell","input","keyevent","KEYCODE_BACK")
     await tapNativeLabel("Clock & timer")
     await tapNativeLabel("Open timer")
     await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
     assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt,"Breathing leaves the running timer's deadline intact")
+    if (stage1Audio) stage1Audio.timer = await hearNativeAudio(audioPage,stage1Audio.breathing)
     shell("shell","am","force-stop",pkg)
     shell("shell","am","start","-W","-a","android.intent.action.VIEW",
       "-n",`${pkg}/com.atmoshaper.app.MainActivity`,"-d","atmoshaper://tool?path=%2Fchimer%2F")
@@ -523,6 +553,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       webAudioAdvancedAndScheduledNonSilentSourcesDuringNativeBreathing:true,
       clockAppearanceTransferred:true,
       earlierNativeAppearancePreserved:earlierAppearance !== null,
+      nativeOfflineStationOutput:stage1Audio,
       backFromPreviousTools:true,
       sharedWebsite:true,
       upgradeVersions,
