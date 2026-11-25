@@ -143,7 +143,14 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         val selected = choices?.firstOrNull { it.id == current?.selectedBackgroundId }
         val canUseSelection = selected?.canUse(access) == true
         val shown = current?.let {
-            if (canUseSelection && selected?.defaults?.background == it.background) it else it.copy(background = ClockBackground.Neutral)
+            val defaults = selected?.defaults?.takeIf { canUseSelection }
+            when {
+                defaults?.background == it.background -> it
+                defaults?.background == ClockBackground.Packaged && it.background == ClockBackground.Neutral ->
+                    // An earlier native Clock may only have retained the ID.
+                    it.withBackground(defaults.backgroundStyle, it.rememberedBackgroundId)
+                else -> it.copy(background = ClockBackground.Neutral)
+            }
         }
         val packagedStyle = if (shown?.background == ClockBackground.Packaged) {
             shown.backgroundStyle.copy(motion = systemMotionEnabled() && shown.motion)
@@ -176,7 +183,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 val notice = when {
                     choices == null -> R.string.clock_background_catalog_failed
                     selected != null && !canUseSelection -> access.denialMessage()
-                    selected != null && (selected.defaults == null || rendererStatus == ClockEffectStatus.Failed) -> R.string.clock_background_renderer_failed
+                    selected != null && (shown?.background == ClockBackground.Neutral || rendererStatus == ClockEffectStatus.Failed) -> R.string.clock_background_renderer_failed
                     selected == null && current.selectedBackgroundId != ClockBackground.Neutral.key -> R.string.clock_background_missing
                     else -> null
                 }
