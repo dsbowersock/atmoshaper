@@ -46,7 +46,7 @@ class HomeJourneyTest {
                 waitForText("Close Clock").click()
             } else {
                 waitForText(when (category) {
-                    "Music" -> "Ready to play"
+                    "Music" -> "Downloads"
                     "Wellness" -> "Open breathing guide"
                     else -> "Coming to the native app"
                 })
@@ -70,14 +70,14 @@ class HomeJourneyTest {
         launchFromAppIcon()
         assertNativeHome()
         scrollToText("Music").click()
-        waitForText("Ready to play")
+        waitForText("Downloads")
         scrollToText("Open previous tools").click()
         assertTrue("Expected previous tools to reopen the existing WebView", device.wait(Until.hasObject(webView), 10_000))
 
         device.pressBack()
         assertTrue("Expected Back to close previous tools", device.wait(Until.gone(webView), 10_000))
         // The native Music panel retains its scroll position across this round trip.
-        waitForText("Ready to play")
+        scrollToText("Downloads", Direction.UP)
         device.pressBack()
         assertNativeHome()
     }
@@ -107,13 +107,13 @@ class HomeJourneyTest {
         assertTrue("Expected an accessible public wordmark", device.wait(Until.hasObject(By.desc("AtmoShaper")), 10_000))
     }
 
-    /** The Home grid and expanded native tool panels can extend beyond the initial viewport. */
-    private fun scrollToText(label: String): UiObject2 {
+    /** Find a control from the current scroll position, including after returning from another activity. */
+    private fun scrollToText(label: String, direction: Direction = Direction.DOWN): UiObject2 {
         val selector = By.text(label)
         repeat(6) {
             device.findObject(selector)?.let { return it }
             val container = checkNotNull(device.findObject(By.scrollable(true))) { "Expected a scrollable app panel" }
-            container.scroll(Direction.DOWN, 0.65f)
+            container.scroll(direction, 0.65f)
         }
         return waitForText(label)
     }
