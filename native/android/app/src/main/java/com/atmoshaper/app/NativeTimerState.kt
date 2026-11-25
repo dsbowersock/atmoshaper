@@ -112,6 +112,8 @@ internal data class TimerSnapshot(
     val intervalMs: Long? = null,
     val cuePosition: TimerCuePosition? = null,
     val savedSetups: List<SavedTimerSetup> = emptyList(),
+    val sessionId: String? = null,
+    val missedCompletion: Boolean = false,
 ) {
     init {
         require(totalMs in 0..maxDurationMs && pausedMs in 0..totalMs)
@@ -126,6 +128,8 @@ internal data class TimerSnapshot(
             null -> Unit
         }
         require(savedSetups.size <= 13)
+        require(sessionId == null || (phase in activePhases && sessionId.matches(sessionIdPattern)))
+        require(!missedCompletion || phase == TimerPhase.Complete)
     }
 
     fun remainingAt(now: Long): Long =
@@ -201,14 +205,17 @@ internal data class TimerSnapshot(
 
     fun end() = TimerSnapshot(setup, savedSetups = savedSetups)
 
-    private fun completed() = TimerSnapshot(setup, TimerPhase.Complete, totalMs, savedSetups = savedSetups)
+    private fun completed(missed: Boolean = false) =
+        TimerSnapshot(setup, TimerPhase.Complete, totalMs, savedSetups = savedSetups, missedCompletion = missed)
 
     /** Reconcile from the deadline when reopened. A live foreground tick may
      * emit one fresh cue, after the caller commits the advanced snapshot. */
     fun advance(now: Long, foreground: Boolean): TimerAdvance {
         val deadline = deadlineMs ?: return TimerAdvance(this)
-        if (now >= deadline) return TimerAdvance(completed(),
-            TimerSignal.Completion.takeIf { foreground && now - deadline < foregroundCueWindowMs })
+        if (now >= deadline) {
+            val fresh = foreground && now - deadline < foregroundCueWindowMs
+            return TimerAdvance(completed(missed = !fresh), TimerSignal.Completion.takeIf { fresh })
+        }
         val next = (cuePosition as? TimerCuePosition.Deadline)?.milliseconds ?: return TimerAdvance(this)
         val interval = checkNotNull(intervalMs)
         if (now < next) return TimerAdvance(this)
@@ -224,6 +231,8 @@ internal data class TimerSnapshot(
         .put("phase", phase.key).put("totalMs", totalMs).put("pausedMs", pausedMs)
         .put("deadlineMs", deadlineMs ?: JSONObject.NULL).put("intervalMs", intervalMs ?: JSONObject.NULL)
         .put("cueAtMs", cuePosition?.milliseconds ?: JSONObject.NULL)
+        .put("sessionId", sessionId ?: JSONObject.NULL)
+        .put("missedCompletion", missedCompletion)
         .put("savedSetups", JSONArray().apply {
             savedSetups.forEach { saved ->
                 put(JSONObject().put("name", saved.name ?: JSONObject.NULL).put("setup", saved.setup.encode()))
@@ -232,6 +241,7 @@ internal data class TimerSnapshot(
 
     companion object {
         private val activePhases = setOf(TimerPhase.Running, TimerPhase.Paused)
+        private val sessionIdPattern = Regex("[0-9a-f-]{36}")
 
         /** Reject partial or mistyped copies. Import and subsequent reads use
          * the same validation so an invalid copy never becomes a writable default. */
@@ -267,6 +277,8 @@ internal data class TimerSnapshot(
                 phase,
                 record.long("totalMs"), record.long("pausedMs"), nullable("deadlineMs"),
                 nullable("intervalMs"), cuePosition, saved,
+                if (record.isNull("sessionId")) null else record.get("sessionId") as String,
+                if (record.has("missedCompletion")) record.get("missedCompletion") as Boolean else false,
             )
         }
     }

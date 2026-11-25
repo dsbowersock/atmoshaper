@@ -1,6 +1,10 @@
 package com.atmoshaper.app
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
@@ -21,17 +25,19 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-/** Owns only foreground delivery. The persisted deadline stays authoritative
- * when the screen, activity or process goes away. */
+/** Renders the persisted timer and plays cues while its window has focus. */
 class NativeTimerActivity : ComponentActivity() {
     private val store by lazy { NativeTimerFile(applicationContext) }
+    private val scheduler by lazy { TimerAlarmCoordinator(applicationContext) }
     private val sound by lazy { TimerCuePlayer(this) }
+    private val foregroundCue: (TimerAdvance) -> Unit = ::deliverCue
     private val mutation = Mutex()
     private var snapshot by mutableStateOf<TimerSnapshot?>(null)
     private var error by mutableStateOf<Int?>(null)
     private var busy by mutableStateOf(true)
     private var now by mutableStateOf(0L)
     private var flash by mutableStateOf(false)
+    private var alerts by mutableStateOf<TimerAlertStatus?>(null)
     private var pendingSetup: TimerSetup? = null
     private var setupWriter: Job? = null
     private var flashJob: Job? = null
@@ -42,12 +48,14 @@ class NativeTimerActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this) { close() }
         setContent {
             HomeTheme {
-                NativeTimerScreen(snapshot, now, busy, error, flash, ::close, ::retry, ::saveSetup, ::change)
+                NativeTimerScreen(snapshot, now, busy, error, flash, ::close, ::retry, ::saveSetup, ::change,
+                    alerts, ::openNotificationSettings, ::openExactAlarmSettings)
             }
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 retryLoad()
+                launch { TimerAlarmCoordinator.backgroundChanges.collect { retryLoad() } }
                 while (true) {
                     if (error == null) tick()
                     delay(125)
@@ -58,6 +66,17 @@ class NativeTimerActivity : ComponentActivity() {
 
     private fun retry() {
         lifecycleScope.launch { retryLoad() }
+    }
+
+    private fun openNotificationSettings() {
+        startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+    }
+
+    private fun openExactAlarmSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.fromParts("package", packageName, null)))
+        }
     }
 
     private fun close() {
@@ -112,7 +131,7 @@ class NativeTimerActivity : ComponentActivity() {
             }
             val openedAt = System.currentTimeMillis()
             now = openedAt
-            showSnapshot(withContext(Dispatchers.IO) { store.update { it.advance(openedAt, false).snapshot } })
+            showSnapshot(withContext(Dispatchers.IO) { scheduler.open(openedAt) })
             error = null
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -131,9 +150,8 @@ class NativeTimerActivity : ComponentActivity() {
                 mutation.withLock {
                     val changedAt = System.currentTimeMillis()
                     now = changedAt
-                    val transition = commitTransition { command(it, changedAt) }
                     stopCue()
-                    deliverCue(transition)
+                    commitTransition { command(it, changedAt) }
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -151,10 +169,10 @@ class NativeTimerActivity : ComponentActivity() {
         val observedAt = System.currentTimeMillis()
         now = observedAt
         val next = previous.advance(observedAt, false)
-        if (previous == next.snapshot) return@withLock
+        if (previous == next.snapshot || !hasWindowFocus()) return@withLock
         try {
             val foreground = hasWindowFocus()
-            deliverCue(commitTransition { it.advance(observedAt, foreground) })
+            commitTransition { it.advance(observedAt, foreground) }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
@@ -164,18 +182,9 @@ class NativeTimerActivity : ComponentActivity() {
 
     /** Commit the state before exposing the cue so a failed save or a reopened
      * screen cannot replay a completion or interval. */
-    private suspend fun commitTransition(command: (TimerSnapshot) -> TimerAdvance): TimerAdvance {
-        val transition = withContext(Dispatchers.IO) {
-            var cue: TimerSignal? = null
-            val current = store.update {
-                val result = command(it)
-                cue = result.cue
-                result.snapshot
-            }
-            TimerAdvance(current, cue)
-        }
+    private suspend fun commitTransition(command: (TimerSnapshot) -> TimerAdvance) {
+        val transition = withContext(Dispatchers.IO) { scheduler.change(command) }
         showSnapshot(transition.snapshot)
-        return transition
     }
 
     private fun deliverCue(transition: TimerAdvance) {
@@ -200,13 +209,24 @@ class NativeTimerActivity : ComponentActivity() {
 
     private fun showSnapshot(current: TimerSnapshot) {
         snapshot = current
+        alerts = scheduler.status(current.setup)
         val flag = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         if ((current.phase == TimerPhase.Running || current.phase == TimerPhase.Paused) && current.setup.keepAwake) window.addFlags(flag)
         else window.clearFlags(flag)
     }
 
     override fun onPause() {
+        detachCuePlayer()
         stopCue()
         super.onPause()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) TimerAlarmCoordinator.foreground = foregroundCue else detachCuePlayer()
+    }
+
+    private fun detachCuePlayer() {
+        if (TimerAlarmCoordinator.foreground === foregroundCue) TimerAlarmCoordinator.foreground = null
     }
 }
