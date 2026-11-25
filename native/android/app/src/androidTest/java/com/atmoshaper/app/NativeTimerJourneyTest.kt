@@ -1,6 +1,7 @@
 package com.atmoshaper.app
 
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationManager
 import android.os.Build
 import android.os.SystemClock
@@ -174,14 +175,18 @@ class NativeTimerJourneyTest {
             ActivityScenario.launch(NativeTimerActivity::class.java).use {
                 text("Timer running")
                 assertNotNull(notice("Timer running"))
-                endedSessionAction = notifications.activeNotifications
+                val progress = notifications.activeNotifications
                     .single { it.notification.extras.getString("android.title") == "Timer running" }
-                    .notification.actions.single().actionIntent
+                    .notification
+                assertTrue(progress.flags and Notification.FLAG_ONGOING_EVENT != 0)
+                val end = progress.actions.single()
+                assertEquals("End timer", end.title.toString())
+                endedSessionAction = end.actionIntent
                 device.pressHome()
-                device.openNotification()
-                text("End timer").click()
+                // SystemUI can collapse ongoing actions. Invoke the published
+                // Android PendingIntent that its End timer action owns.
+                end.actionIntent.send()
                 assertTrue(waitFor { !hasNotice("Timer running") })
-                device.pressBack()
             }
             ActivityScenario.launch(NativeTimerActivity::class.java).use { scrollTo("Start timer") }
         }
