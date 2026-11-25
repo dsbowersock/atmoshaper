@@ -30,3 +30,16 @@ Open one draft PR following the first successful integration and link #82 and #9
 5. Measure launch, warm navigation, station start to actual output, and representative process resources on an installable performance build, with the build configuration and limitations recorded. Measure cold and warm conditions separately. Carry any hardware-dependent measurements and prolonged battery observation to the owner's S24 handoff.
 6. Run affected web and offline contract suites, installed Android tests and hosted Android/CI. Review the full integrated range with the code-review skill and obtain completed CodeRabbit coverage of the range and corrections. Wait for current-head hosted results and review threads, then mark the combined PR ready when its software gates pass.
 7. Link the integrated receipt from the PR’s #94 handoff. The owner retains the merge and physical S24 installation/acceptance. Remove only this batch’s clean implementer worktrees after verifying their commits are integrated and the evidence has been retained.
+
+## Galaxy S24 Ultra handoff
+
+Use the exact APK and signer in the final receipt. Start from the installed preview as an in-place update, and record the Android/One UI build and the before/after app versions. Confirm the existing setting, saved download and draft through the app. Record results by behavior and note conditions that can affect Android delivery or resource measurements, such as notification permission, battery mode, screen state and audio route.
+
+| Journey | What to observe on the S24 Ultra |
+| --- | --- |
+| Home, Clock and breathing | First and subsequent visits respond to touch. Close and fullscreen exit remain responsive. The chosen background, styles and active timer survive moving between Clock, breathing and Music. |
+| Offline downloads and playback | After a cold airplane-mode launch, a previously downloaded station and an ambient sound play through the selected audio route. Verify the matching ready state in Downloads and a playable saved pack after restarting. |
+| Audible lifecycle | Listen through screen lock, app switch and recent-task dismissal. Confirm an incoming call pauses playback and recovery honors the previous playback state. Try Stop during interruption and verify silence after the call. |
+| Background timer | With permission, observe the configured alert after leaving the app, then test the notification’s End timer action. Verify foreground operation with permission denied. Reboot a short and a longer timer in separate trials to observe missed completion and remaining time, with playback silent after boot. |
+| Appearance and access | Verify the expected free, eligible or fallback display and saved styles offline. Use the existing review procedure for real entitlement checks that require separately authorized account activity. |
+| Performance | Record launch and return timings, audible startup, navigation responsiveness and battery behavior on the phone under the stated screen/network/audio conditions. |
