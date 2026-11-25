@@ -32,6 +32,8 @@ internal enum class NativeAudioStatus(@get:StringRes val label: Int) {
     Failed(R.string.native_audio_failed),
 }
 
+internal data class NativeStationPlayback(val id: String, val status: NativeAudioStatus)
+
 /** Main-thread publication and transport commands for Compose. The foreground
  * service alone owns the media session, focus request and audible graph. */
 internal object NativeAudio {
@@ -39,19 +41,26 @@ internal object NativeAudio {
     const val PLAY = "com.atmoshaper.app.nativeaudio.PLAY"
     const val PAUSE = "com.atmoshaper.app.nativeaudio.PAUSE"
     const val STOP = "com.atmoshaper.app.nativeaudio.STOP"
+    const val STOP_STATION = "com.atmoshaper.app.nativeaudio.STOP_STATION"
+    const val EXTRA_STATION = "stationId"
 
     private val mutableStatus = MutableStateFlow(NativeAudioStatus.Idle)
     val status = mutableStatus.asStateFlow()
+    private val mutableStation = MutableStateFlow(NativeStationPlayback(STATION, NativeAudioStatus.Idle))
+    val station = mutableStation.asStateFlow()
 
     fun publish(value: NativeAudioStatus) { mutableStatus.value = value }
+    fun publishStation(id: String, value: NativeAudioStatus) { mutableStation.value = NativeStationPlayback(id, value) }
 
-    fun send(context: Context, command: String) {
+    fun send(context: Context, command: String, stationId: String? = null) {
         val intent = Intent(context, NativeAudioService::class.java).setAction(command)
+        if (stationId != null) intent.putExtra(EXTRA_STATION, stationId)
         try {
             if (command == PLAY) ContextCompat.startForegroundService(context, intent)
             else context.startService(intent)
         } catch (_: IllegalStateException) {
             publish(NativeAudioStatus.Failed)
+            publishStation(stationId ?: station.value.id, NativeAudioStatus.Failed)
         }
     }
 }
@@ -68,10 +77,15 @@ class NativeAudioService : Service() {
     private var resumeOnFocusGain = false
     private var engine: NativeAudioEngine? = null
     private var token = 0
+    private var station: NativeStation? = null
+    private var engineReady = false
+    private var stationStarted = false
+    // Replacing a station invalidates its replies while the mixer stays alive.
+    private var stationRevision = 0
     private val startupTimeout = Runnable { finish(NativeAudioStatus.Failed) }
     private val notifications get() = getSystemService(NotificationManager::class.java)
     private val status get() = NativeAudio.status.value
-    private val title get() = getString(R.string.native_audio_aisatsana)
+    private val title get() = station?.title ?: getString(R.string.native_audio_channel)
 
     override fun onCreate() {
         super.onCreate()
@@ -88,7 +102,6 @@ class NativeAudioService : Service() {
             NotificationChannel(CHANNEL, getString(R.string.native_audio_channel), NotificationManager.IMPORTANCE_LOW),
         )
         session = MediaSession(this, "AtmoShaper audio").apply {
-            setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build())
             setSessionActivity(openHome())
             setCallback(object : MediaSession.Callback() {
                 override fun onPlay() = play()
@@ -105,16 +118,32 @@ class NativeAudioService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            NativeAudio.PLAY -> play()
+            NativeAudio.PLAY -> play(intent.getStringExtra(NativeAudio.EXTRA_STATION))
             NativeAudio.PAUSE -> pause(NativeAudioStatus.Paused)
-            NativeAudio.STOP -> finish(NativeAudioStatus.Idle)
+            NativeAudio.STOP, NativeAudio.STOP_STATION -> finish(NativeAudioStatus.Idle)
             else -> finish(NativeAudioStatus.Idle)
         }
         return START_NOT_STICKY
     }
 
-    private fun play() {
-        if (status in setOf(NativeAudioStatus.Loading, NativeAudioStatus.Playing, NativeAudioStatus.Interrupted)) return
+    private fun play(stationId: String? = null) {
+        val id = stationId ?: station?.id ?: NativeAudio.station.value.id
+        if (id == station?.id && status in setOf(NativeAudioStatus.Loading, NativeAudioStatus.Playing, NativeAudioStatus.Interrupted)) return
+        if (station?.id != id) {
+            val choice = runCatching { NativeStationCatalog.read(this).find { it.id == id && it.playable } }.getOrNull()
+            if (choice == null) {
+                if (engine == null) finish(NativeAudioStatus.Failed)
+                return
+            }
+            engine?.stopStation(token)
+            station = choice
+            stationStarted = false
+            stationRevision++
+            session.setMetadata(MediaMetadata.Builder()
+                .putString(MediaMetadata.METADATA_KEY_TITLE, choice.title)
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, choice.artist)
+                .build())
+        }
         if (!foreground) {
             publish(NativeAudioStatus.Loading)
             try {
@@ -149,7 +178,8 @@ class NativeAudioService : Service() {
         mainThread.postDelayed(startupTimeout, STARTUP_TIMEOUT_MILLIS)
         val retained = engine
         if (retained != null) {
-            retained.setPaused(false, token)
+            if (stationStarted) retained.setPaused(false, token)
+            else if (engineReady) startStation(retained)
             return
         }
         val request = ++token
@@ -164,13 +194,27 @@ class NativeAudioService : Service() {
     private fun handleEngineMessage(request: Int, message: String) {
         if (request != token) return
         when (message) {
-            "ready" -> if (status == NativeAudioStatus.Loading) engine?.play(NativeAudio.STATION, request)
-            "playing:$request" -> if (status == NativeAudioStatus.Loading) {
-                mainThread.removeCallbacks(startupTimeout)
-                publish(NativeAudioStatus.Playing)
+            "ready" -> {
+                engineReady = true
+                if (status == NativeAudioStatus.Loading) engine?.let(::startStation)
             }
-            "failed:$request", "unavailable" -> finish(NativeAudioStatus.Failed)
+            "station-playing:$request:$stationRevision" -> if (status == NativeAudioStatus.Loading) {
+                stationStarted = true
+                completeStartup()
+            }
+            "playing:$request" -> if (stationStarted && status == NativeAudioStatus.Loading) completeStartup()
+            "failed:$request" -> if (stationStarted) finish(NativeAudioStatus.Failed)
+            "station-failed:$request:$stationRevision", "unavailable" -> finish(NativeAudioStatus.Failed)
         }
+    }
+
+    private fun startStation(target: NativeAudioEngine) {
+        station?.let { target.play(it.id, token, stationRevision) }
+    }
+
+    private fun completeStartup() {
+        mainThread.removeCallbacks(startupTimeout)
+        publish(NativeAudioStatus.Playing)
     }
 
     private fun pause(nextStatus: NativeAudioStatus) {
@@ -219,6 +263,9 @@ class NativeAudioService : Service() {
 
     private fun releaseEngine() {
         token++
+        stationRevision++
+        engineReady = false
+        stationStarted = false
         resumeOnFocusGain = false
         mainThread.removeCallbacks(startupTimeout)
         engine?.close()
@@ -231,6 +278,7 @@ class NativeAudioService : Service() {
         if (foreground) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             NativeAudio.publish(NativeAudioStatus.Idle)
+            NativeAudio.publishStation(NativeAudio.station.value.id, NativeAudioStatus.Idle)
         }
         session.release()
         super.onDestroy()
@@ -238,6 +286,7 @@ class NativeAudioService : Service() {
 
     private fun publish(nextStatus: NativeAudioStatus) {
         NativeAudio.publish(nextStatus)
+        NativeAudio.publishStation(station?.id ?: NativeAudio.station.value.id, nextStatus)
         val state = when (nextStatus) {
             NativeAudioStatus.Loading -> PlaybackState.STATE_BUFFERING
             NativeAudioStatus.Playing -> PlaybackState.STATE_PLAYING

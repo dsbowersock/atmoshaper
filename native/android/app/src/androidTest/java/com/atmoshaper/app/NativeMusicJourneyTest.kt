@@ -33,6 +33,22 @@ class NativeMusicJourneyTest {
     }
 
     @Test
+    fun stationSearchShowsExistingCreditsAndExplainsUnsupportedPlayback() {
+        ActivityScenario.launch(HomeActivity::class.java).use {
+            openMusic()
+            chooseStation("Little Bells")
+            text("Ready to play")
+            text("Credits").click()
+            text("Alex Bainter")
+            text("MIT")
+            device.pressBack()
+            chooseStation("Drone")
+            text("This station's engine is unavailable in the native player.")
+            assertFalse(text("Play").isEnabled)
+        }
+    }
+
+    @Test
     fun androidFocusResumesAnInterruptionUntilTheUserStops() {
         assumeTrue(InstrumentationRegistry.getArguments().getString("verifyAisatsana") == "true")
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -70,6 +86,14 @@ class NativeMusicJourneyTest {
             }
         }
         text("Music").click()
+    }
+
+    private fun chooseStation(title: String) {
+        text("Search stations").click()
+        val field = checkNotNull(device.wait(Until.findObject(By.res("native_station_query")), 10_000))
+        field.setText(title)
+        text(title).click()
+        text(title)
     }
 
     private fun text(label: String, timeout: Long = 10_000): UiObject2 =

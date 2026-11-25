@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="native_audio_channel">Music playback</string>
-    <string name="native_audio_aisatsana">aisatsana (generative remix)</string>
+    <string name="native_audio_station_catalog">Stations</string>
+    <string name="native_audio_search_stations">Search stations</string>
+    <string name="native_audio_no_stations">No matching stations.</string>
+    <string name="native_audio_catalog_failed">The station catalog could not be opened.</string>
+    <string name="native_audio_station_unsupported">This station\'s engine is unavailable in the native player.</string>
+    <string name="native_audio_station_credits">Credits</string>
+    <string name="native_audio_station_close">Close</string>
+    <string name="native_audio_station_active">Current station: %1$s</string>
     <string name="native_audio_idle">Ready to play</string>
     <string name="native_audio_loading">Loading</string>
     <string name="native_audio_playing">Playing</string>

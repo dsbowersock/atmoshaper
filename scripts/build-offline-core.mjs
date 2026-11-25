@@ -6,6 +6,7 @@ import { readFile, writeFile, copyFile, mkdir, readdir, lstat, realpath, rm } fr
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { backgroundRegistry, userCanUseBackground } from "../components/backgrounds/backgroundRegistry.ts"
 import { projectClockAppearance } from "../lib/native-clock-appearance-transfer.js"
+import { nativeStationCatalogJson } from "../lib/native-station-catalog.js"
 
 const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
@@ -172,6 +173,7 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
         return { id: entry.id, label: entry.label, guestAccess, defaults }
       })
     await writeFile(path.join(coreRoot, "clock-backgrounds.json"), JSON.stringify(clockBackgrounds))
+    await writeFile(path.join(coreRoot, "native-station-catalog.json"), nativeStationCatalogJson())
     await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}"></script>`)
     await writeFile(path.join(coreRoot, "timer-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Timer transfer</title><script defer src="./timer-export.js"></script>`)
     await writeFile(path.join(coreRoot, "native-audio-player.html"), `<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://media.atmoshaper.com/atmosphere/; worker-src blob:; base-uri 'none'; form-action 'none'"><title>AtmoShaper audio player</title><script defer src="./native-audio-player.js"></script></html>`)

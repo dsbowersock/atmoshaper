@@ -91,7 +91,9 @@ internal class NativeAudioEngine(
         view.loadUrl(ENTRY)
     }
 
-    fun play(id: String, token: Int) = command("play(${JSONObject.quote(id)}, $token)")
+    fun play(id: String, token: Int, revision: Int) = command("play(${JSONObject.quote(id)}, $token, $revision)")
+
+    fun stopStation(token: Int) = command("stopStation($token)")
 
     fun setPaused(paused: Boolean, token: Int) = command("setPaused($paused, $token)")
 
