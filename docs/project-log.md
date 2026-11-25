@@ -6,6 +6,8 @@ Verify the Stage 1 issue graph and the exact `c7991eb` main commit. The approved
 
 The [#94 checkpoint](audits/2026-11-24-native-android-stage-1-acceptance.md) records individual installed evidence and remaining integrated gates. Move Home and the complementary tools suite to separate hosted emulators after two full runs lost the device during legacy navigation. Both new jobs passed on the mixer checkpoint.
 
+The combined development APK passed the guarded v3 → v6 → v10 → v11 upgrade and played the retained Little Bells pack in airplane mode from the native UI. A separate release-variant emulator run recorded startup, warmed navigation and audio resource samples. The subsequent review corrections address Clock, timer, audio focus and Downloads lifecycle races. The acceptance record names both tested artifact digests and the corrective range.
+
 ## November 24 native timer hosted review follow-up
 
 Address the four CodeRabbit findings on draft PR #134. Isolate malformed

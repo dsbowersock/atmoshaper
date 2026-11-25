@@ -12,4 +12,22 @@ The approved source base is `c7991eb9eb4f073456df70c907fc9dbf4ff576b1`. The comb
 | #93 background access | The corrected normal candidate passed Android assembly and lint at APK SHA-256 `43d8e0d9e5da124468657e26afc30f10d1a97e45c0a9ad89c9c6870807b24de6`. A separate synthetic APK upgraded the earlier installation in place, retained the signed local receipt and authored style, and rendered Pegboard pixels after Clock re-entry. A signed empty replacement removed access, the existing approval UI granted a short subscription, and the displayed effect lost access at its signed expiry in the same process. Seven Clock checks passed. An immediate switch before the approval page confirmed the new lease temporarily stayed free-only until re-entry. |
 | Hosted Android | Two earlier PR heads lost the hosted emulator during the legacy Home journey after 18 completed tests. Home and the complementary tools job both passed on separate emulators at `f6e6637`. [Android run](https://github.com/dsbowersock/atmoshaper/actions/runs/45541877362) |
 
-Local integration `439c5d0` contains the complete remaining ticket batch. The integrated #94 installed journey, release performance measurements, current-range Codex and CodeRabbit coverage, and owner S24 results remain open.
+Local integration `439c5d0` contains the complete remaining ticket batch.
+
+## Combined build before review corrections
+
+The guarded signed upgrade on APK `effb9c5bc2eee74a8709b89bfc0f9fe9ee88867b7fc41882264861936db6f641` passed version codes 3 → 6 → 10 → 11. It preserved the earlier native Clock appearance, original timer deadline, both saved-pack byte digests and the planner draft. In airplane mode, native Downloads verified the earlier Little Bells pack. The same native audio document produced non-silent output and an active Android audio track in Music, breathing and timer. Clock fullscreen and Back passed on repeated visits.
+
+The Android 35 emulator measured a separate release-variant APK `2ff6a5c4645279ad31c1f670c435c4292c844a48fe5742e3bb6bb9ad69e25537`, signed with the existing debug fixture signer. The foreground renderer ran with the pilot emulator's host graphics mode and Wi-Fi enabled. Initial display uses Android's reported launch time. Clock entry includes ADB and accessibility-hierarchy polling. Aisatsana timing ends when Android first reports a started player. [Android startup measurement](https://developer.android.com/topic/performance/issues/launch-time) · [Android frame and memory diagnostics](https://developer.android.com/tools/dumpsys)
+
+| Sample | Observed result |
+| --- | --- |
+| Cold Home initial display | 688–1,453 ms, median 1,136 ms across five launches |
+| Hot Home return with the same process | 71–129 ms, median 95 ms across five returns |
+| Warm Clock entry observed through accessibility | 2,221–2,692 ms, median 2,259 ms across three visits |
+| Connected Aisatsana Android player start | 769 ms observed in one launch |
+| App-process proportional memory | 39,277 KiB at idle Home and 94,505 KiB while playing |
+
+## Review corrections
+
+The Standards and Spec reviews on `9ec0c7d` identified an interrupted Clock permission handoff, a timer completion race, a prepared station that could start after an interruption, and Downloads failure and stale readiness. Integration `57ae8f5` includes the corrective batch and harmonizes the Android check names with the CI guide. Hosted re-runs, the corrected build's installed journey, and CodeRabbit coverage remain open. Physical S24 timing, long-running battery behavior and speaker audibility remain for owner acceptance.
