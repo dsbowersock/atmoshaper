@@ -135,7 +135,10 @@ async function packagedPage(browser, relative) {
   const url = entry + relative
   let page
   await expect.poll(() => {
-    page = context.pages().find(value => value.url() === url)
+    page = context.pages().find(value => {
+      const location = value.url()
+      return location === url || (relative === "index.html" && location.startsWith(url + "#"))
+    })
     return Boolean(page)
   }, { timeout }).toBe(true)
   return page
