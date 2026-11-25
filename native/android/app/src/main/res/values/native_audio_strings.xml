@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_audio_channel">Music playback</string>
+    <string name="native_audio_station_catalog">Stations</string>
+    <string name="native_audio_search_stations">Search stations</string>
+    <string name="native_audio_no_stations">No matching stations.</string>
+    <string name="native_audio_catalog_failed">The station catalog could not be opened.</string>
+    <string name="native_audio_station_unsupported">This station\'s engine is unavailable in the native player.</string>
+    <string name="native_audio_station_credits">Credits</string>
+    <string name="native_audio_station_close">Close</string>
+    <string name="native_audio_station_active">Current station: %1$s</string>
+    <string name="native_audio_idle">Ready to play</string>
+    <string name="native_audio_loading">Loading</string>
+    <string name="native_audio_playing">Playing</string>
+    <string name="native_audio_paused">Paused</string>
+    <string name="native_audio_interrupted">Interrupted</string>
+    <string name="native_audio_command_failed">Could not apply that playback command. Try again.</string>
+    <string name="native_audio_failed">Playback unavailable. Check your connection or download this station, then try again.</string>
+    <string name="native_audio_play">Play</string>
+    <string name="native_audio_pause">Pause</string>
+    <string name="native_audio_stop">Stop</string>
+    <string name="native_audio_mixer">Atmosphere sounds and noise</string>
+    <string name="native_audio_mix_title">Atmosphere mix</string>
+    <string name="native_audio_expanded">Expanded</string>
+    <string name="native_audio_collapsed">Collapsed</string>
+    <string name="native_audio_white_noise">White noise</string>
+    <string name="native_audio_pink_noise">Pink noise</string>
+    <string name="native_audio_brown_noise">Brown noise</string>
+    <string name="native_audio_boiling_water">Boiling Water</string>
+    <string name="native_audio_heavy_rain">Heavy Rain</string>
+    <string name="native_audio_more_ambient">Open previous tools to play more Atmosphere sounds.</string>
+    <string name="native_audio_play_layer">Play %1$s</string>
+    <string name="native_audio_stop_layer">Stop %1$s</string>
+    <string name="native_audio_layer_volume">%1$s volume</string>
+    <string name="native_audio_layer_loading">Loading %1$s</string>
+    <string name="native_audio_ambient_failed">Could not play %1$s. Reconnect or use a verified download, then try again.</string>
+    <string name="native_audio_generated_failed">Could not play %1$s. Try again.</string>
+    <string name="native_audio_pause_mix">Pause all audio</string>
+    <string name="native_audio_resume_mix">Resume all audio</string>
+    <string name="native_audio_stop_mix">Stop all audio</string>
+</resources>

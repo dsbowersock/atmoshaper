@@ -1,9 +1,10 @@
-# AtmoShaper Android native Home preview
+# AtmoShaper Android native core Stage 1 preview
 
 The Android launcher opens Kotlin/Compose Home with Music, Clock & timer,
-Wellness, My Calendar, Study & play and Practice tools. These destinations show
-their native availability. **Open previous tools** opens the existing installed
-experience, including its saved work and connected links.
+Wellness, My Calendar, Study & play and Practice tools. The development preview
+includes the native Clock and timer, breathing guide, Music and Downloads.
+**Open previous tools** opens the existing installed experience, including its
+saved work, additional audio and connected links.
 
 Install the candidate as an update to the same package with the same signer.
 Native Home uses the existing APK wordmark and two static weights converted
@@ -47,6 +48,8 @@ Partial, failed and cancelled saves do not publish readiness. A separate metadat
 store lists downloads without deserializing every audio buffer; schema upgrade
 preserves earlier packs. Removal deletes only that pack. Uninstall/clear-data
 removes app data. Persistent-storage requests are advisory, not an OS guarantee.
+If a verified saved station sample fails decoding during playback, Downloads
+marks those bytes for repair and checks that sample before publishing a retry.
 
 Playback uses verified decoded samples with the actual generator packages and
 the existing ambient scheduler/crossfade policies. A missing saved pack may load
@@ -55,8 +58,16 @@ Damaged saved bytes or failed storage reads never silently fall back to network.
 Tool navigation retains the audio owner. Clock imports earlier preferences and
 timer deadlines read-only into a separate atomic snapshot; a failed initial read
 cannot overwrite saved state. Access receipts retain their existing namespace.
-Foreground rotation retains the WebView/audio context. Background playback,
-closed-app timer alarms and native media-service controls remain future work.
+Native Music uses one foreground media service for station playback and the
+supported Atmosphere sounds. The native mixer includes Boiling Water, Heavy
+Rain and generated white, pink and brown noise. Additional ambient sounds are
+available in Previous Tools. The catalog shows unavailable engines explicitly.
+Android notification permission controls timer alerts while the screen is
+away. Android can delay timer alarms when precise-alarm access is unavailable.
+When reopened past its deadline, a timer waits up to 30 seconds past the
+deadline for a matching callback before recovering silently. A genuine late
+callback can deliver while the occurrence is still open. The timer reconciles
+its saved deadline after reboot and music awaits Play.
 
 ## Background access
 
@@ -65,9 +76,10 @@ APK. Three backgrounds are free: Lava Lamp, In Transition (static gradient) and
 Solid Color. Paid use follows the same `premium_backgrounds`/active-ownership
 contract as the website; a cached plan name cannot unlock anything.
 
-The native Clock picker saves the free styles by background ID. Its
-**Open previous background tools** action opens the packaged picker, where
-the existing verified access decision applies to the full renderer catalog.
+The native Clock picker applies the verified access decision to selection,
+rendering and customization. When access ends it uses a safe background and
+keeps the saved style and selected ID. **Open previous background tools**
+provides the existing account approval, refresh and forget actions.
 
 Account verification uses the normal website in the browser-owned app window. Its explicit account
 approval returns only an ES256 signed backgrounds capability bound to this app
@@ -114,6 +126,11 @@ synthetic `AtmoShaper_WebParity_35` emulator at serial 5582. For the breathing
 and backgrounds pilot, set `ATMOSHAPER_ANDROID_WEBSITE_FIXTURE=pilot-87-92` to
 select the fixed `AtmoShaper_Pilot_87_92_API35` emulator at serial 5594. The
 test requires its fixture marker before resetting either synthetic installation.
+Set `ATMOSHAPER_ANDROID_WEBSITE_FIXTURE=stage-1` on the same guarded Android 35
+fixture for the combined signed upgrade through the retained pilot APK, native
+Downloads readiness and non-silent native station output across breathing and
+timer. The [Stage 1 acceptance record](../../docs/audits/2026-11-24-native-android-stage-1-acceptance.md)
+records exact build, device and review coverage.
 It upgrades the prior accepted APK, opens native Home in airplane mode and continues to the previous
 tools. It compares actual packaged assets, retained download byte digests,
 settings and a synthetic planner draft, and checks the retained deadline across

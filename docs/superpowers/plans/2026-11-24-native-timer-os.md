@@ -1,0 +1,10 @@
+# Native Android timer delivery and recovery
+
+[Issue #86](https://github.com/dsbowersock/atmoshaper/issues/86) extends the native timer while preserving the packaged timer transfer and its original records.
+
+- The verified timer file owns the deadline, interval and timer session. Android alarms and the ongoing notification carry a session identity. The receiver checks that identity and the current deadline before consuming an alarm or End action. Foreground and background delivery share the same committed transition.
+- When precise alarms are allowed, use Android's wakeup alarm. When exact access is unavailable, use an inexact wakeup and show that Android may delay alerts. Check notification and channel availability independently. Access to Android settings is user-initiated.
+- Android controls background notification sound and vibration. The timer's configured Chimer volume, exact vibration duration and flash apply while the timer screen is focused. A silent or flash-only timer posts a quiet background notification when permitted.
+- Recover on `BOOT_COMPLETED` after unlock. Schedule future deadlines, skip passed intervals and display missed completion after an elapsed deadline. The boot receiver has no playback entry point. Android Force stop and a powered-off phone do not provide ordinary background delivery. Revoking precise access cancels Android's existing exact alarm. Reopening the timer reconciles with current permissions.
+
+For acceptance, use an explicitly owned, marked synthetic emulator with the development package. Run the timer state and Compose journeys, and run the guarded OS tests separately with notifications permitted and denied. Verify a background interval, screen lock, task dismissal and ongoing End by observing Android notification and timer UI state. Reboot with both a future deadline and one that passes before boot recovery. Check the real Android alarm/notification state before opening the app and confirm the elapsed timer shows missed completion without old intervals or music playback. Keep physical-device and hosted-review receipts separate.

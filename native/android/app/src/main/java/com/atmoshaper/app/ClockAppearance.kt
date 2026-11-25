@@ -29,6 +29,7 @@ internal enum class ClockBackground(val key: String) {
     LavaLamp("massage-lab-moving-gradient"),
     StaticGradient("static-gradient"),
     SolidColor("solid-color"),
+    Packaged("packaged-effect"),
     Neutral("neutral"),
 }
 
@@ -70,6 +71,12 @@ internal data class ClockBackgroundStyle(
     val gradientRadialShape: ClockGradientShape,
     val gradientRadialSize: ClockGradientExtent,
 ) {
+    fun matches(id: String): Boolean = when (background) {
+        ClockBackground.Neutral -> false
+        ClockBackground.Packaged -> clockBackgroundIdPattern.matches(id) && ClockBackground.entries.none { it.key == id }
+        else -> background.key == id
+    }
+
     fun encode(json: JSONObject = JSONObject()): JSONObject = json
         .put("background", background.key)
         .put("firstColor", firstColor)
@@ -219,7 +226,7 @@ internal data class ClockAppearance(
         fun decodePackaged(value: String): ClockAppearance = decode(value, allowSavedStyles = false)
 
         private fun decode(value: String, allowSavedStyles: Boolean): ClockAppearance {
-            require(value.length <= if (allowSavedStyles) 4096 else 2048)
+            require(value.length <= if (allowSavedStyles) 65_536 else 2048)
             val json = JSONObject(value)
             require(json.get("version") == 1)
             val format = json.get("format")
@@ -231,12 +238,14 @@ internal data class ClockAppearance(
             val rememberedId = if (json.has("rememberedBackgroundId")) {
                 (json.get("rememberedBackgroundId") as String).also { require(clockBackgroundIdPattern.matches(it)) }
             } else null
+            if (style.background == ClockBackground.Packaged) require(rememberedId != null && style.matches(rememberedId))
             val savedStyles = if (json.has("savedBackgroundStyles")) {
                 require(allowSavedStyles)
                 val styles = json.getJSONObject("savedBackgroundStyles")
+                require(styles.length() <= 128)
                 styles.keys().asSequence().associateWith { id ->
                     ClockBackgroundStyle.decode(styles.getJSONObject(id)).also {
-                        require(it.background != ClockBackground.Neutral && it.background.key == id)
+                        require(it.matches(id))
                         require(id != (rememberedId ?: style.background.key))
                     }
                 }
@@ -302,7 +311,10 @@ internal class ClockAppearanceFile(path: File) {
      * that background only, and keep newer native font/time/effect changes. */
     fun recoverBackgroundIfUnrecorded(appearance: ClockAppearance): ClockAppearance = synchronized(lock) {
         val current = checkNotNull(file.read())
-        if (current.needsBackgroundRecovery && appearance.rememberedBackgroundId != null) {
+        val incomingId = appearance.rememberedBackgroundId
+        val recoverPackaged = current.background == ClockBackground.Neutral && current.rememberedBackgroundId == incomingId &&
+            appearance.background == ClockBackground.Packaged
+        if ((current.needsBackgroundRecovery || recoverPackaged) && incomingId != null) {
             file.write(current.withBackground(appearance.backgroundStyle, appearance.rememberedBackgroundId))
         } else current
     }
@@ -316,12 +328,11 @@ internal class ClockAppearanceFile(path: File) {
 
     /** Commit the selection and inactive styles together so a switch cannot lose the old style. */
     fun saveBackground(id: String, style: ClockBackgroundStyle): ClockAppearance = synchronized(lock) {
-        require(style.background != ClockBackground.Neutral && style.background.key == id)
+        require(style.matches(id))
         val current = checkNotNull(file.read())
         val previousId = current.selectedBackgroundId
         val savedStyles = current.savedBackgroundStyles - id
-        val keepPrevious = previousId != id && current.background != ClockBackground.Neutral &&
-            current.background.key == previousId
+        val keepPrevious = previousId != id && current.backgroundStyle.matches(previousId)
         file.write(current.withBackground(style, id).copy(
             savedBackgroundStyles = if (keepPrevious) savedStyles + (previousId to current.backgroundStyle) else savedStyles,
         ))
@@ -337,6 +348,7 @@ internal class ClockAppearanceFile(path: File) {
 private const val origin = "https://appassets.androidplatform.net"
 internal enum class PackagedExport(val asset: String, val channel: String) {
     Clock("clock-appearance-export", "AtmoShaperClockAppearance"),
+    BackgroundAccess("background-access-export", "AtmoShaperBackgroundAccess"),
     Timer("timer-export", "AtmoShaperTimerTransfer"),
 }
 

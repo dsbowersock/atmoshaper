@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_downloads">Downloads</string>
+    <string name="native_download_search">Find a station or sound</string>
+    <string name="native_download_no_results">No matching downloads.</string>
+    <string name="native_download_more_sounds">Open Previous Tools for more Atmosphere sounds.</string>
+    <string name="native_download_checking">Checking saved audio…</string>
+    <string name="native_download_missing">Not downloaded</string>
+    <string name="native_download_ready">Ready offline</string>
+    <string name="native_download_damaged">Saved download is damaged. Download it again to repair it.</string>
+    <string name="native_download_storage_error">Could not read or save the download. Check device storage and try again.</string>
+    <string name="native_download_error">Could not download this audio. Check the connection and available space, then retry.</string>
+    <string name="native_download_unavailable">Downloads could not be opened.</string>
+    <string name="native_download_preparing">Preparing the complete download…</string>
+    <string name="native_download_saving">Downloading · %1$d%%</string>
+    <string name="native_download_committing">Saving and checking audio…</string>
+    <string name="native_download_cancel_requested">Cancelling download…</string>
+    <string name="native_download_cancelled">Download cancelled.</string>
+    <string name="native_download_cancel">Cancel download</string>
+    <string name="native_download_retry">Retry download</string>
+    <string name="native_download_recheck">Check again</string>
+    <string name="native_download_save">Download</string>
+    <string name="native_download_back">Back to downloads</string>
+    <string name="native_download_play">Play saved audio</string>
+    <string name="native_download_play_failed">Could not play this download. Check it again in Downloads.</string>
+</resources>

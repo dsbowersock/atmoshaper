@@ -19,11 +19,14 @@ const adb=path.join(root,"output/android-tools/sdk/platform-tools",process.platf
 const fixtures = new Map([
   ["web-parity", { serial: "emulator-5582", avd: "AtmoShaper_WebParity_35" }],
   ["pilot-87-92", { serial: "emulator-5594", avd: "AtmoShaper_Pilot_87_92_API35", timeout: 720000 }],
+  ["stage-1", { serial: "emulator-5594", avd: "AtmoShaper_Pilot_87_92_API35", timeout: 840000, previousNative: true }],
 ])
 const fixture = fixtures.get(process.env.ATMOSHAPER_ANDROID_WEBSITE_FIXTURE ?? "web-parity")
 assert.ok(fixture, "Select a named synthetic Android website fixture")
 const { serial, avd } = fixture
 const pkg="com.atmoshaper.app.development"
+const previousToolsEntry="https://appassets.androidplatform.net/assets/core/index.html"
+const nativeAudioEntry="https://appassets.androidplatform.net/assets/core/native-audio-player.html"
 const shell=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8",timeout:45000,windowsHide:true}).trim()
 const output=path.join(root,"output/native-website-android")
 
@@ -57,7 +60,19 @@ test("replacement APK opens native Home offline and retains downloads, settings 
   assert.equal(createHash("sha256").update(await readFile(baseline)).digest("hex"),"8abbb7c366aa75d03f207428e19bafa0f673fff104d7e34c92dc3500ff43af4a")
   const sharedBaseline=path.resolve(root,"../../output/android/AtmoShaper-shared-website-preview-0.4.2-8f603319.apk")
   assert.equal(createHash("sha256").update(await readFile(sharedBaseline)).digest("hex"),"8f603319474beaf5650d278d1ce802e93eee37a8fd8d731536614607d0264da2")
+  const nativeBaseline=fixture.previousNative
+    ? path.resolve(root,"../native-android-pilot-87-92/output/android/AtmoShaper-preview.apk")
+    : null
+  if (nativeBaseline) {
+    assert.equal(createHash("sha256").update(await readFile(nativeBaseline)).digest("hex"),
+      "8504beaecf0cf8c90dbd763a68373b9252accd3ac8b3398a8066d75943b9a39e")
+  }
   const apk=path.join(root,"output/android/AtmoShaper-preview.apk")
+  const apkSha256=createHash("sha256").update(await readFile(apk)).digest("hex")
+  if (nativeBaseline) {
+    const buildProof = JSON.parse(await readFile(path.join(root,"output/android/build-proof.json"),"utf8"))
+    assert.equal(apkSha256,buildProof.sha256,"The installed candidate matches its build receipt")
+  }
   const manifest=JSON.parse(execFileSync("python",[path.join(root,"tests/helpers/offline-apk-inventory.py"),apk],{encoding:"utf8",windowsHide:true}))
   assert.deepEqual(manifest,JSON.parse(await readFile(path.join(root,"output/offline-core/bundle-proof.json"))))
   assert.equal(manifest.sharedWebsite,true);assert.equal(manifest.syntheticReceiptAuthority,false)
@@ -73,7 +88,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
   const errors=[],network=[]
   /** Forward only the guarded fixture's WebView. Playwright Android discovery
    * would contact every ADB device before the caller could select this one. */
-  async function connect({ sameProcess = false } = {}) {
+  async function connect({ sameProcess = false, entry = previousToolsEntry } = {}) {
     let pid, socket
     await expect.poll(() => {
       try {
@@ -94,11 +109,29 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     const endpoint = `http://127.0.0.1:${port}`
     connection.browser = await chromium.connectOverCDP(endpoint, { timeout: 20000, noDefaults: true })
     const context = connection.browser.contexts()[0]
-    const page = context?.pages()[0]
-    assert.ok(page,"The guarded app WebView exposes its packaged page")
+    let page
+    // Distinguish the engine and previous tools when both exist in the process.
+    await expect.poll(() => {
+      page = context?.pages().find(candidate => candidate.url() === entry)
+      return Boolean(page)
+    }, { message: "The guarded WebView exposes the requested packaged entry" }).toBe(true)
     page.on("pageerror",error=>errors.push(error.message))
     page.on("request",request=>{if(offline && request.url().startsWith("https://media."))network.push(request.url())})
     return page
+  }
+  async function hearNativeAudio(audioPage, previous) {
+    let reading
+    await expect.poll(async() => {
+      reading = await audioPage.evaluate(() => ({
+        ...window.atmoNativeAudio?.outputProbe(), documentStart: performance.timeOrigin,
+      }))
+      return reading.peak > 0.00001 && (!previous || reading.currentTime > previous.currentTime)
+    }, { timeout:45000, message:"A saved station produces non-silent output" }).toBe(true)
+    if (previous) assert.equal(reading.documentStart,previous.documentStart)
+    const actor = new RegExp(`(?:pid:|/)${lastPid}\\b`)
+    const players = shell("shell","dumpsys","audio").split(/\r?\n/).filter(line=>actor.test(line))
+    assert.ok(players.some(line=>/state:started/i.test(line)),"Android started the app's audio output")
+    return reading
   }
   function captureAndroidScreen() {
     // The 1080 × 2400 fixture's PNG can exceed Node's default 1 MiB buffer.
@@ -145,16 +178,24 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     return shell("shell","cat",hierarchyPath)
   }
   /** Tap fresh accessibility bounds across APKs, including Home outside WebView. */
-  async function tapNativeLabel(label) {
+  async function tapNativeLabel(label, { attribute = "text", excludeResourceId } = {}) {
     const xmlLabel=label.replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    const bounds=new RegExp(`<node\\b[^>]*text="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
+    const exclude = excludeResourceId ? `(?![^>]*resource-id="${RegExp.escape(excludeResourceId)}")` : ""
+    const bounds=new RegExp(`<node\\b${exclude}[^>]*${attribute}="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
     let target
     await expect.poll(()=>{
       target=nativeHierarchy().match(bounds)
       return Boolean(target)
-    }).toBe(true)
+    },{ message:`Native control ${label} is visible` }).toBe(true)
     const [left,top,right,bottom]=target.slice(1).map(Number)
     shell("shell","input","tap",String(Math.round((left+right)/2)),String(Math.round((top+bottom)/2)))
+  }
+  /** Text input can arrive before the newly opened dialog has IME focus. */
+  async function enterNativeSearch(id, query) {
+    await tapNativeLabel(id,{ attribute:"resource-id" })
+    const resource = RegExp.escape(id)
+    await expect.poll(nativeHierarchy).toMatch(new RegExp(`<node\\b[^>]*resource-id="${resource}"[^>]*focused="true"`))
+    shell("shell","input","text",query.replaceAll(" ","%s"))
   }
   const go=(page,route)=>page.evaluate(route=>window.dispatchEvent(new CustomEvent("atmoshaper:native-navigation",{detail:route})),route)
   /** A fresh Android fixture shows a system tutorial above the app on first
@@ -267,10 +308,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     const sharedClosed=page.waitForEvent("close",{timeout:15000})
     shell("shell","am","force-stop",pkg)
     await sharedClosed
-    shell("install","-r",apk)
+    shell("install","-r",nativeBaseline ?? apk)
     upgradeVersions.push(installedVersionCode())
-    assert.ok(upgradeVersions.every((version, index) => index === 0 || version > upgradeVersions[index - 1]),
-      "Every installed update advances the package version")
     offline=true
     const launcher=shell("shell","cmd","package","resolve-activity","--brief","-a","android.intent.action.MAIN","-c","android.intent.category.LAUNCHER",pkg).split(/\r?\n/).at(-1)
     assert.ok(launcher.startsWith(`${pkg}/`),"Android resolves an installed launcher")
@@ -286,8 +325,10 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       }).toBe(true)
     }
     async function openPreviousTools() {
-      await tapNativeLabel("Music")
-      await expect.poll(()=>nativeHierarchy().includes('text="Coming to the native app"')).toBe(true)
+      // Enter through a tool still served by the previous host in Stage 1.
+      // Music is exercised separately as a native destination.
+      await tapNativeLabel("My Calendar")
+      await expect.poll(()=>nativeHierarchy()).toContain('text="Coming to the native app"')
       await tapNativeLabel("Open previous tools")
       page=await connect()
       await expect(page.getByTestId("home-launcher")).toBeVisible()
@@ -297,11 +338,31 @@ test("replacement APK opens native Home offline and retains downloads, settings 
         .toMatch(/mCurrentFocus=Window\{[^\n]*com\.atmoshaper\.app\.development\/com\.atmoshaper\.app\.MainActivity/)
       await expect.poll(()=>page.evaluate(()=>document.visibilityState === "visible" && document.readyState === "complete")).toBe(true)
     }
+    const readClockAppearance=()=>JSON.parse(shell("shell","run-as",pkg,"cat","files/clock-appearance.json"))
+    const readNativeTimer=()=>JSON.parse(shell("shell","run-as",pkg,"cat","files/native-timer.json"))
+    let earlierAppearance = null
+    if (nativeBaseline) {
+      // Seed the earlier Compose install through its real Clock and timer.
+      // The next update exercises its native files as well as the older stores.
+      await startNativeHome()
+      await tapNativeLabel("Clock & timer")
+      await expect.poll(()=>nativeHierarchy()).toMatch(/content-desc="Current time [^"]+"/)
+      earlierAppearance = readClockAppearance()
+      await tapNativeLabel("Open timer")
+      await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
+      assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
+      shell("shell","am","force-stop",pkg)
+      shell("install","-r",apk)
+      upgradeVersions.push(installedVersionCode())
+    }
+    assert.ok(upgradeVersions.every((version, index) => index === 0 || version > upgradeVersions[index - 1]),
+      "Every installed update advances the package version")
     await startNativeHome()
     await writeFile(path.join(output,"android-native-home.png"),captureAndroidScreen())
     await tapNativeLabel("Clock & timer")
     await expect.poll(()=>nativeHierarchy()).toMatch(/content-desc="Current time [^"]+"/)
-    const clockAppearance = JSON.parse(shell("shell","run-as",pkg,"cat","files/clock-appearance.json"))
+    const clockAppearance = readClockAppearance()
+    if (earlierAppearance) assert.deepEqual(clockAppearance,earlierAppearance)
     assert.equal(clockAppearance.rememberedBackgroundId, "static-gradient", "Native Clock retains the earlier signed installation selection")
     assert.equal(clockAppearance.version,1)
     assert.equal(clockAppearance.format,old.timeFormat)
@@ -317,7 +378,6 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     shell("shell","input","keyevent","KEYCODE_BACK")
     await expect.poll(()=>nativeHierarchy().includes('text="Fullscreen"')).toBe(true)
     await tapNativeLabel("Open timer")
-    const readNativeTimer=()=>JSON.parse(shell("shell","run-as",pkg,"cat","files/native-timer.json"))
     await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
     assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt)
     // Bracket the hierarchy dump with device time. Accessibility can sample
@@ -342,15 +402,35 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(()=>nativeHierarchy().includes('text="Close Clock"')).toBe(true)
     await tapNativeLabel("Close Clock")
     await expect.poll(()=>nativeHierarchy().includes('text="Your tools"')).toBe(true)
+    let stage1Audio = null
+    let audioPage = null
+    if (nativeBaseline) {
+      await tapNativeLabel("Music")
+      await tapNativeLabel("Downloads")
+      await enterNativeSearch("native_download_query","Little Bells")
+      await tapNativeLabel("native_download_generative-fm-little-bells",{ attribute:"resource-id" })
+      await expect.poll(()=>nativeHierarchy()).toContain('text="Ready offline"')
+      await tapNativeLabel("Close")
+      await tapNativeLabel("Search stations")
+      await enterNativeSearch("native_station_query","Little Bells")
+      await tapNativeLabel("Little Bells",{ excludeResourceId:"native_station_query" })
+      await tapNativeLabel("Play")
+      audioPage = await connect({ entry:nativeAudioEntry })
+      await expect.poll(()=>nativeHierarchy()).toContain('text="Playing"')
+      stage1Audio = { retainedPackReadyOffline:true, music:await hearNativeAudio(audioPage) }
+      await tapNativeLabel("Back to Home")
+    }
     await tapNativeLabel("Open breathing guide")
     await tapNativeLabel("Start breathing")
     await expect.poll(()=>nativeHierarchy()).toContain('text="Pause breathing"')
+    if (stage1Audio) stage1Audio.breathing = await hearNativeAudio(audioPage,stage1Audio.music)
     await writeFile(path.join(output,"android-native-breathing.png"),captureAndroidScreen())
     shell("shell","input","keyevent","KEYCODE_BACK")
     await tapNativeLabel("Clock & timer")
     await tapNativeLabel("Open timer")
     await expect.poll(()=>nativeHierarchy()).toContain('text="Timer running"')
     assert.equal(readNativeTimer().deadlineMs,old.timer.endsAt,"Breathing leaves the running timer's deadline intact")
+    if (stage1Audio) stage1Audio.timer = await hearNativeAudio(audioPage,stage1Audio.breathing)
     shell("shell","am","force-stop",pkg)
     shell("shell","am","start","-W","-a","android.intent.action.VIEW",
       "-n",`${pkg}/com.atmoshaper.app.MainActivity`,"-d","atmoshaper://tool?path=%2Fchimer%2F")
@@ -446,7 +526,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await tapNativeLabel("Pause breathing")
     await tapNativeLabel("Reset")
     shell("shell","input","keyevent","KEYCODE_BACK")
-    await tapNativeLabel("Music")
+    await tapNativeLabel("My Calendar")
     await tapNativeLabel("Open previous tools")
     await expect.poll(playback).toMatchObject({ visibility:"visible",state:"running" })
     await go(page,"/wellness/breathing")
@@ -475,7 +555,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     assert.equal(shell("shell","settings","get","global","wifi_on"),"0")
     assert.deepEqual(errors,[]);assert.deepEqual(network,[])
     await writeFile(path.join(output,"acceptance.json"),JSON.stringify({
-      apkSha256:createHash("sha256").update(await readFile(apk)).digest("hex"),
+      apkSha256,
       fixture,
       nativeHome:true,
       nativeClock:true,
@@ -484,6 +564,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       breathingRetainedTimerDeadline:true,
       webAudioAdvancedAndScheduledNonSilentSourcesDuringNativeBreathing:true,
       clockAppearanceTransferred:true,
+      earlierNativeAppearancePreserved:earlierAppearance !== null,
+      nativeOfflineStationOutput:stage1Audio,
       backFromPreviousTools:true,
       sharedWebsite:true,
       upgradeVersions,
@@ -503,6 +585,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     },null,2))
   } catch (error) {
     failed = true
+    try { await writeFile(path.join(output,"failure-native.xml"),nativeHierarchy()) }
+    catch (diagnosticError) { console.error("Android fixture could not save the failing native hierarchy", diagnosticError) }
     if (page && !page.isClosed()) {
       try {
         await writeFile(path.join(output,"failure.json"), JSON.stringify({

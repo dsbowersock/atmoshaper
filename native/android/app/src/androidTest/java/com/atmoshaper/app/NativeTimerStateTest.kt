@@ -17,6 +17,17 @@ class NativeTimerStateTest {
     private val start = 1_700_000_000_000L
 
     @Test
+    fun missedCompletionSurvivesReopenAndDoesNotReplay() {
+        val running = TimerSnapshot().start(TimerSetup(minutes = 2, intervalMinutes = 1), start)
+        val recovered = running.advance(start + 180_000, foreground = false)
+        val reopened = TimerSnapshot.decode(recovered.snapshot.encode())
+
+        assertEquals(TimerPhase.Complete, reopened.phase)
+        assertEquals(true, JSONObject(reopened.encode()).optBoolean("missedCompletion"))
+        assertNull(reopened.advance(start + 181_000, foreground = true).cue)
+    }
+
+    @Test
     fun runningAndPausedTimersKeepTheirDeadlineAndIntervalAcrossFiles() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val directory = Files.createTempDirectory(context.cacheDir.toPath(), "timer-state").toFile()

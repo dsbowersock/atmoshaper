@@ -14,6 +14,7 @@ import android.print.PrintManager;
 import android.util.Base64;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.CookieManager;
@@ -28,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
@@ -53,9 +55,12 @@ public final class MainActivity extends ComponentActivity {
     private static final String OPEN_TIMER = "https://appassets.androidplatform.net/assets/core/open-native-timer";
     private static final String TIMER_HOST_MARKER = " AtmoShaperNativeTimer/1";
     private WebView webView;
+    private ClockBackgroundAccessChanges.MutationOwner backgroundAccessOwner;
     private String pendingReceipt;
+    private boolean retriedQueuedReceipt;
     private String pendingRoute;
     private boolean packagedPageLoaded;
+    private boolean packagedPageFailed;
     private TwaLauncher websiteLauncher;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
@@ -156,7 +161,11 @@ public final class MainActivity extends ComponentActivity {
     /** Hash navigation must not invalidate an otherwise exact packaged entry. */
     private boolean isEntry() {
         if (webView == null || webView.getUrl() == null) return false;
-        Uri uri = Uri.parse(webView.getUrl());
+        return isEntryUrl(webView.getUrl());
+    }
+
+    private static boolean isEntryUrl(String url) {
+        Uri uri = Uri.parse(url);
         return isLocal(uri) && "/assets/core/index.html".equals(uri.getPath()) && uri.getQuery() == null;
     }
 
@@ -234,7 +243,7 @@ public final class MainActivity extends ComponentActivity {
     }
 
     /** Only these existing public audio paths may use the native HTTP client. */
-    private static boolean isMedia(Uri uri) {
+    static boolean isMedia(Uri uri) {
         String path = uri.getEncodedPath();
         return "https".equals(uri.getScheme()) && "media.atmoshaper.com".equals(uri.getHost())
             && uri.getPort() == -1 && uri.getUserInfo() == null && uri.getQuery() == null && uri.getFragment() == null
@@ -245,7 +254,7 @@ public final class MainActivity extends ComponentActivity {
 
     /** No redirects/cookies/credentials. Foreign content never becomes a page
      * or script; the client additionally enforces media type, byte and hash limits. */
-    private static WebResourceResponse download(Uri uri) throws IOException {
+    static WebResourceResponse download(Uri uri) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(uri.toString()).openConnection();
         boolean handedOff = false;
         try {
@@ -281,11 +290,14 @@ public final class MainActivity extends ComponentActivity {
         if (uri == null || !Intent.ACTION_VIEW.equals(intent.getAction()) || !"atmoshaper".equals(uri.getScheme())
             || !"offline-access".equals(uri.getHost()) || uri.getPort() != -1 || uri.getUserInfo() != null) return;
         String receipt = uri.getQueryParameter("receipt");
-        if (receipt != null && receipt.length() <= 24000 && receipt.matches("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")) pendingReceipt = receipt;
+        if (receipt != null && receipt.length() <= 24000 && receipt.matches("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")) {
+            if (!receipt.equals(pendingReceipt)) retriedQueuedReceipt = false;
+            pendingReceipt = receipt;
+        }
     }
 
     private void deliverReceipt() {
-        if (pendingReceipt == null || !isEntry()) return;
+        if (pendingReceipt == null || !packagedPageLoaded || !isEntry()) return;
         String value = JSONObject.quote(pendingReceipt);
         pendingReceipt = null;
         webView.evaluateJavascript("window.atmoOfflineReceipt=" + value + ";window.dispatchEvent(new CustomEvent('atmoshaper:offline-access',{detail:" + value + "}));", null);
@@ -303,7 +315,10 @@ public final class MainActivity extends ComponentActivity {
     }
 
     @Override protected void onSaveInstanceState(Bundle state) {
-        if (pendingReceipt != null) state.putString("offline.pendingReceipt", pendingReceipt);
+        if (pendingReceipt != null) {
+            state.putString("offline.pendingReceipt", pendingReceipt);
+            state.putBoolean("offline.retriedQueuedReceipt", retriedQueuedReceipt);
+        }
         if (pendingRoute != null) state.putString("offline.pendingRoute", pendingRoute);
         // Preserve the recovery warning across repeated picker recreations,
         // including when an earlier recreation already discarded the PDF bytes.
@@ -313,14 +328,17 @@ public final class MainActivity extends ComponentActivity {
 
     @Override protected void onPostResume() {
         super.onPostResume();
-        webView.post(this::deliverRoute);
+        if (webView != null) webView.post(this::deliverRoute);
     }
 
     @SuppressLint("SetJavaScriptEnabled") // Executes the bundled React tools only.
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        if (state != null) pendingReceipt = state.getString("offline.pendingReceipt");
+        if (state != null) {
+            pendingReceipt = state.getString("offline.pendingReceipt");
+            retriedQueuedReceipt = state.getBoolean("offline.retriedQueuedReceipt");
+        }
         if (state != null) pendingRoute = state.getString("offline.pendingRoute");
         if (state != null) pendingDocumentId = state.getInt("document.pendingId", 0);
         boolean connectedStart = state == null && Intent.ACTION_MAIN.equals(getIntent().getAction()) && isOnline();
@@ -361,6 +379,16 @@ public final class MainActivity extends ComponentActivity {
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         webView.setBackgroundColor(0xff171616);
         installDocumentPort();
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(webView, "AtmoShaperBackgroundAccessChanged",
+                Collections.singleton("https://appassets.androidplatform.net"), (view, message, source, mainFrame, reply) -> {
+                    if (!mainFrame || view != webView || !packagedPageLoaded || !isEntry()
+                        || !Uri.parse("https://appassets.androidplatform.net").equals(source)
+                        || backgroundAccessOwner == null) return;
+                    String data = message.getData();
+                    if (data != null) backgroundAccessOwner.receive(data);
+                });
+        }
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public void onShowCustomView(View view, CustomViewCallback callback) {
                 if (fullscreenView != null) { callback.onCustomViewHidden(); return; }
@@ -418,25 +446,68 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 packagedPageLoaded = false;
+                packagedPageFailed = false;
+            }
+
+            @Override
+            public void onPageCommitVisible(WebView view, String url) {
+                if (view == webView && !packagedPageLoaded) retireBackgroundAccessOwner();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceErrorCompat error) {
+                if (view == webView && request.isForMainFrame()) markPackagedPageFailed();
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse response) {
+                if (view == webView && request.isForMainFrame()) markPackagedPageFailed();
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                packagedPageLoaded = isEntry();
+                if (view != webView) return;
+                boolean newDocument = !packagedPageLoaded;
+                packagedPageLoaded = !packagedPageFailed && isEntryUrl(url) && isEntry();
+                if (newDocument || !packagedPageLoaded) retireBackgroundAccessOwner();
+                if (!packagedPageLoaded) return;
+                if (newDocument) {
+                    backgroundAccessOwner = new ClockBackgroundAccessChanges.MutationOwner();
+                    // A queued message from a replaced document cannot match
+                    // the replacement's owner, even if its operation number repeats.
+                    view.evaluateJavascript("window.atmoNativeAccessDocument="
+                        + JSONObject.quote(backgroundAccessOwner.getDocumentId()), null);
+                }
                 deliverReceipt();
                 deliverRoute();
+            }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (view != webView) return true;
+                destroyPackagedView();
+                // Preserve an undelivered receipt through one private lifecycle retry.
+                // A recurring renderer crash still exits the broken tools screen.
+                if (pendingReceipt != null && !retriedQueuedReceipt) {
+                    retriedQueuedReceipt = true;
+                    recreate();
+                } else {
+                    finish();
+                }
+                return true;
             }
         });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (webView == null) { finish(); return; }
                 // A custom fullscreen View hides the WebView. Restore it before
                 // awaiting JS callbacks, which some providers defer while hidden.
                 if (fullscreenView != null) { closeFullscreen(); return; }
                 // HTML fullscreen need not provide a separate custom View on
                 // every WebView version. Exit the document before app history.
                 webView.evaluateJavascript("(()=>{if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return true}return false})()", fullscreen -> {
-                    if (isDestroyed()) return;
+                    if (isDestroyed() || webView == null) return;
                     if ("true".equals(fullscreen)) closeFullscreen();
                     else if (fullscreenView != null) closeFullscreen();
                     else if (webView.canGoBack()) webView.goBack();
@@ -453,7 +524,40 @@ public final class MainActivity extends ComponentActivity {
     protected void onDestroy() {
         if (websiteLauncher != null) websiteLauncher.destroy();
         documentWriter.shutdown();
-        webView.destroy();
+        destroyPackagedView();
         super.onDestroy();
+    }
+
+    private void destroyPackagedView() {
+        WebView previous = webView;
+        webView = null;
+        packagedPageLoaded = false;
+        try {
+            if (previous != null) {
+                View previousFullscreen = fullscreenView;
+                fullscreenView = null;
+                fullscreenCallback = null;
+                if (previous.getParent() instanceof FrameLayout) {
+                    FrameLayout root = (FrameLayout) previous.getParent();
+                    if (previousFullscreen != null) root.removeView(previousFullscreen);
+                    root.removeView(previous);
+                }
+                previous.destroy();
+            }
+        } finally {
+            retireBackgroundAccessOwner();
+        }
+    }
+
+    private void retireBackgroundAccessOwner() {
+        ClockBackgroundAccessChanges.MutationOwner owner = backgroundAccessOwner;
+        backgroundAccessOwner = null;
+        if (owner != null) owner.close();
+    }
+
+    private void markPackagedPageFailed() {
+        packagedPageLoaded = false;
+        packagedPageFailed = true;
+        retireBackgroundAccessOwner();
     }
 }

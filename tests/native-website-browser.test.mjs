@@ -22,7 +22,7 @@ const mime = { ".html":"text/html", ".js":"text/javascript", ".css":"text/css", 
 before(async()=>{await buildOfflineCore({outputName:"offline-acceptance-website"})},{timeout:180000})
 
 /** Uses the exact normal APK asset tree in a cold, network-disabled context. */
-async function fixture({ allowMedia = false } = {}) {
+async function fixture({ allowMedia = false, nativeAudioOnly = false } = {}) {
   const browser = await chromium.launch()
   const context = await browser.newContext({ viewport:{width:390,height:844}, reducedMotion:"reduce", serviceWorkers:"block" })
   const errors = [], foreign = []
@@ -34,6 +34,11 @@ async function fixture({ allowMedia = false } = {}) {
       foreign.push(url.href);return route.abort()
     }
     if (url.origin !== "https://appassets.androidplatform.net" || !url.pathname.startsWith("/assets/core/")) { foreign.push(url.href); return route.abort() }
+    // Match the Android service's local script allowlist for its isolated player.
+    if (nativeAudioOnly && !/^\/assets\/core\/(native-audio-player\.(html|js)|chunks\/[A-Za-z0-9_.-]+\.js)$/.test(url.pathname)) {
+      foreign.push(url.href)
+      return route.abort()
+    }
     if (url.pathname.endsWith("seed.html")) return route.fulfill({contentType:"text/html",body:"Synthetic upgrade fixture"})
     const filename = path.resolve(core, decodeURIComponent(url.pathname.slice("/assets/core/".length)))
     assert.ok(filename.startsWith(core + path.sep))
@@ -136,8 +141,14 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), storedEarlier)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), simple)
 
-    // Keep the same compatible renderer and saved colors. Remove only its
-    // public access from the generated document for one exporter visit.
+    // A present but corrupt visualizer record cannot silently select the rollback seed.
+    await write(shared, "clock", "visualizer-settings", null)
+    assert.equal(await exported(), "unavailable")
+    assert.equal(await readDatabase(page, shared, "clock", "visualizer-settings"), null)
+    assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
+    await write(shared, "clock", "visualizer-settings", undefined)
+
+    // The native gradient becomes neutral if its public catalog entry is absent.
     const withoutGradient = publicIds.filter(id => id !== "static-gradient")
     assert.equal(withoutGradient.length, publicIds.length - 1)
     const exportHtml = await readFile(path.join(core,"clock-appearance-export.html"), "utf8")
@@ -147,6 +158,7 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     await page.route(exporter, route => route.fulfill({ contentType:"text/html", body:deniedHtml }), { times:1 })
     const denied = await exported()
     assert.equal(denied.background, "neutral")
+    assert.equal(denied.rememberedBackgroundId, "static-gradient")
     assert.deepEqual(denied.gradientColors, [])
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
 
@@ -156,7 +168,10 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.ok(premium)
     await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: premium.id } })
     const locked = await exported()
-    assert.equal(locked.background, "neutral")
+    // A packaged effect is renderer metadata. Compose verifies access independently.
+    assert.equal(locked.background, "packaged-effect")
+    assert.equal(locked.rememberedBackgroundId, premium.id)
+    for (const field of ["premiumUntil", "ownedBackgroundIds", "featureKeys"]) assert.equal(field in locked, false)
     assert.deepEqual(locked.gradientColors, [])
     const damaged = { ...record, settings: { ...record.settings, clockModeFontColor: "invalid" } }
     await write(shared, "clock", "state", damaged)
@@ -165,6 +180,62 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     await write(shared, "clock", "state", record)
     assert.equal((await exported()).color, "#AABBCC")
     assert.deepEqual(f.foreign, [])
+  } finally {
+    await f.close()
+  }
+})
+
+test("the packaged audio player only acknowledges the latest transport change", {timeout:60000}, async () => {
+  const f = await fixture({ nativeAudioOnly: true })
+  const { page } = f
+  try {
+    await page.addInitScript(() => {
+      window.transportReplies = []
+      window.AtmoShaperAudioHost = { postMessage: message => window.transportReplies.push(message) }
+      const resume = AudioContext.prototype.resume
+      const suspend = AudioContext.prototype.suspend
+      window.controlledTransport = []
+      AudioContext.prototype.resume = function () {
+        if (!window.controlTransport) return resume.call(this)
+        return new Promise(resolve => window.controlledTransport.push(resolve))
+      }
+      AudioContext.prototype.suspend = function () {
+        if (!window.controlTransport) return suspend.call(this)
+        return new Promise(resolve => window.controlledTransport.push(resolve))
+      }
+    })
+    await page.goto(new URL("native-audio-player.html", entry).href)
+    await page.waitForFunction(() => window.transportReplies.includes("ready"))
+    const replies = await page.evaluate(async () => {
+      window.controlTransport = true
+      const nextStep = async () => {
+        for (let attempt = 0; attempt < 200; attempt++) {
+          const resolve = window.controlledTransport.shift()
+          if (resolve) return resolve
+          await new Promise(resolve => setTimeout(resolve, 0))
+        }
+        throw new Error("The queued AudioContext transition did not start")
+      }
+      const player = window.atmoNativeAudio
+      const firstResume = player.setPaused(false, 4, 1)
+      const finishFirst = await nextStep()
+      const pause = player.setPaused(true, 4, 2)
+      const latestResume = player.setPaused(false, 4, 3)
+      finishFirst()
+      await firstResume
+      const afterFirst = [...window.transportReplies]
+      const finishPause = await nextStep()
+      finishPause()
+      await pause
+      const finishLatestResume = await nextStep()
+      finishLatestResume()
+      await latestResume
+      return { afterFirst, all: window.transportReplies }
+    })
+    assert.deepEqual(replies.afterFirst, ["ready"])
+    assert.deepEqual(replies.all, ["ready", "playing:4:3"])
+    assert.deepEqual(f.foreign, [])
+    assert.deepEqual(f.errors, [])
   } finally {
     await f.close()
   }

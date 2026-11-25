@@ -24,6 +24,11 @@ class HomeJourneyTest {
 
     @Before
     fun closeExistingAppTasks() {
+        // Hosted emulators can report boot complete before their launcher
+        // accepts touch and key events. Start each journey with an awake screen.
+        device.wakeUp()
+        device.executeShellCommand("wm dismiss-keyguard")
+        device.waitForIdle()
         // Start each journey with an empty app back stack while retaining saved data.
         val activities = checkNotNull(context.getSystemService(ActivityManager::class.java))
         activities.appTasks.forEach { it.finishAndRemoveTask() }
@@ -35,12 +40,16 @@ class HomeJourneyTest {
         assertNativeHome()
         val categories = listOf("Music", "Clock & timer", "Wellness", "My Calendar", "Study & play", "Practice tools")
         for ((index, category) in categories.withIndex()) {
-            findCategory(category).click()
+            scrollToText(category).click()
             assertFalse(device.hasObject(webView))
             if (category == "Clock & timer") {
                 waitForText("Close Clock").click()
             } else {
-                waitForText(if (category == "Wellness") "Open breathing guide" else "Coming to the native app")
+                waitForText(when (category) {
+                    "Music" -> "Downloads"
+                    "Wellness" -> "Open breathing guide"
+                    else -> "Coming to the native app"
+                })
                 waitForText(category)
                 if (index % 2 == 0) device.pressBack() else waitForText("Back to Home").click()
             }
@@ -51,7 +60,7 @@ class HomeJourneyTest {
 
     @Test
     fun legacyLinkAllowsLauncherEntryAndBackFromPreviousTools() {
-        device.executeShellCommand(
+        startInstalledActivity(
             "am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE " +
                 "-d atmoshaper://tool?path=%2F -p ${context.packageName}",
         )
@@ -60,14 +69,15 @@ class HomeJourneyTest {
 
         launchFromAppIcon()
         assertNativeHome()
-        findCategory("Music").click()
-        waitForText("Coming to the native app")
-        waitForText("Open previous tools").click()
+        scrollToText("Music").click()
+        waitForText("Downloads")
+        scrollToText("Open previous tools").click()
         assertTrue("Expected previous tools to reopen the existing WebView", device.wait(Until.hasObject(webView), 10_000))
 
         device.pressBack()
-        waitForText("Coming to the native app")
-        waitForText("Music")
+        assertTrue("Expected Back to close previous tools", device.wait(Until.gone(webView), 10_000))
+        // The native Music panel retains its scroll position across this round trip.
+        scrollToText("Downloads", Direction.UP)
         device.pressBack()
         assertNativeHome()
     }
@@ -76,9 +86,18 @@ class HomeJourneyTest {
         val component = checkNotNull(context.packageManager.getLaunchIntentForPackage(context.packageName)?.component)
         // The platform launcher starts the resolved component with both task flags.
         val flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-        device.executeShellCommand(
+        startInstalledActivity(
             "am start -W -f 0x${flags.toString(16)} -a android.intent.action.MAIN " +
                 "-c android.intent.category.LAUNCHER -n ${component.flattenToShortString()}",
+        )
+    }
+
+    private fun startInstalledActivity(command: String) {
+        val launch = device.executeShellCommand(command)
+        assertFalse(launch, launch.lineSequence().any { it.startsWith("Error") })
+        assertTrue(
+            "Expected the installed app to become visible. Foreground package: ${device.currentPackageName}. Launch: $launch",
+            device.wait(Until.hasObject(By.pkg(context.packageName).depth(0)), 15_000),
         )
     }
 
@@ -88,13 +107,13 @@ class HomeJourneyTest {
         assertTrue("Expected an accessible public wordmark", device.wait(Until.hasObject(By.desc("AtmoShaper")), 10_000))
     }
 
-    /** The adaptive grid may place later categories below the initial viewport. */
-    private fun findCategory(label: String): UiObject2 {
+    /** Find a control from the current scroll position, including after returning from another activity. */
+    private fun scrollToText(label: String, direction: Direction = Direction.DOWN): UiObject2 {
         val selector = By.text(label)
         repeat(6) {
             device.findObject(selector)?.let { return it }
-            val grid = checkNotNull(device.findObject(By.scrollable(true))) { "Expected a scrollable Home grid" }
-            grid.scroll(Direction.DOWN, 0.65f)
+            val container = checkNotNull(device.findObject(By.scrollable(true))) { "Expected a scrollable app panel" }
+            container.scroll(direction, 0.65f)
         }
         return waitForText(label)
     }

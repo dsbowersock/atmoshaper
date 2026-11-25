@@ -73,6 +73,38 @@ test('station startup honors zero and reduced volume before transport starts; om
  }finally{if(previous===undefined)delete globalThis.window;else globalThis.window=previous}
 })
 
+test('native ambient decoding marks only a verified saved recording with a confirmed encoding error', async () => {
+ class Gain {
+  toDestination() { return this }
+  dispose() {}
+ }
+ const reported = []
+ let failure = new DOMException('Unreadable fixture', 'EncodingError')
+ const { createOfflineAudioRuntime } = await loadRuntime('../native/web/offline-audio-runtime.ts', {
+  tone: { Gain }, '@generative-music/web-library': {}, '@/lib/atmosphere/generative-fm-piece-loader': {},
+  '@/lib/atmoshaper/ambient-audio-runtime': { async createAmbientAtmoShaperAdapter() { throw failure } },
+  '@/lib/atmoshaper/generated-audio-runtime': {}, '@/lib/offline-media': {}, '@/lib/offline-station-transport': {},
+ })
+ const sample = { url: 'https://media.atmoshaper.com/atmosphere/fixture.ogg', sha256: 'b'.repeat(64) }
+ const saved = { files: [sample], revision: 'a'.repeat(64) }
+ let pack = saved
+ const runtime = createOfflineAudioRuntime({}, {
+  activate: async () => {},
+  prepareAmbientPack: async () => pack,
+  async reportSavedDecodeFailure(id, file) { reported.push({ id, ...file }) },
+ })
+ const sound = { id: 'fixture-ambient', kind: 'ambient' }
+ try {
+  await assert.rejects(runtime.play(sound), { name: 'EncodingError' })
+  pack = { files: [sample] }
+  await assert.rejects(runtime.play(sound), { name: 'EncodingError' })
+  pack = saved
+  failure = new DOMException('Playback activation failed', 'NotAllowedError')
+  await assert.rejects(runtime.play(sound), { name: 'NotAllowedError' })
+  assert.deepEqual(reported, [{ id: sound.id, revision: saved.revision, ...sample }])
+ } finally { await runtime.dispose() }
+})
+
 test('shared generative wrapper supplies the requested level before play rather than after it',async()=>{
  let startup,lateVolume=0
  const {startGenerativeFmPiece}=await loadRuntime('../native/web/platform/generative-fm.ts',{
@@ -91,11 +123,16 @@ test('Forget during delayed startup verification releases free-tool readiness wi
  const source=await readFile(new URL('../native/web/offline-backgrounds.tsx',import.meta.url),'utf8')
  const ast=ts.createSourceFile('offline-backgrounds.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX)
  const hook=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='useOfflineBackgroundAccess')
- assert.ok(hook)
- const code=ts.transpileModule(hook.getText(ast).replace('export function','function'),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText
+ const notify=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='notifyNativeAccessChange')
+ const mutation=ast.statements.find(node=>ts.isVariableStatement(node)&&node.declarationList.declarations.some(declaration=>declaration.name.getText(ast)==='nextAccessMutation'))
+ assert.ok(hook&&notify&&mutation)
+ const sourceWithPort=[mutation.getText(ast),notify.getText(ast),hook.getText(ast).replace('export function','function')].join('\n')
+ const code=ts.transpileModule(sourceWithPort,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText
  let cursor=0,mounted=false,releaseOld
- const values=[],effects=[],window=new EventTarget(),now=Date.now()
+ const values=[],effects=[],nativeChanges=[],window=new EventTarget(),now=Date.now()
  window.setInterval=()=>1;window.clearInterval=()=>{}
+ window.atmoNativeAccessDocument='fixture-document'
+ window.AtmoShaperBackgroundAccessChanged={postMessage:message=>nativeChanges.push(message)}
  const claims={device:'fixture-device',challenge:'fixture-challenge',issuedAt:now,owned:['fixture'],premiumUntil:null}
  let record={device:claims.device,receipt:'old',pending:{challenge:claims.challenge,at:now},lastIssuedAt:0,lastSeen:0},queue=Promise.resolve()
  const store={update(fn){const result=queue.then(async()=>{record=await fn(structuredClone(record));return structuredClone(record)});queue=result.catch(()=>{});return result}}
@@ -119,5 +156,6 @@ test('Forget during delayed startup verification releases free-tool readiness wi
   const result=render();assert.equal(result.loaded,true);assert.equal(result.claims,null)
   assert.equal(result.canForget,false);assert.deepEqual(result.access.ownedBackgroundIds,[])
   assert.equal(record.receipt,null);assert.equal(record.device,'replacement-device')
+  assert.deepEqual(nativeChanges,['replacing:1','replaced:1','removing:2','removed:2'].map(event=>'fixture-document:'+event))
  }finally{for(const cleanup of cleanups)cleanup?.()}
 })

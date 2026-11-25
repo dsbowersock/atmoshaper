@@ -3,6 +3,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
@@ -13,6 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/AtmoShaperTheme">
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+        <service
+            android:name=".NativeAudioService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"
+            android:stopWithTask="false" />
         <!-- A cold legacy link can create a MainActivity-rooted task. Give
              Compose Home its own affinity so Android neither reuses that task
              on launcher entry nor clears Home when reopening the Java host. -->
@@ -49,5 +59,11 @@
                 <data android:scheme="atmoshaper" android:host="tool" />
             </intent-filter>
         </activity>
+        <receiver android:name=".NativeTimerAlarmReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

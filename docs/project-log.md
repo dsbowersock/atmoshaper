@@ -1,5 +1,17 @@
 # AtmoShaper Project Log
 
+## November 25 native Android Stage 1 CodeRabbit corrections
+
+CodeRabbit completed the authorized Stage 1 source range through 9aeef6e. Review follow-up correlates each transport reply with its own transition, preserves the live audio state when a command is rejected, and closes an idle service after a late Resume. Clock reads reject a null current appearance, a ready effect survives its startup deadline, and incomplete WebView setup releases the renderer. The legacy activity retries one renderer replacement when an access receipt is still queued. Aisatsana and Downloads fixtures invalidate old success receipts before new checks, and Downloads can reopen its guarded connection to clean up its owned test row. The [#94 evidence record](audits/2026-11-24-native-android-stage-1-acceptance.md) records each finding and the bounds of its validation.
+
+## November 24 native Android Stage 1 integration checkpoint
+
+Verify the Stage 1 issue graph and the exact `c7991eb` main commit. The approved local integration combines #86, #88, #89, #90 and #93 in [draft PR #136](https://github.com/dsbowersock/atmoshaper/pull/136). #89 currently includes the measured buffer-backed ambient loop and generated noise. The legacy regional player competes for Android audio focus, so its native buffer adaptation is being verified separately. #90 unlocks the explicit Downloads work in #91. #92 has already merged through #135.
+
+The [#94 checkpoint](audits/2026-11-24-native-android-stage-1-acceptance.md) records individual installed evidence and remaining integrated gates. Move Home and the complementary tools suite to separate hosted emulators after two full runs lost the device during legacy navigation. Both new jobs passed on the mixer checkpoint.
+
+The combined development APK passed the guarded v3 → v6 → v10 → v11 upgrade and played the retained Little Bells pack in airplane mode from the native UI. A separate release-variant emulator run recorded startup, warmed navigation and audio resource samples. The subsequent review corrections address Clock, timer, audio focus and Downloads lifecycle races. The acceptance record names both tested artifact digests and the corrective range.
+
 ## November 24 native timer hosted review follow-up
 
 Address the four CodeRabbit findings on draft PR #134. Isolate malformed

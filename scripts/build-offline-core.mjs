@@ -5,7 +5,9 @@ import { createHash } from "node:crypto"
 import { readFile, writeFile, copyFile, mkdir, readdir, lstat, realpath, rm } from "node:fs/promises"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { backgroundRegistry, userCanUseBackground } from "../components/backgrounds/backgroundRegistry.ts"
+import { backgroundPaletteRegistry } from "../components/backgrounds/backgroundPaletteRegistry.ts"
 import { projectClockAppearance } from "../lib/native-clock-appearance-transfer.js"
+import { nativeStationCatalogJson } from "../lib/native-station-catalog.js"
 
 const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
@@ -45,7 +47,11 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     entry: legacyAcceptance ? { app: path.join(root, "scripts/fixtures/offline-legacy-entry.tsx") } : {
       app: path.join(root, "native/web/index.tsx"),
       "clock-appearance-export": path.join(root, "native/web/clock-appearance-export.js"),
+      "background-access-export": path.join(root, "native/web/background-access-export.js"),
+      "clock-effect": path.join(root, "native/web/clock-effect.tsx"),
       "timer-export": path.join(root, "native/web/timer-export.js"),
+      "native-audio-player": path.join(root, "native/web/native-audio-player.ts"),
+      "native-audio-downloads": path.join(root, "native/web/native-audio-downloads.ts"),
     },
     output: { path: coreRoot, filename: "[name].js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
     resolve: { alias: {
@@ -160,19 +166,32 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     // public decisions, so it never loads any renderer or account modules.
     const publicBackgrounds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
     if (publicBackgrounds.some(id => !/^[a-z0-9-]+$/.test(id))) throw new Error("Invalid public Clock background identifier.")
-    // The Compose picker and export use the same conservative registry decision.
-    // Renderer code remains in the existing Previous Tools asset closure.
+    // The Compose picker and exporter share canonical availability and style
+    // metadata. A packaged style is a visual preference, never access.
     const publicIds = new Set(publicBackgrounds)
-    const clockBackgrounds = backgroundRegistry.filter(entry => entry.enabled && entry.category.includes("clock"))
+    const nativeClockEntries = backgroundRegistry.filter(entry => entry.enabled && entry.category.includes("clock"))
+    const packagedIds = new Set(nativeClockEntries.filter(entry => !publicIds.has(entry.id) && entry.component).map(entry => entry.id))
+    const clockBackgrounds = nativeClockEntries
       .map(entry => {
         const guestAccess = publicIds.has(entry.id)
-        const defaults = guestAccess ? projectClockAppearance({ backgroundId: entry.id }, publicIds) : null
-        if (defaults && defaults.background !== entry.id) throw new Error(`Free Clock background needs a native renderer: ${entry.id}`)
-        return { id: entry.id, label: entry.label, guestAccess, defaults }
+        const defaults = guestAccess || packagedIds.has(entry.id)
+          ? projectClockAppearance({ backgroundId: entry.id }, publicIds, packagedIds) : null
+        if (guestAccess && defaults.background !== entry.id) throw new Error(`Free Clock background needs a native renderer: ${entry.id}`)
+        const adapter = backgroundPaletteRegistry[entry.id]
+        return { id: entry.id, label: entry.label, guestAccess, defaults, customizable: Boolean(adapter && adapter.status !== "unsupported") }
       })
     await writeFile(path.join(coreRoot, "clock-backgrounds.json"), JSON.stringify(clockBackgrounds))
-    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}"></script>`)
+    await writeFile(path.join(coreRoot, "native-station-catalog.json"), nativeStationCatalogJson())
+    // The decorative document has no in-flow content. Anchor its effect to the
+    // WebView viewport even when the shared stylesheet resets the root height.
+    await writeFile(path.join(coreRoot, "clock-effect.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Clock effect</title><link rel="stylesheet" href="./app.css"><style>html,body{margin:0;overflow:hidden;background:transparent}#root{position:fixed;inset:0;isolation:isolate}</style><script defer src="./clock-effect.js"></script></head><body><div id="root" aria-hidden="true"></div></body></html>`)
+    const clockIds = clockBackgrounds.map(entry => entry.id)
+    if (clockIds.some(id => !/^[a-z0-9-]{1,100}$/.test(id))) throw new Error("Invalid Clock catalog identifier.")
+    await writeFile(path.join(coreRoot, "background-access-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock background access</title><script defer src="./background-access-export.js" data-clock-backgrounds="${clockIds.join(",")}"></script>`)
+    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}" data-packaged-backgrounds="${[...packagedIds].join(",")}"></script>`)
     await writeFile(path.join(coreRoot, "timer-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Timer transfer</title><script defer src="./timer-export.js"></script>`)
+    await writeFile(path.join(coreRoot, "native-audio-player.html"), `<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://media.atmoshaper.com/atmosphere/ blob:; worker-src blob:; base-uri 'none'; form-action 'none'"><title>AtmoShaper audio player</title><script defer src="./native-audio-player.js"></script></html>`)
+    await writeFile(path.join(coreRoot, "native-audio-downloads.html"), `<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://media.atmoshaper.com/atmosphere/; base-uri 'none'; form-action 'none'"><title>AtmoShaper audio downloads</title><script defer src="./native-audio-downloads.js"></script></html>`)
   }
   const files = await fileInventory(coreRoot)
   const manifest = { version: 2, entry: "core/index.html", networkRequired: false, sharedWebsite: !legacyAcceptance, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["home", "navigation", "clock", "timer", "breathing", "backgrounds", "music", "downloads", "business-planners"], sourceModuleCount: modules.length, files }
