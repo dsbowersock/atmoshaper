@@ -39,6 +39,7 @@ internal data class NativeMixLayer(
     val request: Int,
     val phase: NativeMixPhase = NativeMixPhase.Loading,
     val volume: Float = 0.5f,
+    val savedOnly: Boolean = false,
 )
 
 /** Compose observes player-owned state and sends commands only on user input. */

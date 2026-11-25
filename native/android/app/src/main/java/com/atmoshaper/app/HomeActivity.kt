@@ -186,6 +186,7 @@ private fun Home(
                     if (selectedTool == HomeTool.Wellness) {
                         OpenBreathing { showBreathing = true }
                     } else if (selectedTool == HomeTool.Music) {
+                        NativeDownloads()
                         NativeAudioMixControls()
                         NativeAudioControls()
                     } else {

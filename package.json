@@ -263,6 +263,7 @@
     "test:offline-core-android": "node scripts/test-offline-android.mjs core",
     "test:offline-core-regression": "node --test --test-concurrency=2 tests/background-options.test.mjs tests/background-animation-autonomy.test.mjs tests/static-gradient-background.test.mjs tests/motion-preferences.test.mjs",
     "test:offline-media": "node --test tests/offline-media.test.mjs tests/offline-background-access.test.mjs tests/offline-station-transport.test.mjs",
+    "test:native-downloads": "node --test tests/native-audio-downloads.test.mjs tests/native-downloads-android.test.mjs",
     "test:offline-media-browser": "node scripts/test-offline-browsers.mjs media",
     "check:offline-station-catalog": "node scripts/check-offline-station-catalog.mjs",
     "lint:offline-media": "eslint lib/offline-media.js lib/offline-background-access.js lib/offline-core-storage.js lib/server/offline-background-receipt.ts lib/atmoshaper/ambient-audio-runtime.ts native/web app/account/offline-access app/api/account/offline-background-access scripts/build-offline-core.mjs scripts/test-offline-browsers.mjs scripts/check-offline-station-catalog.mjs tests/offline-media*.test.mjs tests/offline-background*.test.mjs tests/offline-core-storage.test.mjs",

@@ -51,6 +51,7 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
       "clock-effect": path.join(root, "native/web/clock-effect.tsx"),
       "timer-export": path.join(root, "native/web/timer-export.js"),
       "native-audio-player": path.join(root, "native/web/native-audio-player.ts"),
+      "native-audio-downloads": path.join(root, "native/web/native-audio-downloads.ts"),
     },
     output: { path: coreRoot, filename: "[name].js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
     resolve: { alias: {
@@ -190,6 +191,7 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}" data-packaged-backgrounds="${[...packagedIds].join(",")}"></script>`)
     await writeFile(path.join(coreRoot, "timer-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Timer transfer</title><script defer src="./timer-export.js"></script>`)
     await writeFile(path.join(coreRoot, "native-audio-player.html"), `<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://media.atmoshaper.com/atmosphere/ blob:; worker-src blob:; base-uri 'none'; form-action 'none'"><title>AtmoShaper audio player</title><script defer src="./native-audio-player.js"></script></html>`)
+    await writeFile(path.join(coreRoot, "native-audio-downloads.html"), `<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://media.atmoshaper.com/atmosphere/; base-uri 'none'; form-action 'none'"><title>AtmoShaper audio downloads</title><script defer src="./native-audio-downloads.js"></script></html>`)
   }
   const files = await fileInventory(coreRoot)
   const manifest = { version: 2, entry: "core/index.html", networkRequired: false, sharedWebsite: !legacyAcceptance, syntheticReceiptAuthority: Boolean(testPublicKeysPath), tools: ["home", "navigation", "clock", "timer", "breathing", "backgrounds", "music", "downloads", "business-planners"], sourceModuleCount: modules.length, files }
