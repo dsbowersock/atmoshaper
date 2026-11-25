@@ -16,7 +16,8 @@ const pkg = "com.atmoshaper.app.development"
 const entry = "https://appassets.androidplatform.net/assets/core/"
 const accessDb = "atmoshaper.android.background-access.v1"
 const clockDb = "atmoshaper.android.chimer-runtime.v1"
-const effect = "massage-lab-dotted-glow"
+// Pegboard draws a real frame even when the fixture disables system animations.
+const effect = "massage-lab-dot-grid"
 const timeout = 35_000
 const executable = name => process.platform === "win32" ? name + ".exe" : name
 const run = (command, args) => execFileSync(command, args, { cwd: root, encoding: "utf8", timeout: 90_000, windowsHide: true })
@@ -230,6 +231,7 @@ try {
   await writeFile(path.join(output, "proof.json"), JSON.stringify({
     predecessorSha256: await digest(before), candidateSha256: await digest(after), earlierVersion, candidateVersion, sameReceipt: true,
     offlineOwnedEffect: effect, canvasPixelsAfterReentry: true, nativeCustomization: true,
+    animatorDurationScale: adb("shell", "settings", "get", "global", "animator_duration_scale"),
     signedRevocationInSameProcess: true, sameProcessExpiry: true,
   }, null, 2))
   console.log("The offline signed upgrade retained its owned Clock effect and revoked it in the same Android process.")

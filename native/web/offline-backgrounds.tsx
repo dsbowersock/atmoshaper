@@ -1,6 +1,7 @@
-import { Component, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react"
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react"
 import { backgroundRegistry, getBackgroundDefinition, userCanUseBackground, type BackgroundAccessSnapshot } from "@/components/backgrounds/backgroundRegistry"
 import { resolveBackgroundEffectProps } from "@/components/backgrounds/resolveBackgroundEffectProps"
+import { PATTERNED_ACTIVE_RENDERER_IDS } from "@/components/backgrounds/backgroundUnderlayPolicy"
 import type { BackgroundEffectProps } from "@/components/backgrounds/effects/css-backgrounds"
 import { useAmbientReducedMotion } from "@/components/backgrounds/use-ambient-reduced-motion"
 import { useMediaQuery, BACKGROUND_COMPACT_VIEWPORT_QUERY } from "@/components/backgrounds/use-media-query"
@@ -30,6 +31,10 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
   const [loaded, setLoaded] = useState<{ id: string; component: ComponentType<BackgroundEffectProps> } | null>(null)
   const reduce = useAmbientReducedMotion(motion ? "system" : "reduced")
   const compactViewport = useMediaQuery(BACKGROUND_COMPACT_VIEWPORT_QUERY)
+  const requiresFirstDraw = Boolean(onReady && PATTERNED_ACTIVE_RENDERER_IDS.has(entry.id))
+  const onRenderReadyChange = useCallback((ready: boolean) => {
+    if (ready) onReady?.()
+  }, [onReady])
   useEffect(() => {
     let current = true
     void entry.component?.().then(module => { if (current) setLoaded({ id: entry.id, component: module.default }) }).catch(() => {
@@ -45,12 +50,12 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
   }), [entry.id, mainColor, orbColor, reduce, compactViewport])
   const Effect = loaded?.id === entry.id ? loaded.component : null
   useEffect(() => {
-    if (!Effect || !onReady) return
+    if (!Effect || !onReady || requiresFirstDraw) return
     const frame = window.requestAnimationFrame(onReady)
     return () => window.cancelAnimationFrame(frame)
-  }, [Effect, onReady])
+  }, [Effect, onReady, requiresFirstDraw])
   return <div className={styles.background} data-offline-background={entry.id} style={entry.fallbackStyle}>
-    {Effect && <OfflineReducedMotion.Provider value={reduce}><EffectBoundary key={entry.id} onFailed={onFailed}><Effect {...effectProps} className={styles.surface} /></EffectBoundary></OfflineReducedMotion.Provider>}
+    {Effect && <OfflineReducedMotion.Provider value={reduce}><EffectBoundary key={entry.id} onFailed={onFailed}><Effect {...effectProps} className={styles.surface} onRenderReadyChange={requiresFirstDraw ? onRenderReadyChange : undefined} /></EffectBoundary></OfflineReducedMotion.Provider>}
   </div>
 }
 
