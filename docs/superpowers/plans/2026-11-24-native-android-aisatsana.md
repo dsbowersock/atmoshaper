@@ -1,0 +1,10 @@
+# Native Android Aisatsana playback
+
+[Issue #88](https://github.com/dsbowersock/atmoshaper/issues/88) is the first playback-lifetime proof for [Android Stage 1](https://github.com/dsbowersock/atmoshaper/issues/82). The baseline is the pilot merge `c7991eb9eb4f073456df70c907fc9dbf4ff576b1`.
+
+1. Use the Music tile, native transport controls and screen re-entry as the installed-app test seam. Start idle without a sample request. Put one foreground media service in charge of actual playback, with its own packaged audio runtime and Android media session. Keep the Activity responsible for displaying playback state and sending user commands.
+2. Run the existing Aisatsana package in an audio-only WebView created by the service. Keep the existing packaged origin so verified saved packs remain readable. Fetch online metadata first, then obtain sample bytes as the generator requests them. Keep explicit pack downloads and their integrity checks intact.
+3. Exercise audio focus and preserve the current graph across transient interruption, manual Pause, screen changes and task removal. Stop must release the graph, focus and foreground service. Recovery after a renderer or service failure requires explicit Play.
+4. On the guarded emulator, verify sample-backed output and Android's real audio track before and after leaving Music, locking, removing the task and reattaching. Verify silence while paused or interrupted and after Stop. Document any limit to interpreting emulator results and keep physical S24 sound, call, battery and device acceptance separate. If a service-owned WebView cannot sustain the actual graph, stop the proof there and document a bounded output adaptation for review.
+
+Run `npm run android:build` and `npm run test:android-aisatsana` on the owned pilot fixture. The test records the exact APK digest, non-silent output peaks and retained audio-document identity under `output/native-aisatsana-android/`. Run the installed `NativeMusicJourneyTest` at normal and large font scale. Pass the instrumentation argument `verifyAisatsana=true` with online access or an existing verified Aisatsana download to exercise real Android audio focus.

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_audio_channel">Music playback</string>
+    <string name="native_audio_aisatsana">aisatsana (generative remix)</string>
+    <string name="native_audio_idle">Ready to play</string>
+    <string name="native_audio_loading">Loading</string>
+    <string name="native_audio_playing">Playing</string>
+    <string name="native_audio_paused">Paused</string>
+    <string name="native_audio_interrupted">Interrupted</string>
+    <string name="native_audio_failed">Playback unavailable. Check your connection or download this station, then try again.</string>
+    <string name="native_audio_play">Play</string>
+    <string name="native_audio_pause">Pause</string>
+    <string name="native_audio_stop">Stop</string>
+</resources>

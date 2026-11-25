@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
@@ -13,6 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/AtmoShaperTheme">
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+        <service
+            android:name=".NativeAudioService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"
+            android:stopWithTask="false" />
         <!-- A cold legacy link can create a MainActivity-rooted task. Give
              Compose Home its own affinity so Android neither reuses that task
              on launcher entry nor clears Home when reopening the Java host. -->
