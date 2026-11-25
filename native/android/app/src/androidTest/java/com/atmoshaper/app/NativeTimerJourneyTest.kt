@@ -1,5 +1,8 @@
 package com.atmoshaper.app
 
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationManager
 import android.os.Build
 import android.os.SystemClock
 import androidx.core.util.AtomicFile
@@ -13,6 +16,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -128,6 +132,7 @@ class NativeTimerJourneyTest {
         withFixture(expired) {
             ActivityScenario.launch(NativeTimerActivity::class.java).use { scenario ->
                 text("Timer complete")
+                text("The timer ended while an alert was unavailable.")
                 assertFalse(device.hasObject(By.text("Resume timer")))
                 scenario.recreate()
                 text("Timer complete")
@@ -136,6 +141,109 @@ class NativeTimerJourneyTest {
                 assertTrue(scrollTo("Start timer").isEnabled)
             }
         }
+    }
+
+    @Test
+    fun lockedBackgroundTimerPostsOneCompletionAndOngoingEndActionCancelsTheNextTimer() {
+        requireOsFixture()
+        val context = instrumentation.targetContext
+        val notifications = checkNotNull(context.getSystemService(NotificationManager::class.java))
+        assertTrue(notifications.areNotificationsEnabled())
+        assertTrue(Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            checkNotNull(context.getSystemService(AlarmManager::class.java)).canScheduleExactAlarms())
+
+        val setup = TimerSetup(minutes = 1, cue = TimerCue.Silent, keepAwake = false)
+        val due = System.currentTimeMillis() + 20_000
+        withFixture(TimerSnapshot().start(setup, due - 60_000)) {
+            ActivityScenario.launch(NativeTimerActivity::class.java).use {
+                text("Timer running")
+                assertNotNull(notice("Timer running"))
+                device.pressHome()
+                device.sleep()
+                try {
+                    assertNotNull(notice("Timer complete", 30_000))
+                    assertFalse(hasNotice("Timer running"))
+                    assertEquals(1, notifications.activeNotifications.count { it.notification.extras.getString("android.title") == "Timer complete" })
+                } finally {
+                    device.wakeUp()
+                    device.executeShellCommand("wm dismiss-keyguard")
+                }
+            }
+        }
+        var endedSessionAction: android.app.PendingIntent? = null
+        withFixture(TimerSnapshot().start(setup, System.currentTimeMillis())) {
+            ActivityScenario.launch(NativeTimerActivity::class.java).use {
+                text("Timer running")
+                assertNotNull(notice("Timer running"))
+                val progress = notifications.activeNotifications
+                    .single { it.notification.extras.getString("android.title") == "Timer running" }
+                    .notification
+                assertTrue(progress.flags and Notification.FLAG_ONGOING_EVENT != 0)
+                val end = progress.actions.single()
+                assertEquals("End timer", end.title.toString())
+                endedSessionAction = end.actionIntent
+                device.pressHome()
+                // SystemUI can collapse ongoing actions. Invoke the published
+                // Android PendingIntent that its End timer action owns.
+                end.actionIntent.send()
+                assertTrue(waitFor { !hasNotice("Timer running") })
+            }
+            ActivityScenario.launch(NativeTimerActivity::class.java).use { scrollTo("Start timer") }
+        }
+        withFixture(TimerSnapshot().start(setup, System.currentTimeMillis())) {
+            ActivityScenario.launch(NativeTimerActivity::class.java).use {
+                text("Timer running")
+                checkNotNull(endedSessionAction).send()
+                assertFalse("An End action from the prior session must be ignored",
+                    waitFor(1_000) { !hasNotice("Timer running") })
+                text("End timer").click()
+                text("Minutes")
+            }
+        }
+    }
+
+    @Test
+    fun deniedNotificationsLeaveTimerUsableAndShowStatusWithoutPrompting() {
+        requireOsFixture()
+        val context = instrumentation.targetContext
+        assertFalse(checkNotNull(context.getSystemService(NotificationManager::class.java)).areNotificationsEnabled())
+        val setup = TimerSetup(minutes = 2, cue = TimerCue.Silent)
+        withFixture(TimerSnapshot().start(setup, System.currentTimeMillis())) {
+            ActivityScenario.launch(NativeTimerActivity::class.java).use {
+                text("Timer running")
+                text("Background timer alerts are off. Cues still work on this screen.")
+                text("Pause timer").click()
+                text("Timer paused")
+                text("End timer").click()
+                text("Minutes")
+                assertFalse(hasNotice("Timer running"))
+            }
+        }
+    }
+
+    private fun requireOsFixture() {
+        assumeTrue(InstrumentationRegistry.getArguments().getString("timerOsFixture") == "true")
+        val context = instrumentation.targetContext
+        assertTrue(Build.HARDWARE == "ranchu" && context.packageName == "com.atmoshaper.app.development")
+        val marker = "/data/local/tmp/atmoshaper-parity-fixture"
+        assertEquals(marker, device.executeShellCommand("ls -d $marker").trim())
+    }
+
+    private fun hasNotice(title: String): Boolean {
+        val notifications = checkNotNull(instrumentation.targetContext.getSystemService(NotificationManager::class.java))
+        return notifications.activeNotifications.any { it.notification.extras.getString("android.title") == title }
+    }
+
+    private fun notice(title: String, timeout: Long = 4_000): String? =
+        title.takeIf { waitFor(timeout) { hasNotice(title) } }
+
+    private fun waitFor(timeout: Long = 4_000, condition: () -> Boolean): Boolean {
+        val end = SystemClock.elapsedRealtime() + timeout
+        while (SystemClock.elapsedRealtime() < end) {
+            if (condition()) return true
+            SystemClock.sleep(100)
+        }
+        return condition()
     }
 
     private fun seconds(): Int {

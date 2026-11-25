@@ -64,6 +64,9 @@ internal fun NativeTimerScreen(
     onRetry: () -> Unit,
     onSetupChange: (TimerSetup) -> Unit,
     onChange: (TimerCommand) -> Unit,
+    alerts: TimerAlertStatus?,
+    onNotificationSettings: () -> Unit,
+    onExactAlarmSettings: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     Surface(
@@ -90,7 +93,6 @@ internal fun NativeTimerScreen(
                 } else if (snapshot == null) {
                     Text(stringResource(R.string.timer_loading))
                 } else {
-                    Text(stringResource(R.string.timer_foreground), style = MaterialTheme.typography.bodySmall)
                     when (snapshot.phase) {
                         TimerPhase.Ready -> TimerSetupForm(snapshot, !busy, onSetupChange) { choices ->
                             onChange { state, time -> TimerAdvance(state.start(choices, time)) }
@@ -98,10 +100,18 @@ internal fun NativeTimerScreen(
                         TimerPhase.Running, TimerPhase.Paused -> ActiveTimer(snapshot, now, !busy, onChange)
                         TimerPhase.Complete -> {
                             TimerStatus(R.string.timer_complete)
+                            if (snapshot.missedCompletion) Text(stringResource(R.string.timer_completion_missed))
                             TextButton(onClick = { onChange { state, _ -> TimerAdvance(state.end()) } }, enabled = !busy) {
                                 Text(stringResource(R.string.timer_again))
                             }
                         }
+                    }
+                    if (alerts?.notifications == false) {
+                        Text(stringResource(R.string.timer_alerts_off))
+                        TextButton(onClick = onNotificationSettings) { Text(stringResource(R.string.timer_notification_settings)) }
+                    } else if (alerts?.precise == false) {
+                        Text(stringResource(R.string.timer_alerts_delayed))
+                        TextButton(onClick = onExactAlarmSettings) { Text(stringResource(R.string.timer_exact_alarm_settings)) }
                     }
                 }
             }
