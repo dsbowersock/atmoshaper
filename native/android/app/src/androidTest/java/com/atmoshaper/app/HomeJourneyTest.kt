@@ -24,6 +24,11 @@ class HomeJourneyTest {
 
     @Before
     fun closeExistingAppTasks() {
+        // Hosted emulators can report boot complete before their launcher
+        // accepts touch and key events. Start each journey with an awake screen.
+        device.wakeUp()
+        device.executeShellCommand("wm dismiss-keyguard")
+        device.waitForIdle()
         // Start each journey with an empty app back stack while retaining saved data.
         val activities = checkNotNull(context.getSystemService(ActivityManager::class.java))
         activities.appTasks.forEach { it.finishAndRemoveTask() }
@@ -55,7 +60,7 @@ class HomeJourneyTest {
 
     @Test
     fun legacyLinkAllowsLauncherEntryAndBackFromPreviousTools() {
-        device.executeShellCommand(
+        startInstalledActivity(
             "am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE " +
                 "-d atmoshaper://tool?path=%2F -p ${context.packageName}",
         )
@@ -80,9 +85,18 @@ class HomeJourneyTest {
         val component = checkNotNull(context.packageManager.getLaunchIntentForPackage(context.packageName)?.component)
         // The platform launcher starts the resolved component with both task flags.
         val flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-        device.executeShellCommand(
+        startInstalledActivity(
             "am start -W -f 0x${flags.toString(16)} -a android.intent.action.MAIN " +
                 "-c android.intent.category.LAUNCHER -n ${component.flattenToShortString()}",
+        )
+    }
+
+    private fun startInstalledActivity(command: String) {
+        val launch = device.executeShellCommand(command)
+        assertFalse(launch, launch.lineSequence().any { it.startsWith("Error") })
+        assertTrue(
+            "Expected the installed app to become visible. Foreground package: ${device.currentPackageName}. Launch: $launch",
+            device.wait(Until.hasObject(By.pkg(context.packageName).depth(0)), 15_000),
         )
     }
 
