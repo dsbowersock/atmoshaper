@@ -1,5 +1,11 @@
 # AtmoShaper Project Log
 
+## November 24 native Android Stage 1 integration checkpoint
+
+Verify the Stage 1 issue graph and the exact `c7991eb` main commit. The approved local integration combines #86, #88, #89, #90 and #93 in [draft PR #136](https://github.com/dsbowersock/atmoshaper/pull/136). #89 currently includes the measured buffer-backed ambient loop and generated noise. The legacy regional player competes for Android audio focus, so its native buffer adaptation is being verified separately. #90 unlocks the explicit Downloads work in #91. #92 has already merged through #135.
+
+The [#94 checkpoint](audits/2026-11-24-native-android-stage-1-acceptance.md) records individual installed evidence and remaining integrated gates. Move Home and the complementary tools suite to separate hosted emulators after two full runs lost the device during legacy navigation. Both new jobs passed on the mixer checkpoint.
+
 ## November 24 native timer hosted review follow-up
 
 Address the four CodeRabbit findings on draft PR #134. Isolate malformed

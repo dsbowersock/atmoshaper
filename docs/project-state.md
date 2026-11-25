@@ -1,5 +1,11 @@
 # AtmoShaper Project State
 
+## November 24 native Android Stage 1 integration
+
+The owner approved the remaining Stage 1 tickets under [#82](https://github.com/dsbowersock/atmoshaper/issues/82) from `c7991eb`. [Draft PR #136](https://github.com/dsbowersock/atmoshaper/pull/136) carries the timer, native playback, station catalog and offline background access. #92 was delivered in #135. Explicit native downloads and the regional ambient playback correction are in progress.
+
+The [integration plan](superpowers/plans/2026-11-24-native-android-stage-1.md) records the graph and Galaxy S24 Ultra handoff. The [#94 evidence record](audits/2026-11-24-native-android-stage-1-acceptance.md) distinguishes the installed ticket receipts from the pending combined build, integrated acceptance and current-range reviews. The owner retains the GitHub merge and physical-device acceptance.
+
 ## November 24 native Android timer preview
 
 [Issue #85](https://github.com/dsbowersock/atmoshaper/issues/85) adds the

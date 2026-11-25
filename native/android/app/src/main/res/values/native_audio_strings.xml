@@ -26,6 +26,7 @@
     <string name="native_audio_pink_noise">Pink noise</string>
     <string name="native_audio_brown_noise">Brown noise</string>
     <string name="native_audio_boiling_water">Boiling Water</string>
+    <string name="native_audio_heavy_rain">Heavy Rain</string>
     <string name="native_audio_more_ambient">Open previous tools to play more Atmosphere sounds.</string>
     <string name="native_audio_play_layer">Play %1$s</string>
     <string name="native_audio_stop_layer">Stop %1$s</string>

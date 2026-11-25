@@ -10,6 +10,7 @@ import {
 } from "./production-catalog-runtime"
 import { selectAtmoShaperProductionAudioUrl } from "./production-catalog.js"
 import type { AtmoShaperLayer } from "./recipe.js"
+import { startRegionalBufferPlayback } from "./regional-buffer-playback.js"
 import { createSignatureSoundPreviewPlayer } from "./signature-sound-preview-player.js"
 
 type PreviewPlayer = ReturnType<typeof createSignatureSoundPreviewPlayer>
@@ -25,6 +26,8 @@ export async function createAmbientAtmoShaperAdapter({
   layer: initialLayer,
   reportFailure,
   localAudioUrl,
+  localRegionalAudioData,
+  isCurrent = () => true,
   resumeContext = true,
 }: {
   destination: InputNode
@@ -32,6 +35,8 @@ export async function createAmbientAtmoShaperAdapter({
   reportFailure: (error: unknown) => void
   /** Native downloads supply committed blob URLs; website streaming is unchanged. */
   localAudioUrl?: (source: AtmoShaperProductionSource) => string
+  /** The native mixer supplies verified bytes for its supported regional recording. */
+  localRegionalAudioData?: (source: AtmoShaperProductionSource) => ArrayBuffer
   /** Layer ownership can change while the ambient source is preparing. */
   isCurrent?: () => boolean
   /** Native Android controls the context for the entire mix through audio focus. */
@@ -47,7 +52,9 @@ export async function createAmbientAtmoShaperAdapter({
   let failed = false
   let engine: Awaited<ReturnType<typeof startConceptEngine>>
   try {
-    engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl, resumeContext })
+    engine = await startConceptEngine({
+      concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl, localRegionalAudioData, isCurrent, resumeContext,
+    })
   } catch (error) {
     // No handle owns this graph until startup fulfills.
     output.dispose()
@@ -87,7 +94,9 @@ export async function createAmbientAtmoShaperAdapter({
       layer = nextLayer
       if (priorSelectedSource !== nextSelectedSource) {
         engine.stop()
-        engine = await startConceptEngine({ concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl, resumeContext })
+        engine = await startConceptEngine({
+          concept, layer, output, reportFailure: handleEngineFailure, localAudioUrl, localRegionalAudioData, isCurrent, resumeContext,
+        })
       }
       rampOutput()
     },
@@ -123,6 +132,8 @@ async function startConceptEngine({
   output,
   reportFailure,
   localAudioUrl,
+  localRegionalAudioData,
+  isCurrent,
   resumeContext,
 }: {
   concept: AtmoShaperProductionConcept
@@ -130,8 +141,31 @@ async function startConceptEngine({
   output: Gain
   reportFailure: (error: unknown) => void
   localAudioUrl?: (source: AtmoShaperProductionSource) => string
+  localRegionalAudioData?: (source: AtmoShaperProductionSource) => ArrayBuffer
+  isCurrent: () => boolean
   resumeContext: boolean
 }) {
+  if (localRegionalAudioData) {
+    const policy = concept.runtimePolicy
+    const [source] = concept.sources
+    if (policy?.kind !== "random-region-loop" || concept.sources.length !== 1 || concept.sourceSelection || concept.playbackMode) {
+      throw new Error("AtmoShaper buffered regional playback needs one reviewed recording")
+    }
+    const stop = await startRegionalBufferPlayback({
+      context: requireRealtimeAudioContext(output),
+      data: localRegionalAudioData(source),
+      destination: output.input,
+      policy,
+      gainDb: source.gainDb ?? 0,
+      isCurrent,
+      subscribe(callback) {
+        output.context.on("tick", callback)
+        return () => { output.context.off("tick", callback) }
+      },
+      reportFailure,
+    })
+    return { stop }
+  }
   if (concept.playbackMode?.kind === "prebaked-intro-loop") {
     return startPrebakedLoop(concept, output, localAudioUrl, resumeContext)
   }
