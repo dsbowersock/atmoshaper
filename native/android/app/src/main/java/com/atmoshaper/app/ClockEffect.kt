@@ -50,13 +50,23 @@ internal fun PackagedClockEffect(
     if (status == ClockEffectStatus.Failed) return
     key(id, style) {
         AndroidView(
-            factory = { context -> newClockEffectView(context, id, style) { report.value(it) } },
+            factory = { context ->
+                try {
+                    newClockEffectView(context, id, style) { report.value(it) }
+                } catch (_: RuntimeException) {
+                    // Some systems cannot create a working WebView. Keep the
+                    // native backdrop and let its startup timeout report it.
+                    View(context)
+                }
+            },
             modifier = Modifier.fillMaxSize(),
             onRelease = { view ->
-                if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-                    WebViewCompat.removeWebMessageListener(view, effectChannel)
+                if (view is WebView) {
+                    if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                        WebViewCompat.removeWebMessageListener(view, effectChannel)
+                    }
+                    view.destroy()
                 }
-                view.destroy()
             },
             update = {},
         )

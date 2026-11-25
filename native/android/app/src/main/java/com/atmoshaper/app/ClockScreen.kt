@@ -145,7 +145,9 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         val shown = current?.let {
             if (canUseSelection && selected?.defaults?.background == it.background) it else it.copy(background = ClockBackground.Neutral)
         }
-        val packagedStyle = shown?.takeIf { it.background == ClockBackground.Packaged }?.backgroundStyle
+        val packagedStyle = if (shown?.background == ClockBackground.Packaged) {
+            shown.backgroundStyle.copy(motion = systemMotionEnabled() && shown.motion)
+        } else null
         var rendererStatus by remember(selected?.id, packagedStyle) { mutableStateOf(ClockEffectStatus.Starting) }
         if (packagedStyle != null && selected != null) {
             PackagedClockEffect(selected.id, packagedStyle, rendererStatus) {

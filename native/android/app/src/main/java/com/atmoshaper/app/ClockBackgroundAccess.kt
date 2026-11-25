@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -155,6 +156,10 @@ internal fun rememberClockBackgroundAccess(activity: HomeActivity): ClockBackgro
                         access = snapshot
                         delay(snapshot.nextCheckDelay(wall, elapsed))
                     }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: RuntimeException) {
+                    // A broken WebView or clock evidence store cannot block free Clock.
                 } finally {
                     access = ClockBackgroundAccess.unavailable
                 }

@@ -139,7 +139,7 @@ internal fun ClockBackgroundPicker(
                 }
                 if (source != null && selected?.customizable == true) {
                     item {
-                        TextButton(onClick = { customizing = !customizing }, enabled = !saving) {
+                        TextButton(onClick = { if (selected.canUse(access)) customizing = !customizing }, enabled = !saving) {
                             Text(stringResource(if (customizing) R.string.clock_background_hide_controls else R.string.clock_background_customize))
                         }
                     }
@@ -178,7 +178,7 @@ internal fun ClockBackgroundPicker(
                         Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .selectable(active, enabled = available && !saving, role = Role.RadioButton) {
                                 if (!active) {
-                                    val replacement = checkNotNull(styleFor(choice))
+                                    val replacement = styleFor(choice) ?: return@selectable
                                     selectedId = choice.id
                                     customizing = false
                                     primaryEdit = null
@@ -201,7 +201,7 @@ internal fun ClockBackgroundPicker(
             }
         },
         confirmButton = {
-            TextButton(enabled = valid && !saving, onClick = { saving = true }) {
+            TextButton(enabled = valid && !saving, onClick = { if (selected?.canUse(access) == true) saving = true }) {
                 Text(stringResource(R.string.clock_background_apply))
             }
         },
