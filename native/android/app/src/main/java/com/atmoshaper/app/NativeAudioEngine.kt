@@ -34,7 +34,7 @@ internal class NativeAudioEngine(
             domStorageEnabled = true
             allowFileAccess = false
             allowContentAccess = false
-            // The only start command is the user's native, focus-gated Play.
+            // Playback commands come from the native, focus-gated service.
             mediaPlaybackRequiresUserGesture = false
         }
         view.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)
@@ -91,11 +91,20 @@ internal class NativeAudioEngine(
         view.loadUrl(ENTRY)
     }
 
-    fun play(id: String, token: Int, revision: Int) = command("play(${JSONObject.quote(id)}, $token, $revision)")
+    fun play(id: String, token: Int, request: Int) = command("play(${JSONObject.quote(id)}, $token, $request)")
 
     fun stopStation(token: Int) = command("stopStation($token)")
 
     fun setPaused(paused: Boolean, token: Int) = command("setPaused($paused, $token)")
+
+    fun playLayer(sound: NativeMixSound, layer: NativeMixLayer, token: Int) =
+        command("playLayer(${JSONObject.quote(sound.id)}, ${JSONObject.quote(sound.kind)}, ${layer.volume}, $token, ${layer.request})")
+
+    fun stopLayer(sound: NativeMixSound, layer: NativeMixLayer, token: Int) =
+        command("stopLayer(${JSONObject.quote(sound.id)}, $token, ${layer.request})")
+
+    fun setLayerVolume(sound: NativeMixSound, volume: Float, token: Int) =
+        command("setLayerVolume(${JSONObject.quote(sound.id)}, $volume, $token)")
 
     fun close() {
         if (closed) return

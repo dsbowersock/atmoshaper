@@ -68,6 +68,7 @@ test("canceling Play rejects late payloads and never requests queued samples", a
             started.resolve()
             return response.promise
           },
+          async cancel() {},
         }) },
       }
     },

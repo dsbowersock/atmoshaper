@@ -23,6 +23,9 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
   destination?: InputNode
   masterVolume?: number
   prepareStationSamples?: (id: string) => Promise<StationSamples>
+  prepareAmbientPack?: (id: string) => Promise<Awaited<ReturnType<typeof readVerifiedOfflinePack>>>
+  /** Native transport alone resumes the shared context when Android grants focus. */
+  activate?: () => Promise<void>
 } = {}) {
   const layers = new Map<string, Handle>()
   const generations = new Map<string, number>()
@@ -38,10 +41,11 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
     await handle?.stop()
   }
   return {
-    async play(item: { id: string; kind: string; station?: { runtime: { pieceId: string } } }, onProgress: (value: number) => void = () => {}, initialStationVolume = 0.75) {
+    async play(item: { id: string; kind: string; station?: { runtime: { pieceId: string } } }, onProgress: (value: number) => void = () => {},
+      initialVolume = item.kind === "station" ? 0.75 : 0.5) {
       // Called directly by a user gesture before any IndexedDB/decode awaits.
       if (disposed) return false
-      const activated = Tone.start()
+      const activated = options.activate ? options.activate() : Tone.start()
       // Consume ownership synchronously before teardown/decode awaits. An older
       // start must never invalidate a newer request after its own await returns.
       const previous = layers.get(item.id); layers.delete(item.id)
@@ -53,9 +57,11 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
       const isCurrent = () => !disposed && generations.get(item.id) === generation
       await Promise.all([activated, previous?.stop(), retired])
       if (!isCurrent()) return false
-      const pack = item.kind !== "generated" && (item.kind !== "station" || !options.prepareStationSamples)
-        ? await readVerifiedOfflinePack(item.id, store)
-        : null
+      const pack = item.kind === "ambient" && options.prepareAmbientPack
+        ? await options.prepareAmbientPack(item.id)
+        : item.kind !== "generated" && (item.kind !== "station" || !options.prepareStationSamples)
+          ? await readVerifiedOfflinePack(item.id, store)
+          : null
       if (!isCurrent()) return false
       let handle: Handle
       if (item.kind === "station") {
@@ -69,7 +75,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
         if (!isCurrent()) return false
         // Set the requested level before connecting/scheduling. A paused layer
         // starts silent; callers without an explicit level retain the old gain.
-        const output = new Tone.Gain(stationGain(initialStationVolume)).connect(master)
+        const output = new Tone.Gain(stationGain(initialVolume)).connect(master)
         const decoded = new Map<string, Promise<AudioBuffer>>()
         const raw = Tone.getContext().rawContext as AudioContext
         const files = new Map<string, ArrayBuffer>(pack?.files.map((file: PackFile) => [file.url, file.data]))
@@ -118,10 +124,15 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
         }
       } else {
         const blobs = new Map<string, string>()
-        const layer = { id: item.id, kind: item.kind === "generated" ? "noise" as const : "ambient" as const, sourceId: item.id, volume: 0.5, muted: false, settings: { rampSeconds: 0.2 } }
+        const layer = { id: item.id, kind: item.kind === "generated" ? "noise" as const : "ambient" as const, sourceId: item.id, volume: initialVolume, muted: false, settings: { rampSeconds: 0.2 } }
         const adapter = item.kind === "generated" ? createGeneratedAtmoShaperAdapter({ destination: master, layer }) : await createAmbientAtmoShaperAdapter({
           destination: master, layer,
-          reportFailure(error) { void stop(item.id); window.dispatchEvent(new CustomEvent("atmoshaper:offline-audio-error", { detail: { id: item.id, message: String(error) } })) },
+          resumeContext: !options.activate,
+          reportFailure(error) {
+            if (!isCurrent()) return
+            void stop(item.id)
+            window.dispatchEvent(new CustomEvent("atmoshaper:offline-audio-error", { detail: { id: item.id, message: String(error) } }))
+          },
           localAudioUrl(source) {
             const format = source.formats.find(format => format.id === "opus")!
             const url = mediaUrl(format.publicUrl)

@@ -2,6 +2,7 @@ package com.atmoshaper.app
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -46,6 +49,7 @@ internal fun NativeAudioControls() {
     }
     val stations = result?.getOrNull().orEmpty()
     val playback by NativeAudio.station.collectAsState()
+    val transport by NativeAudio.status.collectAsState()
     val status = playback.status
     var chosenId by rememberSaveable { mutableStateOf<String?>(null) }
     var searching by rememberSaveable { mutableStateOf(false) }
@@ -53,7 +57,7 @@ internal fun NativeAudioControls() {
     val chosen = stations.find { it.id == (chosenId ?: playback.id) }
     val active = stations.find { it.id == playback.id }
     val sameStation = chosen?.id == playback.id
-    val canPlay = chosen?.playable == true && (!sameStation ||
+    val canPlay = transport != NativeAudioStatus.Interrupted && chosen?.playable == true && (!sameStation ||
         status in setOf(NativeAudioStatus.Idle, NativeAudioStatus.Paused, NativeAudioStatus.Failed))
     val canPause = sameStation && status in setOf(NativeAudioStatus.Playing, NativeAudioStatus.Interrupted)
     val control = Modifier.heightIn(min = 48.dp)
@@ -77,11 +81,14 @@ internal fun NativeAudioControls() {
         if (!sameStation && active != null && status !in setOf(NativeAudioStatus.Idle, NativeAudioStatus.Failed)) {
             Text(stringResource(R.string.native_audio_station_active, active.title))
         }
-        Text(
-            stringResource(status.label),
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        val visibleStatus = if (!sameStation && status == NativeAudioStatus.Failed) NativeAudioStatus.Idle else status
+        if (chosen != null && (chosen.playable || visibleStatus != NativeAudioStatus.Idle)) {
+            Text(
+                stringResource(visibleStatus.label),
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (canPause) {
             Button(onClick = { NativeAudio.send(context, NativeAudio.PAUSE) }, modifier = control) {
                 Text(stringResource(R.string.native_audio_pause))
@@ -131,12 +138,17 @@ private fun StationPicker(stations: List<NativeStation>, selectedId: String?, on
                 if (results.isEmpty()) Text(stringResource(R.string.native_audio_no_stations))
                 LazyColumn(Modifier.heightIn(max = 280.dp).selectableGroup()) {
                     items(results, key = { it.id }) { station ->
-                        Text(
-                            station.title,
+                        val selected = station.id == selectedId
+                        Row(
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                .selectable(selected = station.id == selectedId, role = Role.RadioButton, onClick = { onChoose(station.id) })
+                                .selectable(selected = selected, role = Role.RadioButton, onClick = { onChoose(station.id) })
                                 .padding(horizontal = 12.dp, vertical = 12.dp),
-                        )
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = selected, onClick = null)
+                            Text(station.title)
+                        }
                     }
                 }
             }
