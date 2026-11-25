@@ -399,6 +399,12 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     let audioPage = null
     if (nativeBaseline) {
       await tapNativeLabel("Music")
+      await tapNativeLabel("Downloads")
+      await tapNativeLabel("native_download_query",{ attribute:"resource-id" })
+      shell("shell","input","text","Little%sBells")
+      await tapNativeLabel("native_download_generative-fm-little-bells",{ attribute:"resource-id" })
+      await expect.poll(()=>nativeHierarchy()).toContain('text="Ready offline"')
+      await tapNativeLabel("Close")
       await tapNativeLabel("Search stations")
       await tapNativeLabel("native_station_query",{ attribute:"resource-id" })
       shell("shell","input","text","Little%sBells")
@@ -406,7 +412,7 @@ test("replacement APK opens native Home offline and retains downloads, settings 
       await tapNativeLabel("Play")
       audioPage = await connect({ entry:nativeAudioEntry })
       await expect.poll(()=>nativeHierarchy()).toContain('text="Playing"')
-      stage1Audio = { music:await hearNativeAudio(audioPage) }
+      stage1Audio = { retainedPackReadyOffline:true, music:await hearNativeAudio(audioPage) }
       await tapNativeLabel("Back to Home")
     }
     await tapNativeLabel("Open breathing guide")
