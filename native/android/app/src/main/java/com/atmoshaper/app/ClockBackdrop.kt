@@ -34,7 +34,7 @@ internal fun ClockBackdrop(appearance: ClockAppearance) {
     }
     Canvas(Modifier.fillMaxSize()) {
         when (appearance.background) {
-            ClockBackground.Neutral -> Unit
+            ClockBackground.Neutral, ClockBackground.Packaged -> Unit
             ClockBackground.SolidColor -> drawRect(first)
             ClockBackground.StaticGradient -> drawStaticGradient(appearance)
             ClockBackground.LavaLamp -> drawLavaLamp(first, second, position?.value ?: 0f)
