@@ -4,7 +4,11 @@ import { fileURLToPath } from "node:url"
 /** The test enforces the exact synthetic AVD and ownership marker. */
 const result = spawnSync(process.execPath, ["--test", "tests/native-aisatsana-android.test.mjs"], {
   cwd: fileURLToPath(new URL("..", import.meta.url)),
-  env: { ...process.env, ATMOSHAPER_AISATSANA_ANDROID_TEST: "1" },
+  env: {
+    ...process.env,
+    ATMOSHAPER_AISATSANA_ANDROID_TEST: "1",
+    ATMOSHAPER_NATIVE_STATION_CATALOG_TEST: process.argv.includes("--catalog") ? "1" : "0",
+  },
   stdio: "inherit",
   windowsHide: true,
 })

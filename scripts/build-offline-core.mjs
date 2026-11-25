@@ -7,6 +7,7 @@ import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { backgroundRegistry, userCanUseBackground } from "../components/backgrounds/backgroundRegistry.ts"
 import { backgroundPaletteRegistry } from "../components/backgrounds/backgroundPaletteRegistry.ts"
 import { projectClockAppearance } from "../lib/native-clock-appearance-transfer.js"
+import { nativeStationCatalogJson } from "../lib/native-station-catalog.js"
 
 const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
@@ -179,6 +180,7 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
         return { id: entry.id, label: entry.label, guestAccess, defaults, customizable: Boolean(adapter && adapter.status !== "unsupported") }
       })
     await writeFile(path.join(coreRoot, "clock-backgrounds.json"), JSON.stringify(clockBackgrounds))
+    await writeFile(path.join(coreRoot, "native-station-catalog.json"), nativeStationCatalogJson())
     // The decorative document has no in-flow content. Anchor its effect to the
     // WebView viewport even when the shared stylesheet resets the root height.
     await writeFile(path.join(coreRoot, "clock-effect.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Clock effect</title><link rel="stylesheet" href="./app.css"><style>html,body{margin:0;overflow:hidden;background:transparent}#root{position:fixed;inset:0;isolation:isolate}</style><script defer src="./clock-effect.js"></script></head><body><div id="root" aria-hidden="true"></div></body></html>`)

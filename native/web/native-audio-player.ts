@@ -2,11 +2,11 @@ import * as Tone from "tone"
 import { getAtmosphereStationById } from "@/lib/atmosphere/stations"
 import { getAtmoShaperProductionConcept } from "@/lib/atmoshaper/production-catalog-runtime"
 import { prepareNativeAmbientPack } from "@/lib/native-ambient-source"
+import { hasNativeStationPlayer } from "@/lib/native-station-catalog"
 import { prepareNativeStationSamples } from "@/lib/native-station-sample-source"
 import { createOfflineMediaStore } from "@/lib/offline-media"
 import { createOfflineAudioRuntime } from "./offline-audio-runtime"
 
-const stationId = "generative-fm-aisatsana"
 type AudioPlayerWindow = Window & {
   AtmoShaperAudioHost?: { postMessage(message: string): void }
   atmoNativeAudio?: typeof player
@@ -20,6 +20,8 @@ let playingToken = 0
 let runtime: ReturnType<typeof createOfflineAudioRuntime> | undefined
 let paused = false
 let contextChange: Promise<void> = Promise.resolve()
+type StationRequest = { id: string; controller: AbortController; ready: boolean }
+let stationRequest: StationRequest | undefined
 const mix = new Map<string, { request: number; controller: AbortController }>()
 
 function ensureSession(token: number) {
@@ -41,12 +43,27 @@ function getRuntime() {
   runtime = createOfflineAudioRuntime(store, {
     destination: output,
     activate: updateContext,
-    prepareStationSamples: id => prepareNativeStationSamples({ id, kind: "station", station: getAtmosphereStationById(id) }, store),
+    prepareStationSamples: id => {
+      const request = stationRequest
+      if (request?.id !== id) throw new Error("The station request was superseded.")
+      return prepareNativeStationSamples({ id, kind: "station", station: getAtmosphereStationById(id) }, store, {
+        signal: request.controller.signal,
+      })
+    },
     prepareAmbientPack: id => prepareNativeAmbientPack({ id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, store, {
       signal: mix.get(id)?.controller.signal,
     }),
   })
   return runtime
+}
+
+/** One cancellation scope per station selection inside the shared mixer. */
+async function clearStation() {
+  const previous = stationRequest
+  if (!previous) return
+  stationRequest = undefined
+  previous.controller.abort()
+  await runtime?.stop(previous.id)
 }
 
 function reportLayerFailure(id: string) {
@@ -62,20 +79,30 @@ window.addEventListener("atmoshaper:offline-audio-error", event => reportLayerFa
 /** The foreground service owns this document. The UI never loads this entry
  * and cannot create a second audio graph while reattaching to the service. */
 const player = {
-  async play(id: string, token: number, request: number) {
-    if (id !== stationId || !ensureSession(token)) return
-    const station = getAtmosphereStationById(id)
-    const item = { kind: "station", id, station }
+  async play(id: string, token: number, revision: number) {
+    if (!ensureSession(token)) return
+    const previous = clearStation()
+    const request: StationRequest = { id, controller: new AbortController(), ready: false }
+    stationRequest = request
     try {
-      const played = await getRuntime().play({ ...item, station: { runtime: { pieceId: station.runtime.pieceId } } })
-      report(`${played ? "station-playing" : "station-failed"}:${token}:${request}`)
+      await previous
+      if (stationRequest !== request) return
+      const station = getAtmosphereStationById(id)
+      if (!hasNativeStationPlayer(station)) throw new Error("This station has no supported native engine.")
+      const played = await getRuntime().play({ kind: "station", id, station: { runtime: { pieceId: station.runtime.pieceId } } })
+      if (stationRequest !== request) return
+      if (!played) throw new Error("The station could not start.")
+      request.ready = true
+      report(`station-playing:${token}:${revision}`)
     } catch {
-      report(`station-failed:${token}:${request}`)
+      if (stationRequest !== request) return
+      void clearStation().catch(() => undefined)
+      report(`station-failed:${token}:${revision}`)
     }
   },
 
-  async stopStation(token: number) {
-    if (token === playingToken) await runtime?.stop(stationId)
+  stopStation(token: number) {
+    if (token === playingToken) void clearStation().catch(() => undefined)
   },
 
   async setPaused(next: boolean, token: number) {
@@ -131,7 +158,10 @@ const player = {
    * taps the same gain feeding the device output and schedules no sound. */
   outputProbe() {
     const context = Tone.getContext()
-    const result = { peak: 0, currentTime: context.currentTime, state: context.state }
+    const result = {
+      peak: 0, currentTime: context.currentTime, state: context.state,
+      stationId: stationRequest?.ready ? stationRequest.id : null,
+    }
     if (!output || context.state !== "running") return result
     if (!probe) {
       probe = new Tone.Analyser("waveform", 1024)

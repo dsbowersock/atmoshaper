@@ -19,6 +19,7 @@ const output = path.join(root, "output/native-aisatsana-android")
 const playerUrl = "https://appassets.androidplatform.net/assets/core/native-audio-player.html"
 const hierarchyPath = "/data/local/tmp/atmoshaper-native-aisatsana.xml"
 const reattachOnly = process.env.ATMOSHAPER_AISATSANA_REATTACH_ONLY === "1"
+const catalogMode = process.env.ATMOSHAPER_NATIVE_STATION_CATALOG_TEST === "1"
 
 const run = (...args) => execFileSync(adb, ["-s", fixture.serial, ...args], {
   timeout: 30_000, windowsHide: true, encoding: "utf8", maxBuffer: 8 * 1024 * 1024,
@@ -48,9 +49,10 @@ function hierarchy() {
 
 const boundsOf = node => node?.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)?.slice(1).map(Number)
 
-async function tap(label) {
+async function tap(label, { attribute = "text", className } = {}) {
   const bounds = await waitFor(label, () => {
-    const node = [...hierarchy().matchAll(/<node\b[^>]+>/g)].find(([text]) => text.includes(`text="${label}"`))
+    const node = [...hierarchy().matchAll(/<node\b[^>]+>/g)].find(([text]) =>
+      text.includes(`${attribute}="${label}"`) && (!className || text.includes(`class="${className}"`)))
     return boundsOf(node?.[0])
   })
   const [left, top, right, bottom] = bounds
@@ -61,7 +63,8 @@ function openHome() {
   shell("am", "start", "-W", "-n", launch)
 }
 
-test("actual Aisatsana audio outlives its screen, lock and recent task", {
+test(catalogMode ? "an audible station switch reuses the same Android media renderer" :
+  "actual Aisatsana audio outlives its screen, lock and recent task", {
   skip: process.env.ATMOSHAPER_AISATSANA_ANDROID_TEST !== "1",
   timeout: 300_000,
 }, async () => {
@@ -75,7 +78,8 @@ test("actual Aisatsana audio outlives its screen, lock and recent task", {
   let browser, port
   const observations = []
   await mkdir(output, { recursive: true })
-  const report = completed => writeFile(path.join(output, reattachOnly ? "reattachment.json" : "lifecycle.json"), JSON.stringify({
+  const receipt = catalogMode ? "station-catalog.json" : reattachOnly ? "reattachment.json" : "lifecycle.json"
+  const report = completed => writeFile(path.join(output, receipt), JSON.stringify({
     apkSha256: build.sha256, fixture: fixture.name, observations, completed, physicalDeviceVerified: false,
   }, null, 2))
   try {
@@ -103,11 +107,11 @@ test("actual Aisatsana audio outlives its screen, lock and recent task", {
       ...window.atmoNativeAudio?.outputProbe(), documentStart: performance.timeOrigin,
     }))
     let first
-    async function audible(phase) {
-      const reading = await waitFor(`non-silent Aisatsana output while ${phase}`, async () => {
+    async function audible(phase, stationId = "generative-fm-aisatsana") {
+      const reading = await waitFor(`non-silent ${stationId} output while ${phase}`, async () => {
         const sample = await probe()
-        return sample.peak > 0.00001 && (!first || sample.currentTime > first.currentTime) && sample
-      })
+        return sample.stationId === stationId && sample.peak > 0.00001 && (!first || sample.currentTime > first.currentTime) && sample
+      }, catalogMode ? 90_000 : 45_000)
       assert.match(shell("dumpsys", "activity", "services", audioService), /isForeground=true/)
       // An actual Android audio player from the app process must be started as
       // well as the generator producing a waveform at its output gain.
@@ -121,6 +125,38 @@ test("actual Aisatsana audio outlives its screen, lock and recent task", {
       console.log(`Confirmed non-silent Android audio while ${phase}.`)
     }
     await audible("music is visible")
+    if (catalogMode) {
+      const requests = []
+      page.on("request", request => {
+        const url = new URL(request.url())
+        if (url.origin === "https://media.atmoshaper.com") requests.push(url.pathname)
+      })
+      await tap("Search stations")
+      await tap("native_station_query", { attribute: "resource-id" })
+      shell("input", "text", "Little%sBells")
+      // Android accessibility exposes the typed query and result with the same text.
+      await tap("Little Bells", { className: "android.widget.TextView" })
+      assert.match(hierarchy(), /Current station: aisatsana \(generative remix\)/)
+      const switchStart = performance.now()
+      await tap("Play")
+      await audible("Little Bells replaces Aisatsana", "generative-fm-little-bells")
+      const media = requests.filter(url => url.includes("/little-bells/"))
+      // A verified pack suppresses online reads. When no pack was seeded,
+      // both metadata requests must precede the first demanded sample.
+      if (media.length) {
+        const firstSample = media.findIndex(url => url.endsWith(".ogg"))
+        assert.ok(firstSample >= 2)
+        assert.ok(media.slice(0, firstSample).some(url => url.endsWith("sample-index.opus.json")))
+        assert.ok(media.slice(0, firstSample).some(url => url.endsWith("manifest.opus.json")))
+        const samples = media.filter(url => url.endsWith(".ogg"))
+        assert.equal(samples.length, new Set(samples).size)
+      }
+      observations.push({ phase: "station switched", audibleAfterMillis: Math.round(performance.now() - switchStart), media })
+      await tap("Stop")
+      await waitFor("station output released", () => page.isClosed())
+      await report(true)
+      return
+    }
     if (!reattachOnly) {
       await tap("Back to Home")
       await tap("Open breathing guide")

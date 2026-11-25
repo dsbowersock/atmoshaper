@@ -3,6 +3,17 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { mediaUrl, offlineAudioCatalog, describeOfflinePack, downloadOfflinePack, readVerifiedOfflinePack, sha256, createOfflineMediaStore } from "../lib/offline-media.js"
 
+test("canceling a saved pack read rejects a late storage result", async () => {
+  const controller = new AbortController()
+  const record = Promise.withResolvers()
+  const pending = assert.rejects(readVerifiedOfflinePack("station", { get: () => record.promise }, {
+    signal: controller.signal,
+  }), { name: "AbortError" })
+  controller.abort()
+  record.resolve({ version: 1, id: "station", files: [{ bytes: 2, data: new ArrayBuffer(1) }] })
+  await pending
+})
+
 const data = new TextEncoder().encode("OggS synthetic sample").buffer
 const hash = await sha256(data)
 const url = "https://media.atmoshaper.com/atmosphere/atmoshaper/v1/audio/abc/opus.ogg"
