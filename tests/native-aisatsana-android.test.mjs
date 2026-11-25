@@ -49,9 +49,10 @@ function hierarchy() {
 
 const boundsOf = node => node?.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)?.slice(1).map(Number)
 
-async function tap(label, attribute = "text") {
+async function tap(label, { attribute = "text", className } = {}) {
   const bounds = await waitFor(label, () => {
-    const node = [...hierarchy().matchAll(/<node\b[^>]+>/g)].find(([text]) => text.includes(`${attribute}="${label}"`))
+    const node = [...hierarchy().matchAll(/<node\b[^>]+>/g)].find(([text]) =>
+      text.includes(`${attribute}="${label}"`) && (!className || text.includes(`class="${className}"`)))
     return boundsOf(node?.[0])
   })
   const [left, top, right, bottom] = bounds
@@ -131,9 +132,10 @@ test(catalogMode ? "an audible station switch reuses the same Android media rend
         if (url.origin === "https://media.atmoshaper.com") requests.push(url.pathname)
       })
       await tap("Search stations")
-      await tap("native_station_query", "resource-id")
+      await tap("native_station_query", { attribute: "resource-id" })
       shell("input", "text", "Little%sBells")
-      await tap("Little Bells")
+      // Android accessibility exposes the typed query and result with the same text.
+      await tap("Little Bells", { className: "android.widget.TextView" })
       assert.match(hierarchy(), /Current station: aisatsana \(generative remix\)/)
       const switchStart = performance.now()
       await tap("Play")

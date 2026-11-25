@@ -45,3 +45,26 @@ Stage 1 of [issue #82](https://github.com/dsbowersock/atmoshaper/issues/82).
 
 Installed results, exact-range reviews and physical S24 acceptance must be
 recorded against the corresponding candidate.
+
+## Installed playback proof
+
+The #89-integrated `c8c4501` application source passed `npm run android:build`,
+including Android lint and assembly of both debug APKs. The packaged catalog
+contains the 58 canonical descriptors. Its 134,296 bytes match the source
+serialization and generated bundle inventory.
+
+Development APK SHA-256
+`0cf7574b6995c91ab358648965ca8a064521c137d71d44f617fce05bf82c81b4` passed
+`npm run test:android-station-catalog` on the guarded API 35 pilot emulator.
+Aisatsana and Little Bells produced nonzero waveform peaks and a started
+Android audio track. Both played in the same service document. Little Bells
+requested the index and manifest before ten distinct rendered Opus samples,
+with its first observed audible output about 13.7 seconds after the Play
+action. Stop released the audio renderer. See the generated
+`output/native-aisatsana-android/station-catalog.json` receipt.
+
+The picker test follow-up selects the result row by accessibility class.
+Android exposes the same text for the editable query and its matching result.
+The corrected guarded playback run used the result selector in the installed
+app. The Kotlin test APK needs a fresh assembly in the integration build.
+Physical S24 performance and release-range reviews are separate gates.
