@@ -158,7 +158,7 @@ test("native Downloads cancel, reject storage failure and damage, then play save
     const bytes = Buffer.from(await response.arrayBuffer())
     assert.equal(bytes.length, spec.byteSize)
     assert.equal(digest(bytes), spec.sha256)
-    await page.evaluate(({ url, data }) => {
+    const respondWithFixture = target => target.evaluate(({ url, data }) => {
       const bytes = Uint8Array.from(atob(data), char => char.charCodeAt(0))
       let requests = 0
       window.fixtureMediaRequests = () => requests
@@ -174,8 +174,22 @@ test("native Downloads cancel, reject storage failure and damage, then play save
         return new Response(bytes, { headers: { "content-type": "audio/ogg" } })
       }
     }, { url, data: bytes.toString("base64") })
-    await tap("Download")
-    await waitFor("guarded media request", () => page.evaluate(() => window.fixtureMediaRequests() === 1), 15_000)
+    const beginBlockedDownload = async () => {
+      await respondWithFixture(page)
+      await tap("Download")
+      await waitFor("guarded media request", () => page.evaluate(() => window.fixtureMediaRequests() === 1), 15_000)
+    }
+
+    await beginBlockedDownload()
+    shell("am", "force-stop", pkg)
+    await disconnect()
+    page = await openDownloads()
+    await selectSound(item.label, id)
+    await visible("Not downloaded")
+    assert.deepEqual(await fixturePack(page, id), { pack: null, metadata: null })
+    await note("An Android force-stop during transfer left no published pack after reopening.")
+
+    await beginBlockedDownload()
     await tap("Cancel download")
     await visible("Download cancelled.")
     assert.deepEqual(await fixturePack(page, id), { pack: null, metadata: null })
