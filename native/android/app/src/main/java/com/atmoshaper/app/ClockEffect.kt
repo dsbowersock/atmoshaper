@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.WebViewAssetLoader
@@ -37,22 +37,20 @@ private const val effectChannel = "AtmoShaperClockEffect"
 internal fun PackagedClockEffect(
     id: String,
     style: ClockBackgroundStyle,
-    status: ClockEffectStatus,
+    status: State<ClockEffectStatus>,
     onStatus: (ClockEffectStatus) -> Unit,
 ) {
-    val report = rememberUpdatedState(onStatus)
-    LaunchedEffect(id, style, status) {
-        if (status == ClockEffectStatus.Starting) {
-            delay(8_000L)
-            report.value(ClockEffectStatus.Failed)
-        }
+    LaunchedEffect(id, style) {
+        delay(8_000L)
+        // Read this renderer's live state even if Ready has not recomposed yet.
+        if (status.value == ClockEffectStatus.Starting) onStatus(ClockEffectStatus.Failed)
     }
-    if (status == ClockEffectStatus.Failed) return
+    if (status.value == ClockEffectStatus.Failed) return
     key(id, style) {
         AndroidView(
             factory = { context ->
                 try {
-                    newClockEffectView(context, id, style) { report.value(it) }
+                    newClockEffectView(context, id, style, onStatus)
                 } catch (_: RuntimeException) {
                     // Some systems cannot create a working WebView. Keep the
                     // native backdrop and let its startup timeout report it.
@@ -62,10 +60,13 @@ internal fun PackagedClockEffect(
             modifier = Modifier.fillMaxSize(),
             onRelease = { view ->
                 if (view is WebView) {
-                    if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-                        WebViewCompat.removeWebMessageListener(view, effectChannel)
+                    try {
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                            WebViewCompat.removeWebMessageListener(view, effectChannel)
+                        }
+                    } finally {
+                        view.destroy()
                     }
-                    view.destroy()
                 }
             },
             update = {},
@@ -94,6 +95,23 @@ private fun newClockEffectView(
     onStatus: (ClockEffectStatus) -> Unit,
 ): WebView {
     val view = DecorativeClockWebView(context)
+    try {
+        configureClockEffectView(view, context, id, style, onStatus)
+        return view
+    } catch (error: RuntimeException) {
+        runCatching { view.destroy() }.exceptionOrNull()?.let(error::addSuppressed)
+        throw error
+    }
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+private fun configureClockEffectView(
+    view: DecorativeClockWebView,
+    context: Context,
+    id: String,
+    style: ClockBackgroundStyle,
+    onStatus: (ClockEffectStatus) -> Unit,
+) {
     fun report(status: ClockEffectStatus) {
         if (!view.released) onStatus(status)
     }
@@ -103,7 +121,7 @@ private fun newClockEffectView(
     view.setBackgroundColor(android.graphics.Color.TRANSPARENT)
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
         view.post { report(ClockEffectStatus.Failed) }
-        return view
+        return
     }
     val loader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
@@ -151,5 +169,4 @@ private fun newClockEffectView(
         }
     }
     view.loadUrl(effectPage)
-    return view
 }

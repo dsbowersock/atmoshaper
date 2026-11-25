@@ -96,7 +96,7 @@ internal class NativeAudioEngine(
 
     fun stopStation(token: Int) = command("stopStation($token)")
 
-    fun setPaused(paused: Boolean, token: Int) = command("setPaused($paused, $token)")
+    fun setPaused(paused: Boolean, token: Int, revision: Int) = command("setPaused($paused, $token, $revision)")
 
     fun playLayer(sound: NativeMixSound, layer: NativeMixLayer, token: Int) =
         command("playLayer(${JSONObject.quote(sound.id)}, ${JSONObject.quote(sound.kind)}, ${layer.volume}, $token, ${layer.request}, ${layer.savedOnly})")

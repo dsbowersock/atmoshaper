@@ -57,6 +57,7 @@ public final class MainActivity extends ComponentActivity {
     private WebView webView;
     private ClockBackgroundAccessChanges.MutationOwner backgroundAccessOwner;
     private String pendingReceipt;
+    private boolean retriedQueuedReceipt;
     private String pendingRoute;
     private boolean packagedPageLoaded;
     private boolean packagedPageFailed;
@@ -289,7 +290,10 @@ public final class MainActivity extends ComponentActivity {
         if (uri == null || !Intent.ACTION_VIEW.equals(intent.getAction()) || !"atmoshaper".equals(uri.getScheme())
             || !"offline-access".equals(uri.getHost()) || uri.getPort() != -1 || uri.getUserInfo() != null) return;
         String receipt = uri.getQueryParameter("receipt");
-        if (receipt != null && receipt.length() <= 24000 && receipt.matches("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")) pendingReceipt = receipt;
+        if (receipt != null && receipt.length() <= 24000 && receipt.matches("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")) {
+            if (!receipt.equals(pendingReceipt)) retriedQueuedReceipt = false;
+            pendingReceipt = receipt;
+        }
     }
 
     private void deliverReceipt() {
@@ -311,7 +315,10 @@ public final class MainActivity extends ComponentActivity {
     }
 
     @Override protected void onSaveInstanceState(Bundle state) {
-        if (pendingReceipt != null) state.putString("offline.pendingReceipt", pendingReceipt);
+        if (pendingReceipt != null) {
+            state.putString("offline.pendingReceipt", pendingReceipt);
+            state.putBoolean("offline.retriedQueuedReceipt", retriedQueuedReceipt);
+        }
         if (pendingRoute != null) state.putString("offline.pendingRoute", pendingRoute);
         // Preserve the recovery warning across repeated picker recreations,
         // including when an earlier recreation already discarded the PDF bytes.
@@ -328,7 +335,10 @@ public final class MainActivity extends ComponentActivity {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        if (state != null) pendingReceipt = state.getString("offline.pendingReceipt");
+        if (state != null) {
+            pendingReceipt = state.getString("offline.pendingReceipt");
+            retriedQueuedReceipt = state.getBoolean("offline.retriedQueuedReceipt");
+        }
         if (state != null) pendingRoute = state.getString("offline.pendingRoute");
         if (state != null) pendingDocumentId = state.getInt("document.pendingId", 0);
         boolean connectedStart = state == null && Intent.ACTION_MAIN.equals(getIntent().getAction()) && isOnline();
@@ -474,8 +484,16 @@ public final class MainActivity extends ComponentActivity {
 
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (view != webView) return true;
                 destroyPackagedView();
-                finish();
+                // Preserve an undelivered receipt through one private lifecycle retry.
+                // A recurring renderer crash still exits the broken tools screen.
+                if (pendingReceipt != null && !retriedQueuedReceipt) {
+                    retriedQueuedReceipt = true;
+                    recreate();
+                } else {
+                    finish();
+                }
                 return true;
             }
         });

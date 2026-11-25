@@ -68,21 +68,27 @@ test(catalogMode ? "an audible station switch reuses the same Android media rend
   skip: process.env.ATMOSHAPER_AISATSANA_ANDROID_TEST !== "1",
   timeout: 300_000,
 }, async () => {
+  let apkSha256 = null
+  const observations = []
+  await mkdir(output, { recursive: true })
+  const receipt = catalogMode ? "station-catalog.json" : reattachOnly ? "reattachment.json" : "lifecycle.json"
+  const report = completed => writeFile(path.join(output, receipt), JSON.stringify({
+    apkSha256, fixture: fixture.name, observations, completed, physicalDeviceVerified: false,
+  }, null, 2))
+  // Invalidate an earlier receipt before any fixture or APK check can fail.
+  await report(false)
+
   assert.equal(run("emu", "avd", "name").split(/[\r\n]+/)[0], fixture.name)
   shell("test", "-f", "/data/local/tmp/atmoshaper-parity-fixture")
   const apk = path.join(root, "output/android/AtmoShaper-preview.apk")
   const build = JSON.parse(await readFile(path.join(root, "output/android/build-proof.json"), "utf8"))
   assert.equal(createHash("sha256").update(await readFile(apk)).digest("hex"), build.sha256)
+  apkSha256 = build.sha256
+  await report(false)
   const airplane = shell("settings", "get", "global", "airplane_mode_on") === "1"
   const wifi = shell("settings", "get", "global", "wifi_on") !== "0"
   let browser, port
-  const observations = []
-  await mkdir(output, { recursive: true })
-  const receipt = catalogMode ? "station-catalog.json" : reattachOnly ? "reattachment.json" : "lifecycle.json"
-  const report = completed => writeFile(path.join(output, receipt), JSON.stringify({
-    apkSha256: build.sha256, fixture: fixture.name, observations, completed, physicalDeviceVerified: false,
-  }, null, 2))
-  try {
+  async function verifyPlayback() {
     // Another Stage 1 test may have installed a newer debug preview.
     run("install", "-r", "-d", apk)
     shell("am", "force-stop", packageName)
@@ -154,7 +160,6 @@ test(catalogMode ? "an audible station switch reuses the same Android media rend
       observations.push({ phase: "station switched", audibleAfterMillis: Math.round(performance.now() - switchStart), media })
       await tap("Stop")
       await waitFor("station output released", () => page.isClosed())
-      await report(true)
       return
     }
     if (!reattachOnly) {
@@ -198,7 +203,10 @@ test(catalogMode ? "an audible station switch reuses the same Android media rend
     assert.match(hierarchy(), /text="Ready to play"/)
     await waitFor("audio renderer released", () => page.isClosed())
     observations.push({ phase: "stopped", rendererReleased: true })
-    await report(true)
+  }
+
+  try {
+    await verifyPlayback()
   } finally {
     await browser?.close().catch(() => {})
     if (port) run("forward", "--remove", `tcp:${port}`)
@@ -208,4 +216,5 @@ test(catalogMode ? "an audible station switch reuses the same Android media rend
     shell("cmd", "connectivity", "airplane-mode", airplane ? "enable" : "disable")
     shell("svc", "wifi", wifi ? "enable" : "disable")
   }
+  await report(true)
 })

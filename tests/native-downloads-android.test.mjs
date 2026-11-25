@@ -100,21 +100,27 @@ test("native Downloads cancel, reject storage failure and damage, then play save
   skip: !enabled,
   timeout: 360_000,
 }, async () => {
+  const output = path.join(root, "output/native-downloads-android")
+  const observations = []
+  let apkSha256 = null
+  await mkdir(output, { recursive: true })
+  const report = completed => writeFile(path.join(output, "acceptance.json"), JSON.stringify({
+    apkSha256, fixture: fixture.name, observations, complete: completed, physicalDeviceVerified: false,
+  }, null, 2))
+  // Invalidate an earlier receipt before any fixture or APK check can fail.
+  await report(false)
+
   assert.equal(run("emu", "avd", "name").split(/[\r\n]+/)[0], fixture.name)
   shell("test", "-f", "/data/local/tmp/atmoshaper-parity-fixture")
   const apk = path.join(root, "output/android/AtmoShaper-preview.apk")
   const build = JSON.parse(await readFile(path.join(root, "output/android/build-proof.json"), "utf8"))
   assert.equal(digest(await readFile(apk)), build.sha256)
+  apkSha256 = build.sha256
+  await report(false)
   const airplane = shell("settings", "get", "global", "airplane_mode_on")
   const wifi = shell("settings", "get", "global", "wifi_on")
   const data = shell("settings", "get", "global", "mobile_data")
-  const output = path.join(root, "output/native-downloads-android")
-  const observations = []
   let browser, port, page, id
-  await mkdir(output, { recursive: true })
-  const report = completed => writeFile(path.join(output, "acceptance.json"), JSON.stringify({
-    apkSha256: build.sha256, fixture: fixture.name, observations, complete: completed, physicalDeviceVerified: false,
-  }, null, 2))
   const note = async observation => {
     observations.push(observation)
     console.log(observation)
@@ -142,6 +148,7 @@ test("native Downloads cancel, reject storage failure and damage, then play save
     port = undefined
   }
 
+  const failures = []
   try {
     run("install", "-r", "-d", apk)
     shell("am", "force-stop", pkg)
@@ -270,13 +277,36 @@ test("native Downloads cancel, reject storage failure and damage, then play save
     await note("Resuming the same dialog revalidated a missing pack saved through the shared store.")
     await fixturePack(page, id, "remove")
     id = undefined
-    await report(true)
+  } catch (error) {
+    failures.push(error)
   } finally {
-    if (id && page && !page.isClosed()) await fixturePack(page, id, "remove").catch(() => undefined)
-    await disconnect()
-    shell("am", "force-stop", pkg)
-    shell("cmd", "connectivity", "airplane-mode", airplane === "1" ? "enable" : "disable")
-    shell("svc", "wifi", wifi === "0" ? "disable" : "enable")
-    shell("svc", "data", data === "0" ? "disable" : "enable")
+    try {
+      if (id) {
+        // A failed cold restart can leave this test holding the old CDP page.
+        // Reopen the guarded fixture only after confirming this run owns the row.
+        if (!page || page.isClosed()) {
+          await disconnect()
+          shell("am", "force-stop", pkg)
+          page = await openDownloads()
+        }
+        await fixturePack(page, id, "remove")
+      }
+    } catch (error) {
+      failures.push(new Error("Failed to remove this run's Downloads fixture", { cause: error }))
+    } finally {
+      const restoreFixture = [
+        disconnect,
+        () => shell("am", "force-stop", pkg),
+        () => shell("cmd", "connectivity", "airplane-mode", airplane === "1" ? "enable" : "disable"),
+        () => shell("svc", "wifi", wifi === "0" ? "disable" : "enable"),
+        () => shell("svc", "data", data === "0" ? "disable" : "enable"),
+      ]
+      for (const restore of restoreFixture) {
+        try { await restore() } catch (error) { failures.push(error) }
+      }
+    }
   }
+  if (failures.length === 1) throw failures[0]
+  if (failures.length > 1) throw new AggregateError(failures, "Downloads checks and fixture cleanup failed")
+  await report(true)
 })

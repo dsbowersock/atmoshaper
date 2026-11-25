@@ -4,7 +4,9 @@
 
 The owner approved the remaining Stage 1 tickets under [#82](https://github.com/dsbowersock/atmoshaper/issues/82) from `c7991eb`. [Draft PR #136](https://github.com/dsbowersock/atmoshaper/pull/136) combines timer alerts, native playback and downloads, the station catalog, and offline background access. #92 was delivered in #135. The Heavy Rain buffer path and native Downloads have separately passed the guarded emulator checks detailed in the evidence record.
 
-The [integration plan](superpowers/plans/2026-11-24-native-android-stage-1.md) records the graph and Galaxy S24 Ultra handoff. The [#94 evidence record](audits/2026-11-24-native-android-stage-1-acceptance.md) distinguishes the installed ticket receipts from the pending combined build, integrated acceptance and current-range reviews. The owner retains the GitHub merge and physical-device acceptance.
+The combined development APK passed the guarded v3 → v6 → v10 → v11 upgrade and exercised the retained Little Bells pack across native Music, breathing and timer in airplane mode. A separate release-variant APK recorded emulator startup and resource use. Later corrective APKs passed Android build and lint, with focused installed receipts for Clock, timer, Home and Downloads.
+
+CodeRabbit completed the approved c7991eb to 9aeef6e source range. The [#94 evidence record](audits/2026-11-24-native-android-stage-1-acceptance.md) lists its 23 dispositions and the earlier build and acceptance checkpoints. The local CodeRabbit correction still requires matching integrated acceptance, review of the correction delta and current hosted checks. The [integration plan](superpowers/plans/2026-11-24-native-android-stage-1.md) records the graph and Galaxy S24 Ultra handoff. The owner retains the GitHub merge and physical-device acceptance.
 
 ## November 24 native Android timer preview
 

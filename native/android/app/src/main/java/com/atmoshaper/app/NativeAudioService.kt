@@ -18,6 +18,7 @@ import android.media.session.PlaybackState
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,9 +86,20 @@ internal object NativeAudio {
             if (intent.action == PLAY || intent.action == PLAY_LAYER) ContextCompat.startForegroundService(context, intent)
             else context.startService(intent)
         } catch (_: IllegalStateException) {
-            publish(NativeAudioStatus.Failed)
-            if (intent.action == PLAY) {
-                publishStation(intent.getStringExtra(EXTRA_STATION) ?: station.value.id, NativeAudioStatus.Failed)
+            // Android can reject a command while the existing service owns audio.
+            // Report that command without changing the transport used by Pause/Stop.
+            if (status.value != NativeAudioStatus.Idle && status.value != NativeAudioStatus.Failed) {
+                Toast.makeText(context, R.string.native_audio_command_failed, Toast.LENGTH_SHORT).show()
+            } else if (intent.action == PLAY || intent.action == PLAY_LAYER) {
+                publish(NativeAudioStatus.Failed)
+                if (intent.action == PLAY) {
+                    publishStation(intent.getStringExtra(EXTRA_STATION) ?: station.value.id, NativeAudioStatus.Failed)
+                } else {
+                    val sound = NativeMixSound.entries.find { it.id == intent.getStringExtra(EXTRA_SOUND) }
+                    if (sound != null) {
+                        publishLayers(layers.value + (sound to NativeMixLayer(0, phase = NativeMixPhase.Failed)))
+                    }
+                }
             }
         }
     }
@@ -106,7 +118,7 @@ class NativeAudioService : Service() {
     private var foreground = false
     private var resumeOnFocusGain = false
     private var resumePending = false
-    private var resumeRevision = 0
+    private var transportRevision = 0
     private var engine: NativeAudioEngine? = null
     private var engineReady = false
     private var token = 0
@@ -254,6 +266,7 @@ class NativeAudioService : Service() {
 
     private fun resume() {
         if (status == NativeAudioStatus.Paused && requestFocus()) startOrResume()
+        else if (!foreground && engine == null) stopSelf()
     }
 
     private fun startOrResume() {
@@ -261,10 +274,10 @@ class NativeAudioService : Service() {
         resumePending = engineReady
         publish(NativeAudioStatus.Loading)
         if (engineReady) {
-            engine?.setPaused(false, token)
-            val request = ++resumeRevision
+            val revision = ++transportRevision
+            engine?.setPaused(false, token, revision)
             mainThread.postDelayed({
-                if (resumeRevision == request && resumePending) finish(NativeAudioStatus.Failed)
+                if (transportRevision == revision && resumePending) finish(NativeAudioStatus.Failed)
             }, STARTUP_TIMEOUT_MILLIS)
         }
     }
@@ -285,17 +298,19 @@ class NativeAudioService : Service() {
             "ready" -> {
                 engineReady = true
                 if (status == NativeAudioStatus.Paused || status == NativeAudioStatus.Interrupted) {
-                    engine?.setPaused(true, token)
+                    engine?.setPaused(true, token, ++transportRevision)
                 } else {
                     dispatchPending()
                 }
             }
-            "playing:$request" -> if (resumePending) {
+            // The document token scopes the engine; the revision scopes one
+            // transition, including resume → pause → resume in the same engine.
+            "playing:$request:$transportRevision" -> if (resumePending) {
                 resumePending = false
                 dispatchPending()
                 settleStatus()
             }
-            "failed:$request", "unavailable" -> finish(NativeAudioStatus.Failed)
+            "transport-failed:$request:$transportRevision", "unavailable" -> finish(NativeAudioStatus.Failed)
             else -> handleLayerMessage(request, message)
         }
     }
@@ -424,7 +439,7 @@ class NativeAudioService : Service() {
             NativeAudioStatus.Playing, NativeAudioStatus.Interrupted, NativeAudioStatus.Paused, NativeAudioStatus.Loading -> {
                 resumePending = false
                 resumeOnFocusGain = nextStatus == NativeAudioStatus.Interrupted
-                engine?.setPaused(true, token)
+                engine?.setPaused(true, token, ++transportRevision)
                 if (!resumeOnFocusGain) abandonFocus()
                 if (stationRequest != null) publishStation(nextStatus)
                 publish(nextStatus)

@@ -20,6 +20,7 @@ let probe: Tone.Analyser | undefined
 let playingToken = 0
 let runtime: ReturnType<typeof createOfflineAudioRuntime> | undefined
 let paused = false
+let transportRevision = 0
 let contextChange: Promise<void> = Promise.resolve()
 type StationRequest = { id: string; controller: AbortController; ready: boolean; savedOnly: boolean; savedDecodeFailed?: boolean }
 type MixRequest = { request: number; controller: AbortController; savedOnly: boolean; savedDecodeFailed?: boolean }
@@ -131,15 +132,16 @@ const player = {
     if (token === playingToken) void clearStation().catch(() => undefined)
   },
 
-  async setPaused(next: boolean, token: number) {
-    if (!ensureSession(token)) return
+  async setPaused(next: boolean, token: number, revision: number) {
+    if (!ensureSession(token) || revision <= transportRevision) return
+    transportRevision = revision
     paused = next
     if (output) output.gain.value = next ? 0 : 1
     try {
       await updateContext()
-      if (paused === next) report(`${next ? "paused" : "playing"}:${token}`)
+      if (!next && revision === transportRevision) report(`playing:${token}:${revision}`)
     } catch {
-      report(`failed:${token}`)
+      if (revision === transportRevision) report(`transport-failed:${token}:${revision}`)
     }
   },
 

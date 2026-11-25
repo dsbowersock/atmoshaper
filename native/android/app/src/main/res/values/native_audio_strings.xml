@@ -14,6 +14,7 @@
     <string name="native_audio_playing">Playing</string>
     <string name="native_audio_paused">Paused</string>
     <string name="native_audio_interrupted">Interrupted</string>
+    <string name="native_audio_command_failed">Could not apply that playback command. Try again.</string>
     <string name="native_audio_failed">Playback unavailable. Check your connection or download this station, then try again.</string>
     <string name="native_audio_play">Play</string>
     <string name="native_audio_pause">Pause</string>

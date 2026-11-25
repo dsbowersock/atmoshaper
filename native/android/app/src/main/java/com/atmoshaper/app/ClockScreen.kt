@@ -155,11 +155,11 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
         val packagedStyle = if (shown?.background == ClockBackground.Packaged) {
             shown.backgroundStyle.copy(motion = systemMotionEnabled() && shown.motion)
         } else null
-        var rendererStatus by remember(selected?.id, packagedStyle) { mutableStateOf(ClockEffectStatus.Starting) }
+        val rendererStatus = remember(selected?.id, packagedStyle) { mutableStateOf(ClockEffectStatus.Starting) }
         if (packagedStyle != null && selected != null) {
-            PackagedClockEffect(selected.id, packagedStyle, rendererStatus) {
-                if (rendererStatus != ClockEffectStatus.Failed) rendererStatus = it
-            }
+            PackagedClockEffect(selected.id, packagedStyle, rendererStatus, onStatus = {
+                if (rendererStatus.value != ClockEffectStatus.Failed) rendererStatus.value = it
+            })
         } else if (shown != null) ClockBackdrop(shown)
         ClockSystemBarProtection()
         Column(
@@ -183,7 +183,7 @@ internal fun ClockScreen(activity: HomeActivity, onClose: () -> Unit, onOpenTime
                 val notice = when {
                     choices == null -> R.string.clock_background_catalog_failed
                     selected != null && !canUseSelection -> access.denialMessage()
-                    selected != null && (shown?.background == ClockBackground.Neutral || rendererStatus == ClockEffectStatus.Failed) -> R.string.clock_background_renderer_failed
+                    selected != null && (shown?.background == ClockBackground.Neutral || rendererStatus.value == ClockEffectStatus.Failed) -> R.string.clock_background_renderer_failed
                     selected == null && current.selectedBackgroundId != ClockBackground.Neutral.key -> R.string.clock_background_missing
                     else -> null
                 }
