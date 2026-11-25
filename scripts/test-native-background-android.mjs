@@ -129,6 +129,17 @@ async function packagedPage(browser, relative) {
   return page
 }
 
+async function visibleEffect(browser) {
+  const page = await packagedPage(browser, "clock-effect.html")
+  const surface = page.locator('[data-offline-background="' + effect + '"] canvas').first()
+  await expect(surface).toBeVisible({ timeout })
+  await expect.poll(() => surface.evaluate(canvas => {
+    const region = canvas.getContext("2d")?.getImageData(0, 0, Math.min(96, canvas.width), Math.min(96, canvas.height))
+    return Boolean(region && new Set(region.data).size > 3)
+  }), { timeout }).toBe(true)
+  return page
+}
+
 guard()
 await mkdir(output, { recursive: true })
 assert.equal(await digest(candidate), JSON.parse(await readFile(path.join(root, "output/android/build-proof.json"))).sha256)
@@ -183,8 +194,11 @@ try {
   const upgraded = await connect()
   browsers.push(upgraded)
   const processId = adb("shell", "pidof", pkg)
-  const surface = await packagedPage(upgraded, "clock-effect.html")
-  await expect(surface.locator('[data-offline-background="' + effect + '"] > *').first()).toBeVisible({ timeout })
+  const firstSurface = await visibleEffect(upgraded)
+  await nativeText("Close Clock", true)
+  await expect.poll(() => firstSurface.isClosed(), { timeout }).toBe(true)
+  await nativeText("Clock &amp; timer", true)
+  const surface = await visibleEffect(upgraded)
   await surface.screenshot({ path: path.join(output, "owned-clock-effect.png") })
   await nativeText("Backgrounds", true)
   await nativeText("Customize background")
@@ -203,14 +217,14 @@ try {
   startHome()
   await nativeText("Customize background")
   adb("shell", "input", "keyevent", "KEYCODE_BACK")
-  const leased = await packagedPage(upgraded, "clock-effect.html")
-  await expect(leased.locator('[data-offline-background="' + effect + '"] > *').first()).toBeVisible({ timeout })
+  const leased = await visibleEffect(upgraded)
   await nativeText("Premium background access expired. Reconnect to refresh it.")
   await expect.poll(() => leased.isClosed(), { timeout }).toBe(true)
   assert.equal(adb("shell", "pidof", pkg), processId)
   await writeFile(path.join(output, "proof.json"), JSON.stringify({
     predecessorSha256: await digest(before), candidateSha256: await digest(after), earlierVersion, candidateVersion, sameReceipt: true,
-    offlineOwnedEffect: effect, nativeCustomization: true, signedRevocationInSameProcess: true, sameProcessExpiry: true,
+    offlineOwnedEffect: effect, canvasPixelsAfterReentry: true, nativeCustomization: true,
+    signedRevocationInSameProcess: true, sameProcessExpiry: true,
   }, null, 2))
   console.log("The offline signed upgrade retained its owned Clock effect and revoked it in the same Android process.")
 } finally {
