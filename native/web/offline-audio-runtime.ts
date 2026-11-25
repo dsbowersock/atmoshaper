@@ -2,6 +2,7 @@ import * as Tone from "tone"
 import createWebLibrary from "@generative-music/web-library"
 import { loadGenerativeFmPieceModule } from "@/lib/atmosphere/generative-fm-piece-loader"
 import { createAmbientAtmoShaperAdapter } from "@/lib/atmoshaper/ambient-audio-runtime"
+import type { AtmoShaperProductionSource } from "@/lib/atmoshaper/production-catalog-runtime"
 import { createGeneratedAtmoShaperAdapter } from "@/lib/atmoshaper/generated-audio-runtime"
 import { mediaUrl, readVerifiedOfflinePack } from "@/lib/offline-media"
 import { createStationTransportScope } from "@/lib/offline-station-transport"
@@ -24,6 +25,8 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
   masterVolume?: number
   prepareStationSamples?: (id: string) => Promise<StationSamples>
   prepareAmbientPack?: (id: string) => Promise<Awaited<ReturnType<typeof readVerifiedOfflinePack>>>
+  /** The service must play this regional recording without an HTML media element. */
+  bufferedAmbientRegionId?: string
   /** Native transport alone resumes the shared context when Android grants focus. */
   activate?: () => Promise<void>
 } = {}) {
@@ -124,9 +127,19 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
         }
       } else {
         const blobs = new Map<string, string>()
+        function readOpusFile(source: AtmoShaperProductionSource) {
+          const format = source.formats.find(format => format.id === "opus")!
+          const url = mediaUrl(format.publicUrl)
+          const file = pack?.files.find((file: PackFile) => file.url === url)
+          if (!file) throw new Error("A required recording is missing. Download this sound again.")
+          return file
+        }
         const layer = { id: item.id, kind: item.kind === "generated" ? "noise" as const : "ambient" as const, sourceId: item.id, volume: initialVolume, muted: false, settings: { rampSeconds: 0.2 } }
         const adapter = item.kind === "generated" ? createGeneratedAtmoShaperAdapter({ destination: master, layer }) : await createAmbientAtmoShaperAdapter({
-          destination: master, layer,
+          destination: master, layer, isCurrent,
+          localRegionalAudioData: item.id === options.bufferedAmbientRegionId
+            ? source => readOpusFile(source).data
+            : undefined,
           resumeContext: !options.activate,
           reportFailure(error) {
             if (!isCurrent()) return
@@ -134,12 +147,9 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
             window.dispatchEvent(new CustomEvent("atmoshaper:offline-audio-error", { detail: { id: item.id, message: String(error) } }))
           },
           localAudioUrl(source) {
-            const format = source.formats.find(format => format.id === "opus")!
-            const url = mediaUrl(format.publicUrl)
+            const { url, data } = readOpusFile(source)
             if (!blobs.has(url)) {
-              const file = pack.files.find((file: PackFile) => file.url === url)
-              if (!file) throw new Error("A required recording is missing. Download this sound again.")
-              blobs.set(url, URL.createObjectURL(new Blob([file.data], { type: "audio/ogg" })))
+              blobs.set(url, URL.createObjectURL(new Blob([data], { type: "audio/ogg" })))
             }
             return blobs.get(url)!
           },

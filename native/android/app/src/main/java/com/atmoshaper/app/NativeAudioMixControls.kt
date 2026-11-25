@@ -31,6 +31,7 @@ internal enum class NativeMixSound(val id: String, val kind: String, @get:String
     PinkNoise("noise:pink", "generated", R.string.native_audio_pink_noise),
     BrownNoise("noise:brown", "generated", R.string.native_audio_brown_noise),
     BoilingWater("moodist-boiling-water", "ambient", R.string.native_audio_boiling_water),
+    HeavyRain("moodist-heavy-rain", "ambient", R.string.native_audio_heavy_rain),
 }
 
 internal enum class NativeMixPhase { Loading, Playing, Stopping, Failed }

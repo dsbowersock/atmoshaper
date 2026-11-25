@@ -7,6 +7,7 @@ import { createOfflineMediaStore } from "@/lib/offline-media"
 import { createOfflineAudioRuntime } from "./offline-audio-runtime"
 
 const stationId = "generative-fm-aisatsana"
+const regionalAmbientId = "moodist-heavy-rain"
 type AudioPlayerWindow = Window & {
   AtmoShaperAudioHost?: { postMessage(message: string): void }
   atmoNativeAudio?: typeof player
@@ -41,6 +42,7 @@ function getRuntime() {
   runtime = createOfflineAudioRuntime(store, {
     destination: output,
     activate: updateContext,
+    bufferedAmbientRegionId: regionalAmbientId,
     prepareStationSamples: id => prepareNativeStationSamples({ id, kind: "station", station: getAtmosphereStationById(id) }, store),
     prepareAmbientPack: id => prepareNativeAmbientPack({ id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, store, {
       signal: mix.get(id)?.controller.signal,
@@ -98,7 +100,8 @@ const player = {
       const validNoise = kind === "generated" && /^noise:(white|pink|brown)$/.test(id)
       // Android WebView's media elements request audio focus themselves and
       // suspend the foreground mix. This owner can only play buffer voices.
-      const validAmbient = kind === "ambient" && getAtmoShaperProductionConcept(id).playbackMode?.kind === "prebaked-intro-loop"
+      const validAmbient = kind === "ambient" && (id === regionalAmbientId ||
+        getAtmoShaperProductionConcept(id).playbackMode?.kind === "prebaked-intro-loop")
       if (!validNoise && !validAmbient) throw new Error("This sound is unavailable in the native mixer.")
       const played = await getRuntime().play({ id, kind }, undefined, volume)
       if (mix.get(id) !== attempt) return
