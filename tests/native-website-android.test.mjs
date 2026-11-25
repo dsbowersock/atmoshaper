@@ -178,9 +178,10 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     return shell("shell","cat",hierarchyPath)
   }
   /** Tap fresh accessibility bounds across APKs, including Home outside WebView. */
-  async function tapNativeLabel(label, attribute = "text") {
+  async function tapNativeLabel(label, { attribute = "text", excludeResourceId } = {}) {
     const xmlLabel=label.replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    const bounds=new RegExp(`<node\\b[^>]*${attribute}="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
+    const exclude = excludeResourceId ? `(?![^>]*resource-id="${RegExp.escape(excludeResourceId)}")` : ""
+    const bounds=new RegExp(`<node\\b${exclude}[^>]*${attribute}="${RegExp.escape(xmlLabel)}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`)
     let target
     await expect.poll(()=>{
       target=nativeHierarchy().match(bounds)
@@ -399,9 +400,9 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     if (nativeBaseline) {
       await tapNativeLabel("Music")
       await tapNativeLabel("Search stations")
-      await tapNativeLabel("native_station_query","resource-id")
+      await tapNativeLabel("native_station_query",{ attribute:"resource-id" })
       shell("shell","input","text","Little%sBells")
-      await tapNativeLabel("Little Bells")
+      await tapNativeLabel("Little Bells",{ excludeResourceId:"native_station_query" })
       await tapNativeLabel("Play")
       audioPage = await connect({ entry:nativeAudioEntry })
       await expect.poll(()=>nativeHierarchy()).toContain('text="Playing"')
