@@ -28,6 +28,9 @@ internal class TimerAlarmSystem(private val context: Context) {
         notifications.areNotificationsEnabled() &&
             notifications.getNotificationChannel(channelFor(setup))?.importance != NotificationManager.IMPORTANCE_NONE
 
+    fun hasPendingOccurrence(): Boolean =
+        PendingIntent.getBroadcast(context, alarmRequest, receiver(fireAction), findImmutable) != null
+
     private fun canSchedulePrecisely(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms()
 

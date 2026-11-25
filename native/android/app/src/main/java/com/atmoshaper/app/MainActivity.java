@@ -14,6 +14,7 @@ import android.print.PrintManager;
 import android.util.Base64;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.CookieManager;
@@ -53,6 +54,7 @@ public final class MainActivity extends ComponentActivity {
     private static final String OPEN_TIMER = "https://appassets.androidplatform.net/assets/core/open-native-timer";
     private static final String TIMER_HOST_MARKER = " AtmoShaperNativeTimer/1";
     private WebView webView;
+    private ClockBackgroundAccessChanges.MutationOwner backgroundAccessOwner;
     private String pendingReceipt;
     private String pendingRoute;
     private boolean packagedPageLoaded;
@@ -285,7 +287,7 @@ public final class MainActivity extends ComponentActivity {
     }
 
     private void deliverReceipt() {
-        if (pendingReceipt == null || !isEntry()) return;
+        if (pendingReceipt == null || !packagedPageLoaded || !isEntry()) return;
         String value = JSONObject.quote(pendingReceipt);
         pendingReceipt = null;
         webView.evaluateJavascript("window.atmoOfflineReceipt=" + value + ";window.dispatchEvent(new CustomEvent('atmoshaper:offline-access',{detail:" + value + "}));", null);
@@ -313,7 +315,7 @@ public final class MainActivity extends ComponentActivity {
 
     @Override protected void onPostResume() {
         super.onPostResume();
-        webView.post(this::deliverRoute);
+        if (webView != null) webView.post(this::deliverRoute);
     }
 
     @SuppressLint("SetJavaScriptEnabled") // Executes the bundled React tools only.
@@ -364,8 +366,11 @@ public final class MainActivity extends ComponentActivity {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             WebViewCompat.addWebMessageListener(webView, "AtmoShaperBackgroundAccessChanged",
                 Collections.singleton("https://appassets.androidplatform.net"), (view, message, source, mainFrame, reply) -> {
-                    if (mainFrame && isEntry() && Uri.parse("https://appassets.androidplatform.net").equals(source)
-                        && message.getData() != null) ClockBackgroundAccessChanges.receive(this, message.getData());
+                    if (!mainFrame || view != webView || !packagedPageLoaded || !isEntry()
+                        || !Uri.parse("https://appassets.androidplatform.net").equals(source)
+                        || backgroundAccessOwner == null) return;
+                    String data = message.getData();
+                    if (data != null) backgroundAccessOwner.receive(data);
                 });
         }
         webView.setWebChromeClient(new WebChromeClient() {
@@ -429,21 +434,39 @@ public final class MainActivity extends ComponentActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                boolean newDocument = !packagedPageLoaded;
                 packagedPageLoaded = isEntry();
+                if (!packagedPageLoaded) return;
+                if (newDocument) {
+                    if (backgroundAccessOwner != null) backgroundAccessOwner.close();
+                    backgroundAccessOwner = new ClockBackgroundAccessChanges.MutationOwner(getApplicationContext());
+                    // A queued message from a replaced document cannot match
+                    // the replacement's owner, even if its operation number repeats.
+                    view.evaluateJavascript("window.atmoNativeAccessDocument="
+                        + JSONObject.quote(backgroundAccessOwner.getDocumentId()), null);
+                }
                 deliverReceipt();
                 deliverRoute();
+            }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                destroyPackagedView();
+                finish();
+                return true;
             }
         });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (webView == null) { finish(); return; }
                 // A custom fullscreen View hides the WebView. Restore it before
                 // awaiting JS callbacks, which some providers defer while hidden.
                 if (fullscreenView != null) { closeFullscreen(); return; }
                 // HTML fullscreen need not provide a separate custom View on
                 // every WebView version. Exit the document before app history.
                 webView.evaluateJavascript("(()=>{if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return true}return false})()", fullscreen -> {
-                    if (isDestroyed()) return;
+                    if (isDestroyed() || webView == null) return;
                     if ("true".equals(fullscreen)) closeFullscreen();
                     else if (fullscreenView != null) closeFullscreen();
                     else if (webView.canGoBack()) webView.goBack();
@@ -460,7 +483,30 @@ public final class MainActivity extends ComponentActivity {
     protected void onDestroy() {
         if (websiteLauncher != null) websiteLauncher.destroy();
         documentWriter.shutdown();
-        webView.destroy();
+        destroyPackagedView();
         super.onDestroy();
+    }
+
+    private void destroyPackagedView() {
+        WebView previous = webView;
+        webView = null;
+        packagedPageLoaded = false;
+        ClockBackgroundAccessChanges.MutationOwner owner = backgroundAccessOwner;
+        backgroundAccessOwner = null;
+        try {
+            if (previous != null) {
+                View previousFullscreen = fullscreenView;
+                fullscreenView = null;
+                fullscreenCallback = null;
+                if (previous.getParent() instanceof FrameLayout) {
+                    FrameLayout root = (FrameLayout) previous.getParent();
+                    if (previousFullscreen != null) root.removeView(previousFullscreen);
+                    root.removeView(previous);
+                }
+                previous.destroy();
+            }
+        } finally {
+            if (owner != null) owner.close();
+        }
     }
 }

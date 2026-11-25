@@ -46,8 +46,9 @@ result.
 | Browser QA | `browser_qa` matrix | Run the exact Playwright partition against the built runtime. | `npm run test:browser` | The assigned browser behavior failed, the lane mapping is invalid, or browser/runtime setup failed. |
 | Final `qa` | `qa` | Aggregate Code quality, Browser build, and all Browser QA lanes. | Run the preceding commands and all four lane discoveries described below. | At least one upstream repository-owned result was not successful. |
 | Native Android build and Home journey | `native_home` in the Android workflow | Lint and assemble the debug and test APKs, then exercise native Home and legacy-link Back on a fresh Android 35 emulator. | `npm run android:build` and target the synthetic emulator for installed-app instrumentation. | Android build, lint, emulator setup, or an installed-app navigation assertion failed. |
+| Native Android installed tools | `native_home` in the Android workflow | Lint and assemble the debug and test APKs, then run the installed-tool instrumentation on a separate Android 35 emulator. | `npm run android:build` and target the synthetic emulator for installed-app instrumentation. | Android build, lint, emulator setup, or an installed-tool assertion failed. |
 
-The Android workflow reports its own result. The retained-APK upgrade with
+The Android workflow reports a separate result for each check. The retained-APK upgrade with
 downloads, settings, and a planner draft runs through the
 [guarded local Android fixture](../../native/android/README.md#build-and-acceptance).
 

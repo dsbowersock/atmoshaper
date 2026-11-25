@@ -35,6 +35,8 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 
@@ -88,7 +90,7 @@ private fun DownloadDialog(onDismiss: () -> Unit) {
     val canDismiss = !state.busy || unavailable
 
     DisposableEffect(context, attempt) {
-        val host = NativeDownloadEngine(context, onReport = { raw ->
+        val onReport: (String) -> Unit = { raw ->
             runCatching {
                 val event = JSONObject(raw)
                 if (event.has("catalog")) {
@@ -109,9 +111,21 @@ private fun DownloadDialog(onDismiss: () -> Unit) {
                     }
                 }
             }.onFailure { unavailable = true }
-        }, unavailable = { unavailable = true })
-        engine = host
-        onDispose { host.close() }
+        }
+        var host: NativeDownloadEngine? = null
+        try {
+            host = NativeDownloadEngine(context, onReport, unavailable = { unavailable = true })
+            host.open()
+            engine = host
+        } catch (_: RuntimeException) {
+            host?.close()
+            engine = null
+            unavailable = true
+        }
+        onDispose {
+            host?.close()
+            engine = null
+        }
     }
     LaunchedEffect(attempt) {
         delay(10_000)
@@ -121,6 +135,18 @@ private fun DownloadDialog(onDismiss: () -> Unit) {
     fun check(item: DownloadChoice) {
         status = DownloadStatus(DownloadState.Checking)
         engine?.status(item.id, ++request)
+    }
+
+    // Previous Tools can change the shared pack while this dialog is covered.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (!unavailable && status.state == DownloadState.Ready) selected?.let(::check)
+    }
+    LaunchedEffect(Unit) {
+        // A saved-only Play can discover a missing or damaged pack between
+        // the last check and actual use. Refresh the shared store's status.
+        NativeAudio.savedPlayFailures.collect { id ->
+            if (!unavailable && status.state == DownloadState.Ready) selected?.takeIf { it.id == id }?.let(::check)
+        }
     }
 
     AlertDialog(

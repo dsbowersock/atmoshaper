@@ -119,8 +119,7 @@ class NativeTimerActivity : ComponentActivity() {
         }
     }
 
-    /** Each resumed visit silently advances missed positions before it can
-     * observe live foreground ticks. */
+    /** Reopening and live ticks share completion ownership with OS delivery. */
     private suspend fun retryLoad() = mutation.withLock {
         busy = true
         try {
@@ -171,8 +170,7 @@ class NativeTimerActivity : ComponentActivity() {
         val next = previous.advance(observedAt, false)
         if (previous == next.snapshot || !hasWindowFocus()) return@withLock
         try {
-            val foreground = hasWindowFocus()
-            commitTransition { it.advance(observedAt, foreground) }
+            showSnapshot(withContext(Dispatchers.IO) { scheduler.tick(observedAt) })
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

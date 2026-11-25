@@ -218,15 +218,14 @@ test("native Downloads cancel, reject storage failure and damage, then play save
     assert.equal(saved.pack, saved.metadata)
 
     await fixturePack(page, id, "corrupt")
-    await tap("Back to downloads")
-    await tap(`native_download_${id}`, "resource-id")
+    await tap("Play saved audio")
     await visible("Saved download is damaged. Download it again to repair it.")
     assert.doesNotMatch(hierarchy(), /text="Play saved audio"/)
     assert.equal(await page.evaluate(() => window.fixtureMediaRequests()), 3)
     await tap("Retry download")
     await visible("Ready offline")
     assert.deepEqual(await fixturePack(page, id), saved)
-    await note("Damaged bytes suppressed readiness and Play without fetching. Explicit repair restored the same revision.")
+    await note("Saved-only Play rechecked damaged bytes, cleared Ready and kept network fallback disabled. Explicit repair restored the same revision.")
 
     await disconnect()
     shell("am", "force-stop", pkg)
@@ -249,7 +248,12 @@ test("native Downloads cancel, reject storage failure and damage, then play save
     assert.ok(shell("dumpsys", "audio").split(/\r?\n/).filter(line => actor.test(line)).some(line => /state:started/i.test(line)))
     await tap("Stop")
     await note(`Cold airplane-mode restart played saved audio (peak ${audible.peak}).`)
+    shell("input", "keyevent", "KEYCODE_HOME")
     await fixturePack(page, id, "remove")
+    shell("am", "start", "-W", "-n", launch)
+    await visible("Not downloaded")
+    assert.doesNotMatch(hierarchy(), /text="Play saved audio"/)
+    await note("Resuming the open Downloads dialog detected a pack removed from the shared store.")
     id = undefined
     await report(true)
   } finally {
