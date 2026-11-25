@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun NativeAudioControls() {
     val context = LocalContext.current
-    val status by NativeAudio.status.collectAsState()
+    val status by NativeAudio.stationStatus.collectAsState()
     val canPlay = status == NativeAudioStatus.Idle || status == NativeAudioStatus.Paused || status == NativeAudioStatus.Failed
     val canPause = status == NativeAudioStatus.Playing || status == NativeAudioStatus.Interrupted
     val control = Modifier.heightIn(min = 48.dp)
@@ -42,7 +42,7 @@ internal fun NativeAudioControls() {
             }
         }
         OutlinedButton(
-            onClick = { NativeAudio.send(context, NativeAudio.STOP) },
+            onClick = { NativeAudio.send(context, NativeAudio.STOP_STATION) },
             enabled = status != NativeAudioStatus.Idle && status != NativeAudioStatus.Failed,
             modifier = control,
         ) {

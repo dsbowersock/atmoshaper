@@ -11,4 +11,23 @@
     <string name="native_audio_play">Play</string>
     <string name="native_audio_pause">Pause</string>
     <string name="native_audio_stop">Stop</string>
+    <string name="native_audio_mixer">Atmosphere sounds and noise</string>
+    <string name="native_audio_mix_title">Atmosphere mix</string>
+    <string name="native_audio_expanded">Expanded</string>
+    <string name="native_audio_collapsed">Collapsed</string>
+    <string name="native_audio_white_noise">White noise</string>
+    <string name="native_audio_pink_noise">Pink noise</string>
+    <string name="native_audio_brown_noise">Brown noise</string>
+    <string name="native_audio_boiling_water">Boiling Water</string>
+    <string name="native_audio_heavy_rain">Heavy Rain</string>
+    <string name="native_audio_waves">Waves</string>
+    <string name="native_audio_play_layer">Play %1$s</string>
+    <string name="native_audio_stop_layer">Stop %1$s</string>
+    <string name="native_audio_layer_volume">%1$s volume</string>
+    <string name="native_audio_layer_loading">Loading %1$s</string>
+    <string name="native_audio_ambient_failed">Could not play %1$s. Reconnect or use a verified download, then try again.</string>
+    <string name="native_audio_generated_failed">Could not play %1$s. Try again.</string>
+    <string name="native_audio_pause_mix">Pause all audio</string>
+    <string name="native_audio_resume_mix">Resume all audio</string>
+    <string name="native_audio_stop_mix">Stop all audio</string>
 </resources>

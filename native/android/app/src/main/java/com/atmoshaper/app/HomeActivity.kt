@@ -186,6 +186,7 @@ private fun Home(
                     if (selectedTool == HomeTool.Wellness) {
                         OpenBreathing { showBreathing = true }
                     } else if (selectedTool == HomeTool.Music) {
+                        NativeAudioMixControls()
                         NativeAudioControls()
                     } else {
                         Text(stringResource(R.string.home_tool_unavailable), style = MaterialTheme.typography.titleMedium)
