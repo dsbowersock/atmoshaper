@@ -131,7 +131,7 @@ class ClockBackgroundJourneyTest {
                 awaitBackdrop(0xFF704B25.toInt())
                 awaitBackdrop(0xFF0F2237.toInt(), across = 0.9f)
                 applyBackground("Lava Lamp")
-                applyBackground("Static gradient")
+                applyBackground("In Transition")
                 awaitBackdrop(0xFF704B25.toInt())
                 awaitBackdrop(0xFF0F2237.toInt(), across = 0.9f)
                 val restored = checkNotNull(store.read())
@@ -168,10 +168,11 @@ class ClockBackgroundJourneyTest {
                 setAnimatorScale("0")
                 text("Clock & timer").click()
                 text("Backgrounds")
-                val reducedMotionFrame = backdropSample()
+                val reducedMotionFrame = awaitBackdropFrame("Lava Lamp displays its authored color fields") {
+                    it.distinct().size > 1
+                }
                 SystemClock.sleep(750)
                 assertEquals("Android's reduced motion keeps the fields still", reducedMotionFrame, backdropSample())
-                assertTrue("The reduced-motion renderer still shows color", reducedMotionFrame.any { it != 0xFF171519.toInt() })
 
                 setAnimatorScale("1")
                 val movingFrame = awaitBackdropFrame("Lava Lamp starts moving") { it != reducedMotionFrame }
