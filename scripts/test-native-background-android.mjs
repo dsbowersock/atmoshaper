@@ -80,6 +80,13 @@ function start(activity, system = []) {
 }
 const startHome = () => start("HomeActivity", ["-f", "0x10200000", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER"])
 
+function installedVersion() {
+  const version = Number(adb("shell", "cmd", "package", "list", "packages", "--show-versioncode", pkg)
+    .match(/versionCode:(\d+)/)?.[1])
+  assert.ok(Number.isSafeInteger(version) && version > 0)
+  return version
+}
+
 async function nativeText(text, tap = false) {
   const remote = "/data/local/tmp/atmoshaper-native-background-ui.xml"
   let bounds
@@ -135,6 +142,7 @@ const before = await fixtureApk(predecessor, "predecessor", publicKeyPath)
 const after = await fixtureApk(candidate, "candidate", assets)
 
 async function approve(page, owned, leaseDuration = null) {
+  await expect.poll(async () => Boolean((await fixtureRecord(page, accessDb, "access", "state"))?.device), { timeout }).toBe(true)
   const challenge = randomBytes(32).toString("base64url")
   const now = await page.evaluate(() => Date.now())
   const pending = await fixtureRecord(page, accessDb, "access", "state", { pending: { challenge, at: now } })
@@ -156,6 +164,7 @@ try {
   guard()
   adb("shell", "am", "force-stop", pkg)
   assert.equal(adb("install", "-r", "-d", before), "Success")
+  const earlierVersion = installedVersion()
   assert.equal(adb("shell", "pm", "clear", pkg), "Success")
   start("MainActivity")
   const earlier = await connect()
@@ -166,6 +175,8 @@ try {
   await fixtureRecord(oldPage, clockDb, "clock", "state", { version: 1, settings: { backgroundId: effect } })
   adb("shell", "am", "force-stop", pkg)
   assert.equal(adb("install", "-r", after), "Success")
+  const candidateVersion = installedVersion()
+  assert.ok(candidateVersion > earlierVersion, "The installed development version advanced in place")
   startHome()
   await nativeText("Clock &amp; timer", true)
   await nativeText("Backgrounds")
@@ -198,7 +209,7 @@ try {
   await expect.poll(() => leased.isClosed(), { timeout }).toBe(true)
   assert.equal(adb("shell", "pidof", pkg), processId)
   await writeFile(path.join(output, "proof.json"), JSON.stringify({
-    predecessorSha256: await digest(before), candidateSha256: await digest(after), sameReceipt: true,
+    predecessorSha256: await digest(before), candidateSha256: await digest(after), earlierVersion, candidateVersion, sameReceipt: true,
     offlineOwnedEffect: effect, nativeCustomization: true, signedRevocationInSameProcess: true, sameProcessExpiry: true,
   }, null, 2))
   console.log("The offline signed upgrade retained its owned Clock effect and revoked it in the same Android process.")
