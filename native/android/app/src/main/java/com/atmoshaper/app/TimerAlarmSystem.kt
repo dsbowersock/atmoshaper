@@ -28,8 +28,10 @@ internal class TimerAlarmSystem(private val context: Context) {
         notifications.areNotificationsEnabled() &&
             notifications.getNotificationChannel(channelFor(setup))?.importance != NotificationManager.IMPORTANCE_NONE
 
-    fun hasPendingOccurrence(): Boolean =
-        PendingIntent.getBroadcast(context, alarmRequest, receiver(fireAction), findImmutable) != null
+    /** A matching token identifies the occurrence, even if Android dropped
+     * its actual schedule. Callers must bound any wait for delivery. */
+    fun pendingOccurrence(snapshot: TimerSnapshot): PendingIntent? =
+        occurrence(snapshot)?.let { PendingIntent.getBroadcast(context, alarmRequest, it, findImmutable) }
 
     private fun canSchedulePrecisely(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms()
@@ -38,10 +40,12 @@ internal class TimerAlarmSystem(private val context: Context) {
      * A permission change racing setExact may leave only foreground delivery
      * until the next reconciliation. */
     fun sync(snapshot: TimerSnapshot, previous: TimerSnapshot? = null) {
-        val existing = PendingIntent.getBroadcast(context, alarmRequest, receiver(fireAction), findImmutable)
-        if (existing != null) {
-            alarms.cancel(existing)
-            existing.cancel()
+        // Cancel the old unkeyed token on the first reconciliation after an
+        // in-place upgrade, and retire the exact previously stored occurrence.
+        val legacy = PendingIntent.getBroadcast(context, alarmRequest, receiver(fireAction), findImmutable)
+        for (pending in listOfNotNull(legacy, pendingOccurrence(previous ?: snapshot))) {
+            alarms.cancel(pending)
+            pending.cancel()
         }
         val active = snapshot.phase == TimerPhase.Running || snapshot.phase == TimerPhase.Paused
         if (!active || previous?.sessionId != snapshot.sessionId || previous?.deadlineMs != snapshot.deadlineMs ||
@@ -54,16 +58,23 @@ internal class TimerAlarmSystem(private val context: Context) {
             return
         }
         val session = checkNotNull(snapshot.sessionId)
-        val at = snapshot.nextAlarmAt
-        val precise = if (at != null) {
-            val intent = receiver(fireAction)
-                .putExtra("session", session)
-                .putExtra("at", at)
-                .putExtra("deadline", checkNotNull(snapshot.deadlineMs))
+        val intent = occurrence(snapshot)
+        val precise = if (intent != null) {
             val delivery = PendingIntent.getBroadcast(context, alarmRequest, intent, PendingIntent.FLAG_IMMUTABLE)
-            schedule(at, delivery)
+            schedule(checkNotNull(snapshot.nextAlarmAt), delivery)
         } else false
         showProgress(snapshot, session, precise)
+    }
+
+    private fun occurrence(snapshot: TimerSnapshot): Intent? {
+        val session = snapshot.sessionId ?: return null
+        val at = snapshot.nextAlarmAt ?: return null
+        val deadline = checkNotNull(snapshot.deadlineMs)
+        return receiver(fireAction)
+            .setData(Uri.fromParts("atmoshaper-timer", "$session:$at:$deadline", null))
+            .putExtra("session", session)
+            .putExtra("at", at)
+            .putExtra("deadline", deadline)
     }
 
     @SuppressLint("ScheduleExactAlarm")

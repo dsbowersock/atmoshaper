@@ -10,10 +10,12 @@ import type { InputNode } from "tone/build/esm/core/context/ToneAudioNode"
 
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
+type SavedSample = { revision: string; url: string; sha256: string }
 type StationSamples = {
   sampleIndex: Awaited<ReturnType<typeof readVerifiedOfflinePack>>["sampleIndex"]
   has(url: string): boolean
   read(url: string): Promise<ArrayBuffer>
+  savedSample?(url: string): SavedSample | undefined
 }
 // Match the website's conservative -60..-12 dB station output policy.
 const stationGain = (value: number) => value <= 0 ? 0 : 10 ** ((-60 + Math.max(0, Math.min(1, value)) * 48) / 20)
@@ -24,6 +26,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
   destination?: InputNode
   masterVolume?: number
   prepareStationSamples?: (id: string) => Promise<StationSamples>
+  reportSavedDecodeFailure?: (id: string, sample: SavedSample) => Promise<void>
   prepareAmbientPack?: (id: string) => Promise<Awaited<ReturnType<typeof readVerifiedOfflinePack>>>
   /** The service must play this regional recording without an HTML media element. */
   bufferedAmbientRegionId?: string
@@ -93,7 +96,13 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
                 decoded.set(url, bytes.then(data => {
                   if (!isCurrent()) throw new Error("Playback was stopped.")
                   if (!data) throw new Error("A required sample is missing. Download the station again.")
-                  return raw.decodeAudioData(data.slice(0))
+                  return raw.decodeAudioData(data.slice(0)).catch(async error => {
+                    const sample = source?.savedSample?.(url)
+                    if (isCurrent() && sample && error instanceof DOMException && error.name === "EncodingError") {
+                      await options.reportSavedDecodeFailure?.(item.id, sample)
+                    }
+                    throw error
+                  })
                 }))
               }
               result.push(await decoded.get(url)!)

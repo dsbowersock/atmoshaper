@@ -310,8 +310,8 @@ class NativeAudioService : Service() {
                     stationActive = true
                     settleStatus()
                 }
-                "station-failed" -> {
-                    stationRequest?.takeIf { it.savedOnly }?.let { NativeAudio.reportSavedPlayFailure(it.station.id) }
+                "station-failed", "station-unreadable" -> {
+                    if (parts[0] == "station-unreadable") stationRequest?.let { NativeAudio.reportSavedPlayFailure(it.station.id) }
                     failStation(request)
                 }
             }
@@ -323,8 +323,8 @@ class NativeAudioService : Service() {
                 updateLayer(sound, layer.copy(phase = NativeMixPhase.Playing))
                 settleStatus()
             }
-            "layer-failed" -> if (layer.phase == NativeMixPhase.Loading || layer.phase == NativeMixPhase.Playing) {
-                if (layer.savedOnly) NativeAudio.reportSavedPlayFailure(sound.id)
+            "layer-failed", "layer-unreadable" -> if (layer.phase == NativeMixPhase.Loading || layer.phase == NativeMixPhase.Playing) {
+                if (parts[0] == "layer-unreadable") NativeAudio.reportSavedPlayFailure(sound.id)
                 failLayer(sound, layer)
             }
             "layer-stopped" -> if (layer.phase == NativeMixPhase.Stopping) {

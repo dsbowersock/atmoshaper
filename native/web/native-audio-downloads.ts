@@ -14,6 +14,8 @@ const post = (event: unknown) => host.AtmoShaperDownloadsHost?.postMessage(JSON.
 const downloads = createNativeAudioDownloads({
   items, store: createOfflineMediaStore(), report: post,
   fetchImpl: (url, init) => window.fetch(url, init),
+  // A repair checks one failed sample with a context that cannot play audio.
+  decodeReplacement: data => new OfflineAudioContext(1, 1, 48_000).decodeAudioData(data.slice(0)),
 })
 host.atmoNativeAudioDownloads = downloads
 window.addEventListener("pagehide", downloads.cancel)

@@ -76,7 +76,16 @@ function fixturePack(page, id, action = "read") {
           new Uint8Array(read.result.files[0].data)[4] ^= 1
           packs.put(read.result)
         }
-        if (action === "remove") { packs.delete(id); metadata.delete(id) }
+        if (action === "remove") {
+          window.fixtureRemovedPack = read.result
+          packs.delete(id); metadata.delete(id)
+        }
+        if (action === "restore") {
+          const original = window.fixtureRemovedPack
+          if (read.result !== undefined || original?.id !== id) { tx.abort(); return }
+          packs.put(original)
+          metadata.put({ id, bytes: original.bytes, revision: original.revision })
+        }
       }
       tx.oncomplete = () => {
         db.close()
@@ -254,6 +263,12 @@ test("native Downloads cancel, reject storage failure and damage, then play save
     await visible("Not downloaded")
     assert.doesNotMatch(hierarchy(), /text="Play saved audio"/)
     await note("Resuming the open Downloads dialog detected a pack removed from the shared store.")
+    shell("input", "keyevent", "KEYCODE_HOME")
+    await fixturePack(page, id, "restore")
+    shell("am", "start", "-W", "-n", launch)
+    await visible("Ready offline")
+    await note("Resuming the same dialog revalidated a missing pack saved through the shared store.")
+    await fixturePack(page, id, "remove")
     id = undefined
     await report(true)
   } finally {
