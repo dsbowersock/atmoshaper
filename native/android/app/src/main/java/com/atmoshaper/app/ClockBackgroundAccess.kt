@@ -96,19 +96,19 @@ internal object ClockBackgroundAccessChanges {
     private const val clockEvidence = "clock-background-time"
     private const val lastSeen = "last-seen"
     private const val expired = "expired-term"
-    data class Generation(val serial: Long = 0, val removing: Boolean = false)
+    data class Generation(val serial: Long = 0, val mutating: Boolean = false)
     val changes = MutableStateFlow(Generation())
 
     @JvmStatic
     fun receive(context: Context, message: String) {
         val before = changes.value
         when (message) {
-            "removing" -> changes.value = Generation(before.serial + 1, true)
+            "replacing", "removing", "remove-failed" -> changes.value = Generation(before.serial + 1, true)
             "removed", "replaced" -> {
                 evidence(context).edit().remove(lastSeen).remove(expired).apply()
                 changes.value = Generation(before.serial + 1, false)
             }
-            "remove-failed" -> changes.value = Generation(before.serial + 1, true)
+            "replace-failed" -> changes.value = Generation(before.serial + 1, false)
         }
     }
 
@@ -144,7 +144,7 @@ internal fun rememberClockBackgroundAccess(activity: HomeActivity): ClockBackgro
         activity.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             ClockBackgroundAccessChanges.changes.collectLatest { generation ->
                 access = ClockBackgroundAccess.unavailable
-                if (generation.removing) return@collectLatest
+                if (generation.mutating) return@collectLatest
                 try {
                     val guard = ClockBackgroundAccessChanges.ClockGuard(activity)
                     var snapshot = readPackagedExport(activity, PackagedExport.BackgroundAccess, ClockBackgroundAccess::decode)

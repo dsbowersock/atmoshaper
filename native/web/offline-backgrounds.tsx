@@ -54,9 +54,9 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
   </div>
 }
 
-function notifyNativeAccessChange(status: "replaced" | "removing" | "removed" | "remove-failed") {
+function notifyNativeAccessChange(status: "replacing" | "replaced" | "replace-failed" | "removing" | "removed" | "remove-failed") {
   const port = (window as Window & { AtmoShaperBackgroundAccessChanged?: { postMessage: (value: string) => void } }).AtmoShaperBackgroundAccessChanged
-  port?.postMessage(status)
+  try { port?.postMessage(status) } catch { /* A detached native observer cannot block a durable receipt update. */ }
 }
 
 /** Receipt acceptance is one serialized compare-and-replace, bound to the most
@@ -102,10 +102,17 @@ export function useOfflineBackgroundAccess() {
       const operationEpoch = epoch.current
       delete (window as Window & { atmoOfflineReceipt?: string }).atmoOfflineReceipt
       const receipt = (event as CustomEvent).detail
+      let replacing = false
       void store.update(async value => {
         const verified = await verifyOfflineAccessReceipt(receipt, value.device, publicKeys)
         if (!value.pending || verified.challenge !== value.pending.challenge || Date.now() > value.pending.at + OFFLINE_ACCESS_REQUEST_TTL
           || verified.issuedAt < value.pending.at - 60000 || verified.issuedAt > Date.now() + 60000 || verified.issuedAt <= value.lastIssuedAt) throw new Error("This approval expired or was replaced. Verify access again from this app.")
+        if (operationEpoch === epoch.current) {
+          replacing = true
+          // Invalidate an overlapping native read before a verified
+          // replacement can commit. Rejected approvals never enter this state.
+          notifyNativeAccessChange("replacing")
+        }
         // A fresh challenge-bound server timestamp can recover a legitimately
         // corrected device clock; an offline cache cannot reset this floor.
         return { ...value, receipt, pending: null, lastIssuedAt: verified.issuedAt, lastSeen: Math.max(verified.issuedAt, Date.now()) }
@@ -116,10 +123,15 @@ export function useOfflineBackgroundAccess() {
         // while the replacement is checked for the still-mounted web view.
         setClaims(null)
         notifyNativeAccessChange("replaced")
+        replacing = false
         const verified = await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)
         if (operationEpoch !== epoch.current || recordRef.current?.device !== value.device || recordRef.current?.receipt !== value.receipt) return
         setClaims(verified); setMessage("Background access saved for offline use.")
-      }).catch(error => { if (operationEpoch === epoch.current) setMessage(error instanceof Error ? error.message : "Offline access could not be saved.") })
+      }).catch(error => {
+        if (operationEpoch !== epoch.current) return
+        if (replacing) notifyNativeAccessChange("replace-failed")
+        setMessage(error instanceof Error ? error.message : "Offline access could not be saved.")
+      })
     }
     window.addEventListener("atmoshaper:offline-access", receive)
     // Native launch returns can precede React's effect registration.
