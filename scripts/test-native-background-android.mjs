@@ -18,6 +18,8 @@ const accessDb = "atmoshaper.android.background-access.v1"
 const clockDb = "atmoshaper.android.chimer-runtime.v1"
 // Pegboard draws a real frame even when the fixture disables system animations.
 const effect = "massage-lab-dot-grid"
+const authoredPrimary = "#13b962"
+const authoredSecondary = "#6c49d1"
 const timeout = 35_000
 const executable = name => process.platform === "win32" ? name + ".exe" : name
 const run = (command, args) => execFileSync(command, args, { cwd: root, encoding: "utf8", timeout: 90_000, windowsHide: true })
@@ -93,14 +95,18 @@ function installedVersion() {
   return version
 }
 
-async function nativeText(text, tap = false) {
+function nativeNodes() {
   const remote = "/data/local/tmp/atmoshaper-native-background-ui.xml"
+  adb("shell", "uiautomator", "dump", remote)
+  return adb("shell", "cat", remote).match(/<node\b[^>]+>/g) ?? []
+}
+
+async function nativeText(text, tap = false) {
   let bounds
   await expect.poll(() => {
     try {
-      adb("shell", "uiautomator", "dump", remote)
-      const nodes = adb("shell", "cat", remote).match(/<node\b[^>]+>/g) ?? []
-      bounds = nodes.find(node => node.includes('text="' + text + '"'))?.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)
+      bounds = nativeNodes().find(node => node.includes('text="' + text + '"'))
+        ?.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)
       return Boolean(bounds)
     } catch { return false }
   }, { timeout }).toBe(true)
@@ -140,8 +146,13 @@ async function visibleEffect(browser) {
   const surface = page.locator('[data-offline-background="' + effect + '"] canvas').first()
   await expect(surface).toBeVisible({ timeout })
   await expect.poll(() => surface.evaluate(canvas => {
-    const region = canvas.getContext("2d")?.getImageData(0, 0, Math.min(96, canvas.width), Math.min(96, canvas.height))
-    return Boolean(region && new Set(region.data).size > 3)
+    const pixels = canvas.getContext("2d")?.getImageData(0, 0, Math.min(96, canvas.width), Math.min(96, canvas.height)).data
+    if (!pixels) return false
+    for (let offset = 0; offset < pixels.length; offset += 4) {
+      const [red, green, blue, alpha] = pixels.subarray(offset, offset + 4)
+      if (alpha > 32 && green > red + 30 && green > blue + 20) return true
+    }
+    return false
   }), { timeout }).toBe(true)
   return page
 }
@@ -189,7 +200,15 @@ try {
   await expect(oldPage.getByTestId("home-launcher")).toBeVisible({ timeout })
   const original = await approve(oldPage, [effect])
   console.log("The earlier installed verifier accepted the synthetic owned background receipt.")
-  await fixtureRecord(oldPage, clockDb, "clock", "state", { version: 1, settings: { backgroundId: effect } })
+  await fixtureRecord(oldPage, clockDb, "clock", "state", {
+    version: 1,
+    settings: {
+      backgroundId: effect,
+      backgroundVisualPreferences: {
+        palette: { mode: "custom", primaryColor: authoredPrimary, swatches: [authoredPrimary, authoredSecondary] },
+      },
+    },
+  })
   adb("shell", "am", "force-stop", pkg)
   install(after, [])
   const candidateVersion = installedVersion()
@@ -205,6 +224,11 @@ try {
   await expect.poll(() => firstSurface.isClosed(), { timeout }).toBe(true)
   await nativeText("Clock &amp; timer", true)
   const surface = await visibleEffect(upgraded)
+  const readSavedAppearance = () => JSON.parse(adb("shell", "run-as", pkg, "cat", "files/clock-appearance.json"))
+  const savedStyle = readSavedAppearance()
+  assert.equal(savedStyle.rememberedBackgroundId, effect)
+  assert.equal(savedStyle.firstColor.toLowerCase(), authoredPrimary)
+  assert.equal(savedStyle.secondColor.toLowerCase(), authoredSecondary)
   console.log("The upgraded native Clock rendered the owned effect before and after reopening.")
   await surface.screenshot({ path: path.join(output, "owned-clock-effect.png") })
   await nativeText("Backgrounds", true)
@@ -218,6 +242,7 @@ try {
   await approve(legacy, [])
   startHome()
   await nativeText("Your verified access does not include this background.")
+  assert.equal(nativeNodes().some(node => node.includes('text="Customize background"')), false)
   await expect.poll(() => surface.isClosed(), { timeout }).toBe(true)
   start("MainActivity")
   await approve(legacy, [], 30_000)
@@ -228,9 +253,11 @@ try {
   await nativeText("Premium background access expired. Reconnect to refresh it.")
   await expect.poll(() => leased.isClosed(), { timeout }).toBe(true)
   assert.equal(adb("shell", "pidof", pkg), processId)
+  assert.deepEqual(readSavedAppearance(), savedStyle)
   await writeFile(path.join(output, "proof.json"), JSON.stringify({
-    predecessorSha256: await digest(before), candidateSha256: await digest(after), earlierVersion, candidateVersion, sameReceipt: true,
-    offlineOwnedEffect: effect, canvasPixelsAfterReentry: true, nativeCustomization: true,
+    predecessorSha256: await digest(before), candidateSha256: await digest(after), normalCandidateSha256: await digest(candidate),
+    earlierVersion, candidateVersion, sameReceipt: true,
+    offlineOwnedEffect: effect, canvasPixelsAfterReentry: true, authoredStyleRetained: true, nativeCustomization: true,
     animatorDurationScale: adb("shell", "settings", "get", "global", "animator_duration_scale"),
     signedRevocationInSameProcess: true, sameProcessExpiry: true,
   }, null, 2))
