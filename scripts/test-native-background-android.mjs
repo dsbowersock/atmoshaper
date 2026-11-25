@@ -101,7 +101,7 @@ function nativeNodes() {
   return adb("shell", "cat", remote).match(/<node\b[^>]+>/g) ?? []
 }
 
-async function nativeText(text, tap = false) {
+async function nativeText(text, tap = false, wait = timeout) {
   let bounds
   await expect.poll(() => {
     try {
@@ -109,7 +109,7 @@ async function nativeText(text, tap = false) {
         ?.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/)
       return Boolean(bounds)
     } catch { return false }
-  }, { timeout }).toBe(true)
+  }, { timeout: wait, message: "Native control or status: " + text }).toBe(true)
   if (tap) {
     const [, x1, y1, x2, y2] = bounds.map(Number)
     adb("shell", "input", "tap", String(Math.round((x1 + x2) / 2)), String(Math.round((y1 + y2) / 2)))
@@ -247,13 +247,17 @@ try {
   await nativeText("Your verified access does not include this background.")
   assert.equal(nativeNodes().some(node => node.includes('text="Customize background"')), false)
   await expect.poll(() => surface.isClosed(), { timeout }).toBe(true)
+  console.log("A signed empty replacement removed the effect and its customization in the same Android process.")
   start("MainActivity")
-  await approve(legacy, [], 30_000)
+  await approve(legacy, [], 45_000)
+  // The real return journey lets the packaged access page finish displaying
+  // the approval. Durable-store observation alone can precede that UI turn.
+  await expect(legacy.getByText(/^Premium access verified through/)).toBeVisible({ timeout })
   startHome()
   await nativeText("Customize background")
   adb("shell", "input", "keyevent", "KEYCODE_BACK")
   const leased = await visibleEffect(upgraded)
-  await nativeText("Premium background access expired. Reconnect to refresh it.")
+  await nativeText("Premium background access expired. Reconnect to refresh it.", false, 55_000)
   await expect.poll(() => leased.isClosed(), { timeout }).toBe(true)
   assert.equal(adb("shell", "pidof", pkg), processId)
   assert.deepEqual(readSavedAppearance(), savedStyle)
