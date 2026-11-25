@@ -254,6 +254,7 @@
     "test:practice-payments-browser": "node --test tests/practice-payments-browser.test.mjs",
     "android:doctor": "node scripts/android-build.mjs doctor",
     "android:build": "node scripts/android-build.mjs build",
+    "test:android-aisatsana": "node scripts/test-native-aisatsana-android.mjs",
     "build:offline-core": "node scripts/build-offline-core.mjs",
     "test:offline-core": "node --test tests/offline-core.test.mjs tests/offline-core-storage.test.mjs",
     "test:offline-core-browser": "node --test tests/offline-core-browser.test.mjs",

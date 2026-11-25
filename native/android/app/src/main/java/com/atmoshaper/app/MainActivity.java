@@ -234,7 +234,7 @@ public final class MainActivity extends ComponentActivity {
     }
 
     /** Only these existing public audio paths may use the native HTTP client. */
-    private static boolean isMedia(Uri uri) {
+    static boolean isMedia(Uri uri) {
         String path = uri.getEncodedPath();
         return "https".equals(uri.getScheme()) && "media.atmoshaper.com".equals(uri.getHost())
             && uri.getPort() == -1 && uri.getUserInfo() == null && uri.getQuery() == null && uri.getFragment() == null
@@ -245,7 +245,7 @@ public final class MainActivity extends ComponentActivity {
 
     /** No redirects/cookies/credentials. Foreign content never becomes a page
      * or script; the client additionally enforces media type, byte and hash limits. */
-    private static WebResourceResponse download(Uri uri) throws IOException {
+    static WebResourceResponse download(Uri uri) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(uri.toString()).openConnection();
         boolean handedOff = false;
         try {
