@@ -30,6 +30,7 @@ Open one draft PR following the first successful integration and link #82 and #9
 5. Measure launch, warm navigation, station start to actual output, and representative process resources on an installable performance build, with the build configuration and limitations recorded. Measure cold and warm conditions separately. Carry any hardware-dependent measurements and prolonged battery observation to the owner's S24 handoff.
 6. Run affected web and offline contract suites, installed Android tests and hosted Android/CI. Review the full integrated range with the code-review skill and obtain completed CodeRabbit coverage of the range and corrections. Wait for current-head hosted results and review threads, then mark the combined PR ready when its software gates pass.
 7. Link the integrated receipt from the PR’s #94 handoff. The owner retains the merge and physical S24 installation/acceptance. Remove only this batch’s clean implementer worktrees after verifying their commits are integrated and the evidence has been retained.
+8. After physical acceptance, verify the merged PR, the merge SHA, passing post-merge Android and CI runs on that exact SHA, and closure of #94. Update [project state](../../project-state.md) with the merge SHA and links to the PR, S24 acceptance, and both workflow runs.
 
 ## Galaxy S24 Ultra handoff
 
