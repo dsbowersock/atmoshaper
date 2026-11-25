@@ -33,7 +33,7 @@ internal class TimerAlarmCoordinator(context: Context) {
         if (store.read() != null) open(System.currentTimeMillis())
     }
 
-    fun alarm(session: String, at: Long, deadline: Long) = synchronized(lock) {
+    fun alarm(session: String, at: Long, deadline: Long): Unit = synchronized(lock) {
         val current = store.read() ?: return
         if (current.sessionId != session || current.deadlineMs != deadline || current.nextAlarmAt != at) return
         val now = System.currentTimeMillis()
@@ -56,7 +56,7 @@ internal class TimerAlarmCoordinator(context: Context) {
         backgroundChanges.tryEmit(Unit)
     }
 
-    fun end(session: String) = synchronized(lock) {
+    fun end(session: String): Unit = synchronized(lock) {
         val current = store.read() ?: return
         if (current.sessionId != session) return
         updateLocked { TimerAdvance(it.end()) }
