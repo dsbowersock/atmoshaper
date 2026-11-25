@@ -79,3 +79,52 @@ test("cross-origin, anonymous, oversized, malformed and unconfigured requests ca
   assert.equal((await createOfflineBackgroundAccessHandler({ ...deps, environment: {} })(request(valid))).status, 503)
   assert.equal(reads, 0)
 })
+
+test("the native projection exposes only eligible catalog ownership and the signed term", async () => {
+  const { projectOfflineBackgroundAccess } = await import("../lib/offline-background-access.js")
+  const recognize = new Set(["massage-lab-aurora"])
+  const signed = signOfflineBackgroundReceipt({ ...input, owned: [...input.owned, "disabled-effect"] }, environment)
+  const record = { receipt: signed, device, lastSeen: now, lastIssuedAt: now }
+  assert.deepEqual(await projectOfflineBackgroundAccess(record, keys, recognize, now + 999), {
+    status: "verified", paidThrough: now + 1000, clockValidAfter: now - 60000,
+    ownedIds: ["massage-lab-aurora"],
+  })
+  assert.deepEqual(await projectOfflineBackgroundAccess(record, keys, recognize, now + 1000), {
+    status: "expired", paidThrough: now + 1000, clockValidAfter: now - 60000,
+    ownedIds: ["massage-lab-aurora"],
+  })
+})
+
+test("a receipt replaced or removed during verification cannot reach the native Clock", async () => {
+  const { readProjectedOfflineBackgroundAccess } = await import("../lib/offline-background-access.js")
+  const receipt = signOfflineBackgroundReceipt(input, environment)
+  const original = { receipt, device, lastSeen: now, lastIssuedAt: now }
+  for (const current of [undefined, { ...original, receipt: null }, { ...original, receipt: "replacement" }]) {
+    const records = [original, current]
+    assert.deepEqual(await readProjectedOfflineBackgroundAccess(async () => records.shift(), keys, new Set(input.owned), now), {
+      status: "unavailable", paidThrough: null, clockValidAfter: null, ownedIds: [],
+    })
+  }
+})
+
+test("owned-only and empty signed grants remain distinguishable from invalid and unavailable access", async () => {
+  const { readProjectedOfflineBackgroundAccess } = await import("../lib/offline-background-access.js")
+  const catalog = new Set(input.owned)
+  const makeRecord = (claims, storedDevice = device) => ({
+    receipt: signOfflineBackgroundReceipt({ ...input, ...claims }, environment),
+    device: storedDevice, lastSeen: now, lastIssuedAt: now,
+  })
+  const owned = makeRecord({ premiumUntil: null })
+  const empty = makeRecord({ premiumUntil: null, owned: [] })
+  const invalid = makeRecord({ premiumUntil: null }, randomOfflineAccessId())
+  const outcomes = await Promise.all([
+    readProjectedOfflineBackgroundAccess(async () => owned, keys, catalog, now + 400 * 86400000),
+    readProjectedOfflineBackgroundAccess(async () => empty, keys, catalog, now),
+    readProjectedOfflineBackgroundAccess(async () => invalid, keys, catalog, now),
+    readProjectedOfflineBackgroundAccess(async () => undefined, keys, catalog, now),
+    readProjectedOfflineBackgroundAccess(async () => { throw new Error("Fixture storage unavailable") }, keys, catalog, now),
+  ])
+  assert.deepEqual(outcomes.map(value => [value.status, value.ownedIds]), [
+    ["verified", input.owned], ["no-grant", []], ["invalid", []], ["missing", []], ["unavailable", []],
+  ])
+})
