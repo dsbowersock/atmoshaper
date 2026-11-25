@@ -186,9 +186,16 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     await expect.poll(()=>{
       target=nativeHierarchy().match(bounds)
       return Boolean(target)
-    }).toBe(true)
+    },{ message:`Native control ${label} is visible` }).toBe(true)
     const [left,top,right,bottom]=target.slice(1).map(Number)
     shell("shell","input","tap",String(Math.round((left+right)/2)),String(Math.round((top+bottom)/2)))
+  }
+  /** Text input can arrive before the newly opened dialog has IME focus. */
+  async function enterNativeSearch(id, query) {
+    await tapNativeLabel(id,{ attribute:"resource-id" })
+    const resource = RegExp.escape(id)
+    await expect.poll(nativeHierarchy).toMatch(new RegExp(`<node\\b[^>]*resource-id="${resource}"[^>]*focused="true"`))
+    shell("shell","input","text",query.replaceAll(" ","%s"))
   }
   const go=(page,route)=>page.evaluate(route=>window.dispatchEvent(new CustomEvent("atmoshaper:native-navigation",{detail:route})),route)
   /** A fresh Android fixture shows a system tutorial above the app on first
@@ -400,14 +407,12 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     if (nativeBaseline) {
       await tapNativeLabel("Music")
       await tapNativeLabel("Downloads")
-      await tapNativeLabel("native_download_query",{ attribute:"resource-id" })
-      shell("shell","input","text","Little%sBells")
+      await enterNativeSearch("native_download_query","Little Bells")
       await tapNativeLabel("native_download_generative-fm-little-bells",{ attribute:"resource-id" })
       await expect.poll(()=>nativeHierarchy()).toContain('text="Ready offline"')
       await tapNativeLabel("Close")
       await tapNativeLabel("Search stations")
-      await tapNativeLabel("native_station_query",{ attribute:"resource-id" })
-      shell("shell","input","text","Little%sBells")
+      await enterNativeSearch("native_station_query","Little Bells")
       await tapNativeLabel("Little Bells",{ excludeResourceId:"native_station_query" })
       await tapNativeLabel("Play")
       audioPage = await connect({ entry:nativeAudioEntry })
@@ -580,6 +585,8 @@ test("replacement APK opens native Home offline and retains downloads, settings 
     },null,2))
   } catch (error) {
     failed = true
+    try { await writeFile(path.join(output,"failure-native.xml"),nativeHierarchy()) }
+    catch (diagnosticError) { console.error("Android fixture could not save the failing native hierarchy", diagnosticError) }
     if (page && !page.isClosed()) {
       try {
         await writeFile(path.join(output,"failure.json"), JSON.stringify({
