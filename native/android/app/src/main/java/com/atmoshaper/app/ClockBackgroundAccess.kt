@@ -23,6 +23,7 @@ internal enum class ClockAccessStatus(val key: String) {
 
 /** Capabilities from the fixed packaged verifier. Selection and styles never
  * carry a grant, and expiration of a subscription leaves ownership intact. */
+@ConsistentCopyVisibility
 internal data class ClockBackgroundAccess private constructor(
     val status: ClockAccessStatus,
     val paidThrough: Long?,

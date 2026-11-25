@@ -137,14 +137,14 @@ internal fun ClockBackgroundPicker(
                         singleLine = true,
                     )
                 }
-                if (source != null && selected?.customizable == true) {
+                if (source != null && selected.customizable) {
                     item {
                         TextButton(onClick = { if (selected.canUse(access)) customizing = !customizing }, enabled = !saving) {
                             Text(stringResource(if (customizing) R.string.clock_background_hide_controls else R.string.clock_background_customize))
                         }
                     }
                 }
-                if (source != null && selected?.customizable == true && customizing) {
+                if (source != null && selected.customizable && customizing) {
                     item {
                         BackgroundColorField(
                             if (dualColor) R.string.clock_background_first_color else R.string.clock_background_color,
