@@ -86,11 +86,11 @@ test("the native projection exposes only eligible catalog ownership and the sign
   const signed = signOfflineBackgroundReceipt({ ...input, owned: [...input.owned, "disabled-effect"] }, environment)
   const record = { receipt: signed, device, lastSeen: now, lastIssuedAt: now }
   assert.deepEqual(await projectOfflineBackgroundAccess(record, keys, recognize, now + 999), {
-    status: "verified", paidThrough: now + 1000, clockValidAfter: now - 60000,
+    status: "verified", issuedAt: now, paidThrough: now + 1000, clockValidAfter: now - 60000,
     ownedIds: ["massage-lab-aurora"],
   })
   assert.deepEqual(await projectOfflineBackgroundAccess(record, keys, recognize, now + 1000), {
-    status: "expired", paidThrough: now + 1000, clockValidAfter: now - 60000,
+    status: "expired", issuedAt: now, paidThrough: now + 1000, clockValidAfter: now - 60000,
     ownedIds: ["massage-lab-aurora"],
   })
 })
@@ -102,7 +102,7 @@ test("a receipt replaced or removed during verification cannot reach the native 
   for (const current of [undefined, { ...original, receipt: null }, { ...original, receipt: "replacement" }]) {
     const records = [original, current]
     assert.deepEqual(await readProjectedOfflineBackgroundAccess(async () => records.shift(), keys, new Set(input.owned), now), {
-      status: "unavailable", paidThrough: null, clockValidAfter: null, ownedIds: [],
+      status: "unavailable", issuedAt: null, paidThrough: null, clockValidAfter: null, ownedIds: [],
     })
   }
 })

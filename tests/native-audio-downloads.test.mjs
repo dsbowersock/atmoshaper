@@ -2,6 +2,7 @@ import test from "node:test"
 import assert from "node:assert/strict"
 import { createNativeAudioDownloads } from "../lib/native-audio-downloads.js"
 import { readVerifiedOfflinePack, sha256 } from "../lib/offline-media.js"
+import { prepareNativeStationSamples } from "../lib/native-station-sample-source.js"
 
 const bytes = new TextEncoder().encode("OggS selected recording")
 const url = "https://media.atmoshaper.com/atmosphere/atmoshaper/v1/audio/fixture/opus.ogg"
@@ -86,4 +87,58 @@ test("cancel interrupted file transfer after visible partial byte progress, then
   blockTransfer = false
   await downloads.download(item.id, 2)
   assert.equal(events.at(-1).state, "ready")
+})
+
+test("a checksum-valid undecodable station can be repaired without publishing another bad replacement", async () => {
+  const url = "https://media.atmoshaper.com/atmosphere/generative-fm/fixture/sample.ogg"
+  const indexUrl = url.replace("sample.ogg", "sample-index.opus.json")
+  const manifestUrl = url.replace("sample.ogg", "manifest.opus.json")
+  const station = { id: "station-fixture", kind: "station", station: { runtime: {
+    hostedSampleIndexFormatUrls: { opus: indexUrl },
+    hostedManifestFormatUrls: { opus: manifestUrl },
+    sampleNameGroups: ["instrument"],
+  } } }
+  const rejected = new TextEncoder().encode("OggS malformed fixture")
+  const repaired = new TextEncoder().encode("OggS repaired! fixture")
+  assert.equal(rejected.length, repaired.length)
+  let pack, failure, incoming = rejected
+  const store = {
+    get: async () => pack,
+    getWithDecodeFailure: async () => ({ pack, failure }),
+    put: async value => { pack = value; failure = undefined },
+  }
+  const events = []
+  const decodeReplacement = async data => {
+    if (new Uint8Array(data)[5] === rejected[5]) throw new DOMException("Malformed fixture", "EncodingError")
+  }
+  const downloads = createNativeAudioDownloads({
+    items: [station], store, report: event => events.push(event), decodeReplacement,
+    fetchImpl: async request => {
+      if (request === indexUrl) return Response.json({ instrument: { C4: url } })
+      if (request === manifestUrl) return Response.json({ assets: [{ publicUrl: url, sizeBytes: rejected.length }] })
+      assert.equal(request, url)
+      return new Response(incoming)
+    },
+  })
+  await downloads.download(station.id, 1)
+  assert.equal(events.at(-1).state, "ready")
+  const original = await readVerifiedOfflinePack(station.id, store)
+  const source = await prepareNativeStationSamples(station, store, { isOnline: false })
+  failure = source.savedSample(url)
+  assert.deepEqual(failure, { url, revision: original.revision, sha256: await sha256(rejected) })
+  await downloads.status(station.id, 2)
+  assert.equal(events.at(-1).state, "damaged")
+  await downloads.download(station.id, 3)
+  assert.equal(events.at(-1).state, "damaged")
+  assert.equal(pack, original)
+
+  incoming = repaired
+  await downloads.download(station.id, 4)
+  assert.equal(events.at(-1).state, "ready")
+  const fixed = await readVerifiedOfflinePack(station.id, store)
+  assert.equal(fixed.revision, original.revision)
+  assert.equal(fixed.files[0].sha256, await sha256(repaired))
+  failure = source.savedSample(url)
+  await downloads.status(station.id, 5)
+  assert.equal(events.at(-1).state, "ready", "a late failure for old bytes must not block a corrected pack")
 })

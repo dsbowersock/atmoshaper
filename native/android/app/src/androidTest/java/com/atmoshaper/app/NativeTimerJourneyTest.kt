@@ -151,10 +151,11 @@ class NativeTimerJourneyTest {
         val coordinator = TimerAlarmCoordinator(instrumentation.targetContext)
         withFixture(initial) {
             val cues = mutableListOf<TimerSignal?>()
+            val receiver: (TimerAdvance) -> Boolean = { cues += it.cue; true }
             try {
                 val running = coordinator.open(due - 1_000)
                 val session = checkNotNull(running.sessionId)
-                TimerAlarmCoordinator.foreground = { cues += it.cue; true }
+                TimerAlarmCoordinator.attachWindow(receiver)
                 val reopened = coordinator.open(due + 100)
                 assertEquals(TimerPhase.Complete, reopened.phase)
                 assertFalse(reopened.missedCompletion)
@@ -163,7 +164,7 @@ class NativeTimerJourneyTest {
                 instrumentation.waitForIdleSync()
                 assertEquals(listOf(TimerSignal.Completion), cues)
             } finally {
-                TimerAlarmCoordinator.foreground = null
+                TimerAlarmCoordinator.closeWindow(receiver)
                 coordinator.change { TimerAdvance(it.end()) }
             }
         }
@@ -195,6 +196,97 @@ class NativeTimerJourneyTest {
                 assertFalse(coordinator.open(due + 1_252).missedCompletion)
                 assertNotNull(notice("Timer complete"))
             } finally {
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+    }
+
+    @Test
+    fun anOrphanedOccurrenceTokenCannotKeepAnExpiredTimerRunning() {
+        requireOsFixture()
+        val context = instrumentation.targetContext
+        val due = System.currentTimeMillis() + 60_000
+        val initial = TimerSnapshot().start(TimerSetup(minutes = 1, cue = TimerCue.Silent), due - 60_000)
+        val coordinator = TimerAlarmCoordinator(context)
+        withFixture(initial) {
+            try {
+                val running = coordinator.open(due - 1_000)
+                val system = TimerAlarmSystem(context)
+                val token = checkNotNull(system.pendingOccurrence(running))
+                checkNotNull(context.getSystemService(AlarmManager::class.java)).cancel(token)
+                assertNotNull(system.pendingOccurrence(running))
+                val limit = due + TimerAlarmCoordinator.backgroundCompletionGraceMs
+                assertEquals(TimerPhase.Running, coordinator.open(limit - 1).phase)
+                val recovered = coordinator.open(limit)
+                assertEquals(TimerPhase.Complete, recovered.phase)
+                assertTrue(recovered.missedCompletion)
+                coordinator.alarm(checkNotNull(running.sessionId), due, due, limit + 1)
+                assertFalse(hasNotice("Timer complete"))
+            } finally {
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+    }
+
+    @Test
+    fun aMatchingInexactCallbackCanCompleteAfterTheReopenWaitWouldHaveElapsed() {
+        requireOsFixture()
+        val context = instrumentation.targetContext
+        val alarms = checkNotNull(context.getSystemService(AlarmManager::class.java))
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarms.canScheduleExactAlarms())
+        val notifications = checkNotNull(context.getSystemService(NotificationManager::class.java))
+        assertTrue(notifications.areNotificationsEnabled())
+        val due = System.currentTimeMillis() + 60_000
+        val initial = TimerSnapshot().start(TimerSetup(minutes = 1, cue = TimerCue.Silent), due - 60_000)
+        val coordinator = TimerAlarmCoordinator(context)
+        withFixture(initial) {
+            try {
+                val running = coordinator.open(due - 1_000)
+                val session = checkNotNull(running.sessionId)
+                val observedAt = due + TimerAlarmCoordinator.backgroundCompletionGraceMs + 60_000
+                coordinator.alarm(session, due, due, observedAt)
+                val completed = coordinator.open(observedAt + 1)
+                assertEquals(TimerPhase.Complete, completed.phase)
+                assertFalse(completed.missedCompletion)
+                assertNotNull(notice("Timer complete"))
+                val first = notifications.activeNotifications.single {
+                    it.notification.extras.getString("android.title") == "Timer complete"
+                }
+                notifications.cancel(first.id)
+                coordinator.alarm(session, due, due, observedAt + 2)
+                assertFalse(hasNotice("Timer complete"))
+            } finally {
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+    }
+
+    @Test
+    fun deniedNotificationCallbackHandsFreshCompletionToTheWindowStillOpening() {
+        requireOsFixture()
+        val context = instrumentation.targetContext
+        assertFalse(checkNotNull(context.getSystemService(NotificationManager::class.java)).areNotificationsEnabled())
+        val due = System.currentTimeMillis() + 60_000
+        val initial = TimerSnapshot().start(TimerSetup(minutes = 1, cue = TimerCue.Flash), due - 60_000)
+        val coordinator = TimerAlarmCoordinator(context)
+        withFixture(initial) {
+            val cues = mutableListOf<TimerSignal?>()
+            val receiver: (TimerAdvance) -> Boolean = { cues += it.cue; true }
+            try {
+                val running = coordinator.open(due - 1_000)
+                val session = checkNotNull(running.sessionId)
+                TimerAlarmCoordinator.beginWindowOpen(receiver)
+                assertEquals(TimerPhase.Running, coordinator.open(due + 100).phase)
+                coordinator.alarm(session, due, due, due + 101)
+                TimerAlarmCoordinator.attachWindow(receiver)
+                val completed = coordinator.tick(due + 102)
+                assertEquals(TimerPhase.Complete, completed.phase)
+                assertFalse(completed.missedCompletion)
+                coordinator.alarm(session, due, due, due + 103)
+                instrumentation.waitForIdleSync()
+                assertEquals(listOf(TimerSignal.Completion), cues)
+            } finally {
+                TimerAlarmCoordinator.closeWindow(receiver)
                 coordinator.change { TimerAdvance(it.end()) }
             }
         }

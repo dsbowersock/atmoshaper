@@ -139,13 +139,13 @@ private fun DownloadDialog(onDismiss: () -> Unit) {
 
     // Previous Tools can change the shared pack while this dialog is covered.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        if (!unavailable && status.state == DownloadState.Ready) selected?.let(::check)
+        if (!unavailable && !status.state.busy && status.state != DownloadState.Checking) selected?.let(::check)
     }
     LaunchedEffect(Unit) {
         // A saved-only Play can discover a missing or damaged pack between
         // the last check and actual use. Refresh the shared store's status.
         NativeAudio.savedPlayFailures.collect { id ->
-            if (!unavailable && status.state == DownloadState.Ready) selected?.takeIf { it.id == id }?.let(::check)
+            if (!unavailable && !status.state.busy) selected?.takeIf { it.id == id }?.let(::check)
         }
     }
 

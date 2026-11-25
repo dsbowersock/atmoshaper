@@ -10,13 +10,16 @@ import type { InputNode } from "tone/build/esm/core/context/ToneAudioNode"
 
 type Handle = { stop(): Promise<void>; volume(value: number): void }
 type PackFile = { url: string; data: ArrayBuffer }
+type SavedSample = { revision: string; url: string; sha256: string }
 type StationSamples = {
   sampleIndex: Awaited<ReturnType<typeof readVerifiedOfflinePack>>["sampleIndex"]
   has(url: string): boolean
   read(url: string): Promise<ArrayBuffer>
+  savedSample?(url: string): SavedSample | undefined
 }
 // Match the website's conservative -60..-12 dB station output policy.
 const stationGain = (value: number) => value <= 0 ? 0 : 10 ** ((-60 + Math.max(0, Math.min(1, value)) * 48) / 20)
+const isDecodeFailure = (error: unknown) => error instanceof DOMException && error.name === "EncodingError"
 
 /** One app-owned mixer: station replacement is serialized, ambient layers may
  * coexist, and an obsolete async start cannot claim the output after Stop. */
@@ -24,6 +27,7 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
   destination?: InputNode
   masterVolume?: number
   prepareStationSamples?: (id: string) => Promise<StationSamples>
+  reportSavedDecodeFailure?: (id: string, sample: SavedSample) => Promise<void>
   prepareAmbientPack?: (id: string) => Promise<Awaited<ReturnType<typeof readVerifiedOfflinePack>>>
   /** The service must play this regional recording without an HTML media element. */
   bufferedAmbientRegionId?: string
@@ -93,7 +97,13 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
                 decoded.set(url, bytes.then(data => {
                   if (!isCurrent()) throw new Error("Playback was stopped.")
                   if (!data) throw new Error("A required sample is missing. Download the station again.")
-                  return raw.decodeAudioData(data.slice(0))
+                  return raw.decodeAudioData(data.slice(0)).catch(async error => {
+                    const sample = source?.savedSample?.(url)
+                    if (isCurrent() && sample && isDecodeFailure(error)) {
+                      await options.reportSavedDecodeFailure?.(item.id, sample)
+                    }
+                    throw error
+                  })
                 }))
               }
               result.push(await decoded.get(url)!)
@@ -153,7 +163,16 @@ export function createOfflineAudioRuntime(store: Parameters<typeof readVerifiedO
             }
             return blobs.get(url)!
           },
-        }).catch(error => { for (const url of blobs.values()) URL.revokeObjectURL(url); throw error })
+        }).catch(async error => {
+          for (const url of blobs.values()) URL.revokeObjectURL(url)
+          // The supported native ambient adapters decode one recording during
+          // startup. Only a verified saved pack has a durable revision.
+          const file = pack?.files.length === 1 ? pack.files[0] : undefined
+          if (isCurrent() && pack?.revision && file && isDecodeFailure(error)) {
+            await options.reportSavedDecodeFailure?.(item.id, { revision: pack.revision, url: file.url, sha256: file.sha256 })
+          }
+          throw error
+        })
         // Ambient startup loads media asynchronously into a muted graph. Stop
         // during that wait must dispose it before any audible fade-in starts.
         if (!isCurrent()) {

@@ -29,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
@@ -58,6 +59,7 @@ public final class MainActivity extends ComponentActivity {
     private String pendingReceipt;
     private String pendingRoute;
     private boolean packagedPageLoaded;
+    private boolean packagedPageFailed;
     private TwaLauncher websiteLauncher;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
@@ -158,7 +160,11 @@ public final class MainActivity extends ComponentActivity {
     /** Hash navigation must not invalidate an otherwise exact packaged entry. */
     private boolean isEntry() {
         if (webView == null || webView.getUrl() == null) return false;
-        Uri uri = Uri.parse(webView.getUrl());
+        return isEntryUrl(webView.getUrl());
+    }
+
+    private static boolean isEntryUrl(String url) {
+        Uri uri = Uri.parse(url);
         return isLocal(uri) && "/assets/core/index.html".equals(uri.getPath()) && uri.getQuery() == null;
     }
 
@@ -430,16 +436,33 @@ public final class MainActivity extends ComponentActivity {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 packagedPageLoaded = false;
+                packagedPageFailed = false;
+            }
+
+            @Override
+            public void onPageCommitVisible(WebView view, String url) {
+                if (view == webView && !packagedPageLoaded) retireBackgroundAccessOwner();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceErrorCompat error) {
+                if (view == webView && request.isForMainFrame()) markPackagedPageFailed();
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse response) {
+                if (view == webView && request.isForMainFrame()) markPackagedPageFailed();
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (view != webView) return;
                 boolean newDocument = !packagedPageLoaded;
-                packagedPageLoaded = isEntry();
+                packagedPageLoaded = !packagedPageFailed && isEntryUrl(url) && isEntry();
+                if (newDocument || !packagedPageLoaded) retireBackgroundAccessOwner();
                 if (!packagedPageLoaded) return;
                 if (newDocument) {
-                    if (backgroundAccessOwner != null) backgroundAccessOwner.close();
-                    backgroundAccessOwner = new ClockBackgroundAccessChanges.MutationOwner(getApplicationContext());
+                    backgroundAccessOwner = new ClockBackgroundAccessChanges.MutationOwner();
                     // A queued message from a replaced document cannot match
                     // the replacement's owner, even if its operation number repeats.
                     view.evaluateJavascript("window.atmoNativeAccessDocument="
@@ -491,8 +514,6 @@ public final class MainActivity extends ComponentActivity {
         WebView previous = webView;
         webView = null;
         packagedPageLoaded = false;
-        ClockBackgroundAccessChanges.MutationOwner owner = backgroundAccessOwner;
-        backgroundAccessOwner = null;
         try {
             if (previous != null) {
                 View previousFullscreen = fullscreenView;
@@ -506,7 +527,19 @@ public final class MainActivity extends ComponentActivity {
                 previous.destroy();
             }
         } finally {
-            if (owner != null) owner.close();
+            retireBackgroundAccessOwner();
         }
+    }
+
+    private void retireBackgroundAccessOwner() {
+        ClockBackgroundAccessChanges.MutationOwner owner = backgroundAccessOwner;
+        backgroundAccessOwner = null;
+        if (owner != null) owner.close();
+    }
+
+    private void markPackagedPageFailed() {
+        packagedPageLoaded = false;
+        packagedPageFailed = true;
+        retireBackgroundAccessOwner();
     }
 }

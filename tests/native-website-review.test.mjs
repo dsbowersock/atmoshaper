@@ -73,6 +73,38 @@ test('station startup honors zero and reduced volume before transport starts; om
  }finally{if(previous===undefined)delete globalThis.window;else globalThis.window=previous}
 })
 
+test('native ambient decoding marks only a verified saved recording with a confirmed encoding error', async () => {
+ class Gain {
+  toDestination() { return this }
+  dispose() {}
+ }
+ const reported = []
+ let failure = new DOMException('Unreadable fixture', 'EncodingError')
+ const { createOfflineAudioRuntime } = await loadRuntime('../native/web/offline-audio-runtime.ts', {
+  tone: { Gain }, '@generative-music/web-library': {}, '@/lib/atmosphere/generative-fm-piece-loader': {},
+  '@/lib/atmoshaper/ambient-audio-runtime': { async createAmbientAtmoShaperAdapter() { throw failure } },
+  '@/lib/atmoshaper/generated-audio-runtime': {}, '@/lib/offline-media': {}, '@/lib/offline-station-transport': {},
+ })
+ const sample = { url: 'https://media.atmoshaper.com/atmosphere/fixture.ogg', sha256: 'b'.repeat(64) }
+ const saved = { files: [sample], revision: 'a'.repeat(64) }
+ let pack = saved
+ const runtime = createOfflineAudioRuntime({}, {
+  activate: async () => {},
+  prepareAmbientPack: async () => pack,
+  async reportSavedDecodeFailure(id, file) { reported.push({ id, ...file }) },
+ })
+ const sound = { id: 'fixture-ambient', kind: 'ambient' }
+ try {
+  await assert.rejects(runtime.play(sound), { name: 'EncodingError' })
+  pack = { files: [sample] }
+  await assert.rejects(runtime.play(sound), { name: 'EncodingError' })
+  pack = saved
+  failure = new DOMException('Playback activation failed', 'NotAllowedError')
+  await assert.rejects(runtime.play(sound), { name: 'NotAllowedError' })
+  assert.deepEqual(reported, [{ id: sound.id, revision: saved.revision, ...sample }])
+ } finally { await runtime.dispose() }
+})
+
 test('shared generative wrapper supplies the requested level before play rather than after it',async()=>{
  let startup,lateVolume=0
  const {startGenerativeFmPiece}=await loadRuntime('../native/web/platform/generative-fm.ts',{

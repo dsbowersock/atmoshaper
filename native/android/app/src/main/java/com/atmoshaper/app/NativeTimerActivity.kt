@@ -41,6 +41,7 @@ class NativeTimerActivity : ComponentActivity() {
     private var pendingSetup: TimerSetup? = null
     private var setupWriter: Job? = null
     private var flashJob: Job? = null
+    private var windowResumed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -168,7 +169,8 @@ class NativeTimerActivity : ComponentActivity() {
         val observedAt = System.currentTimeMillis()
         now = observedAt
         val next = previous.advance(observedAt, false)
-        if (previous == next.snapshot || !hasWindowFocus()) return@withLock
+        if (previous == next.snapshot ||
+            (!hasWindowFocus() && next.snapshot.phase != TimerPhase.Complete)) return@withLock
         try {
             showSnapshot(withContext(Dispatchers.IO) { scheduler.tick(observedAt) })
         } catch (cancelled: CancellationException) {
@@ -214,18 +216,23 @@ class NativeTimerActivity : ComponentActivity() {
         else window.clearFlags(flag)
     }
 
+    override fun onResume() {
+        windowResumed = true
+        if (hasWindowFocus()) TimerAlarmCoordinator.attachWindow(foregroundCue)
+        else TimerAlarmCoordinator.beginWindowOpen(foregroundCue)
+        super.onResume()
+    }
+
     override fun onPause() {
-        detachCuePlayer()
+        windowResumed = false
+        TimerAlarmCoordinator.closeWindow(foregroundCue)
         stopCue()
         super.onPause()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) TimerAlarmCoordinator.foreground = foregroundCue else detachCuePlayer()
-    }
-
-    private fun detachCuePlayer() {
-        if (TimerAlarmCoordinator.foreground === foregroundCue) TimerAlarmCoordinator.foreground = null
+        if (hasFocus && windowResumed) TimerAlarmCoordinator.attachWindow(foregroundCue)
+        else if (!hasFocus) TimerAlarmCoordinator.loseWindowFocus(foregroundCue)
     }
 }

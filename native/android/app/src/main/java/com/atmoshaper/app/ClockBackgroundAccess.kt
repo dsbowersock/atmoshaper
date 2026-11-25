@@ -30,6 +30,7 @@ internal data class ClockBackgroundAccess private constructor(
     val paidThrough: Long?,
     val clockValidAfter: Long?,
     val ownedIds: Set<String>,
+    val issuedAt: Long? = null,
     private val elapsedDeadline: Long? = null,
 ) {
     fun current(wall: Long, elapsed: Long, highWater: Long, expiredTerm: Long?): ClockBackgroundAccess {
@@ -61,7 +62,7 @@ internal data class ClockBackgroundAccess private constructor(
         fun decode(message: String): ClockBackgroundAccess {
             require(message.length <= 14_000)
             val json = JSONObject(message)
-            require(json.keys().asSequence().toSet() == setOf("status", "paidThrough", "clockValidAfter", "ownedIds"))
+            require(json.keys().asSequence().toSet() == setOf("status", "issuedAt", "paidThrough", "clockValidAfter", "ownedIds"))
             fun timestamp(key: String): Long? = json.get(key).let {
                 when (it) {
                     JSONObject.NULL -> null
@@ -70,6 +71,7 @@ internal data class ClockBackgroundAccess private constructor(
                 }
             }
             val status = ClockAccessStatus.entries.first { it.key == json.get("status") }
+            val issuedAt = timestamp("issuedAt")
             val paidThrough = timestamp("paidThrough")
             val clockValidAfter = timestamp("clockValidAfter")
             val ids = json.getJSONArray("ownedIds")
@@ -79,13 +81,14 @@ internal data class ClockBackgroundAccess private constructor(
             }.toSet()
             require(ownedIds.size == ids.length())
             when (status) {
-                ClockAccessStatus.Verified -> require(clockValidAfter != null && (paidThrough != null || ownedIds.isNotEmpty()))
-                ClockAccessStatus.Expired, ClockAccessStatus.Rollback -> require(clockValidAfter != null && paidThrough != null)
-                ClockAccessStatus.NoGrant -> require(clockValidAfter != null && paidThrough == null && ownedIds.isEmpty())
-                else -> require(clockValidAfter == null && paidThrough == null && ownedIds.isEmpty())
+                ClockAccessStatus.Verified -> require(issuedAt != null && clockValidAfter != null && (paidThrough != null || ownedIds.isNotEmpty()))
+                ClockAccessStatus.Expired, ClockAccessStatus.Rollback -> require(issuedAt != null && clockValidAfter != null && paidThrough != null)
+                ClockAccessStatus.NoGrant -> require(issuedAt != null && clockValidAfter != null && paidThrough == null && ownedIds.isEmpty())
+                else -> require(issuedAt == null && clockValidAfter == null && paidThrough == null && ownedIds.isEmpty())
             }
+            require(paidThrough == null || paidThrough > checkNotNull(issuedAt))
             val elapsedDeadline = paidThrough?.let { SystemClock.elapsedRealtime() + (it - System.currentTimeMillis()).coerceAtLeast(0L) }
-            return ClockBackgroundAccess(status, paidThrough, clockValidAfter, ownedIds, elapsedDeadline)
+            return ClockBackgroundAccess(status, paidThrough, clockValidAfter, ownedIds, issuedAt, elapsedDeadline)
         }
     }
 }
@@ -96,6 +99,7 @@ internal data class ClockBackgroundAccess private constructor(
  * those guards survive cold starts without writing to the WebView receipt. */
 internal object ClockBackgroundAccessChanges {
     private const val clockEvidence = "clock-background-time"
+    private const val receiptTime = "receipt-issued-at"
     private const val lastSeen = "last-seen"
     private const val expired = "expired-term"
     data class Generation(val serial: Long = 0, val mutating: Boolean = false)
@@ -105,7 +109,7 @@ internal object ClockBackgroundAccessChanges {
 
     /** One packaged document owns its in-flight mutations. Closing it unblocks an
      * exact store read, retaining clock evidence when the outcome is unknown. */
-    class MutationOwner(private val context: Context) {
+    class MutationOwner {
         val documentId = UUID.randomUUID().toString()
         private val prefix = "$documentId:"
         private var latest = 0L
@@ -125,11 +129,7 @@ internal object ClockBackgroundAccessChanges {
                     invalidate()
                 }
                 active == 0L || sequence != active -> Unit
-                status == "removed" || status == "replaced" -> {
-                    evidence(context).edit().remove(lastSeen).remove(expired).apply()
-                    release()
-                }
-                status == "replace-failed" -> release()
+                status == "removed" || status == "replaced" || status == "replace-failed" -> release()
                 // A failed Forget keeps the current document free-only until it
                 // retries or closes. A later visit can verify the committed record.
                 status == "remove-failed" -> Unit
@@ -155,11 +155,22 @@ internal object ClockBackgroundAccessChanges {
 
     class ClockGuard(context: Context) {
         private val preferences = evidence(context)
-        private var persistedSeen = preferences.getLong(lastSeen, 0L)
+        private var generation = preferences.getLong(receiptTime, 0L)
+        private var persistedSeen = if (generation > 0L) preferences.getLong(lastSeen, 0L) else 0L
         private var highWater = persistedSeen
-        private var expiredTerm = preferences.getLong(expired, 0L).takeIf { it > 0L }
+        private var expiredTerm = if (generation > 0L) preferences.getLong(expired, 0L).takeIf { it > 0L } else null
 
         fun evaluate(snapshot: ClockBackgroundAccess, wall: Long, elapsed: Long): ClockBackgroundAccess {
+            val issuedAt = snapshot.issuedAt
+            if (issuedAt == null) {
+                // Only an exact, stable read of missing authority can retire
+                // the generation. Invalid or unavailable exports are ambiguous.
+                if (snapshot.status == ClockAccessStatus.Missing &&
+                    (generation != 0L || preferences.contains(lastSeen) || preferences.contains(expired))) resetEvidence(0L)
+                return snapshot
+            }
+            if (issuedAt < generation) return ClockBackgroundAccess.unavailable
+            if (issuedAt > generation) resetEvidence(issuedAt)
             val checked = snapshot.current(wall, elapsed, highWater, expiredTerm)
             if (checked.status == ClockAccessStatus.Verified && checked.paidThrough != null) {
                 highWater = maxOf(highWater, wall)
@@ -172,6 +183,16 @@ internal object ClockBackgroundAccessChanges {
                 preferences.edit().putLong(expired, checkNotNull(expiredTerm)).apply()
             }
             return checked
+        }
+
+        /** A newer signed challenge response starts its own clock history,
+         * even if the old receipt had precisely the same paid-through date. */
+        private fun resetEvidence(issuedAt: Long) {
+            generation = issuedAt
+            persistedSeen = 0L
+            highWater = 0L
+            expiredTerm = null
+            preferences.edit().putLong(receiptTime, issuedAt).remove(lastSeen).remove(expired).apply()
         }
     }
 }

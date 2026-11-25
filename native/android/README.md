@@ -48,6 +48,8 @@ Partial, failed and cancelled saves do not publish readiness. A separate metadat
 store lists downloads without deserializing every audio buffer; schema upgrade
 preserves earlier packs. Removal deletes only that pack. Uninstall/clear-data
 removes app data. Persistent-storage requests are advisory, not an OS guarantee.
+If a verified saved station sample fails decoding during playback, Downloads
+marks those bytes for repair and checks that sample before publishing a retry.
 
 Playback uses verified decoded samples with the actual generator packages and
 the existing ambient scheduler/crossfade policies. A missing saved pack may load
@@ -62,7 +64,10 @@ Rain and generated white, pink and brown noise. Additional ambient sounds are
 available in Previous Tools. The catalog shows unavailable engines explicitly.
 Android notification permission controls timer alerts while the screen is
 away. Android can delay timer alarms when precise-alarm access is unavailable.
-The timer reconciles its saved deadline after reboot and music awaits Play.
+When reopened past its deadline, a timer waits up to 30 seconds past the
+deadline for a matching callback before recovering silently. A genuine late
+callback can deliver while the occurrence is still open. The timer reconciles
+its saved deadline after reboot and music awaits Play.
 
 ## Background access
 

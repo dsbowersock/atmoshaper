@@ -32,9 +32,7 @@ internal class TimerAlarmCoordinator(context: Context) {
         val live = current.advance(now, foreground = attached)
         val completed = current.phase == TimerPhase.Running && live.snapshot.phase == TimerPhase.Complete
         if (completed && live.cue == null) {
-            val awaitingWindow = !attached && current.advance(now, foreground = true).cue == TimerSignal.Completion
-            val awaitingAlarm = system.canDeliver(current.setup) && system.hasPendingOccurrence()
-            if (awaitingWindow || awaitingAlarm) return current
+            if (awaitsForeground(current, now) || awaitsAlarm(current, now)) return current
         }
         val transition = if (liveTick || live.cue == TimerSignal.Completion) live else TimerAdvance(live.snapshot)
         if (liveTick && transition.snapshot == current) return current
@@ -46,6 +44,16 @@ internal class TimerAlarmCoordinator(context: Context) {
     }
 
     fun status(setup: TimerSetup): TimerAlertStatus = system.status(setup)
+
+    private fun awaitsForeground(current: TimerSnapshot, now: Long): Boolean =
+        foreground == null && openingWindow != null &&
+            current.advance(now, foreground = true).cue == TimerSignal.Completion
+
+    // An occurrence token can outlive the OS alarm. Anchor the maximum wait
+    // to the stored session deadline so reopening cannot restart the grace.
+    private fun awaitsAlarm(current: TimerSnapshot, now: Long): Boolean =
+        now - checkNotNull(current.deadlineMs) < backgroundCompletionGraceMs &&
+            system.canDeliver(current.setup) && system.pendingOccurrence(current) != null
 
     fun restoreAfterBoot(now: Long = System.currentTimeMillis()) = synchronized(lock) {
         // A reboot lost delivery of past occurrences. The credential-protected
@@ -59,7 +67,9 @@ internal class TimerAlarmCoordinator(context: Context) {
         val current = store.read() ?: return
         val deadline = current.deadlineMs
         if (deadline != null && now >= deadline) {
-            if (!system.hasPendingOccurrence()) updateLocked { it.advance(now, foreground = false) }
+            if (!awaitsForeground(current, now) && !awaitsAlarm(current, now)) {
+                updateLocked { it.advance(now, foreground = false) }
+            }
         } else {
             system.sync(current, current)
         }
@@ -75,6 +85,9 @@ internal class TimerAlarmCoordinator(context: Context) {
 
         val attached = foreground != null
         val backgroundAllowed = system.canDeliver(current.setup)
+        // A callback can beat onWindowFocusChanged after onResume. Give the
+        // foreground tick its ordinary freshness window when OS alerts are off.
+        if (!backgroundAllowed && awaitsForeground(current, now)) return
         val transition = updateLocked {
             val advanced = it.advance(now, foreground = attached || backgroundAllowed)
             // A genuine Android delivery may arrive late. A late completion
@@ -128,11 +141,29 @@ internal class TimerAlarmCoordinator(context: Context) {
     }
 
     companion object {
+        internal const val backgroundCompletionGraceMs = 30_000L
         private val lock = Any()
         private val main = Handler(Looper.getMainLooper())
         private var revision = 0L
-        @Volatile var foreground: ((TimerAdvance) -> Boolean)? = null
+        private var foreground: ((TimerAdvance) -> Boolean)? = null
+        private var openingWindow: ((TimerAdvance) -> Boolean)? = null
         val backgroundChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+        fun beginWindowOpen(cue: (TimerAdvance) -> Boolean) = synchronized(lock) { openingWindow = cue }
+
+        fun attachWindow(cue: (TimerAdvance) -> Boolean) = synchronized(lock) {
+            foreground = cue
+            if (openingWindow === cue) openingWindow = null
+        }
+
+        fun loseWindowFocus(cue: (TimerAdvance) -> Boolean) = synchronized(lock) {
+            if (foreground === cue) foreground = null
+        }
+
+        fun closeWindow(cue: (TimerAdvance) -> Boolean) = synchronized(lock) {
+            if (foreground === cue) foreground = null
+            if (openingWindow === cue) openingWindow = null
+        }
     }
 }
 

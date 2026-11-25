@@ -4,7 +4,7 @@ import { getAtmoShaperProductionConcept } from "@/lib/atmoshaper/production-cata
 import { prepareNativeAmbientPack } from "@/lib/native-ambient-source"
 import { hasNativeStationPlayer } from "@/lib/native-station-catalog"
 import { prepareNativeStationSamples } from "@/lib/native-station-sample-source"
-import { createOfflineMediaStore } from "@/lib/offline-media"
+import { createOfflineMediaStore, OfflinePackVerificationError } from "@/lib/offline-media"
 import { createOfflineAudioRuntime } from "./offline-audio-runtime"
 
 const regionalAmbientId = "moodist-heavy-rain"
@@ -21,9 +21,10 @@ let playingToken = 0
 let runtime: ReturnType<typeof createOfflineAudioRuntime> | undefined
 let paused = false
 let contextChange: Promise<void> = Promise.resolve()
-type StationRequest = { id: string; controller: AbortController; ready: boolean; savedOnly: boolean }
+type StationRequest = { id: string; controller: AbortController; ready: boolean; savedOnly: boolean; savedDecodeFailed?: boolean }
+type MixRequest = { request: number; controller: AbortController; savedOnly: boolean; savedDecodeFailed?: boolean }
 let stationRequest: StationRequest | undefined
-const mix = new Map<string, { request: number; controller: AbortController; savedOnly: boolean }>()
+const mix = new Map<string, MixRequest>()
 
 function ensureSession(token: number) {
   if (playingToken === 0) playingToken = token
@@ -45,18 +46,37 @@ function getRuntime() {
     destination: output,
     activate: updateContext,
     bufferedAmbientRegionId: regionalAmbientId,
-    prepareStationSamples: id => {
+    prepareStationSamples: async id => {
       const request = stationRequest
       if (request?.id !== id) throw new Error("The station request was superseded.")
-      return prepareNativeStationSamples({ id, kind: "station", station: getAtmosphereStationById(id) }, store, {
-        signal: request.controller.signal,
-        isOnline: request.savedOnly ? false : undefined,
-      })
+      try {
+        return await prepareNativeStationSamples({ id, kind: "station", station: getAtmosphereStationById(id) }, store, {
+          signal: request.controller.signal,
+          isOnline: request.savedOnly ? false : undefined,
+        })
+      } catch (error) {
+        if (!request.savedOnly) throw error
+        throw new OfflinePackVerificationError("Saved station samples could not be verified.", { cause: error })
+      }
     },
-    prepareAmbientPack: id => prepareNativeAmbientPack({ id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, store, {
-      signal: mix.get(id)?.controller.signal,
-      isOnline: mix.get(id)?.savedOnly ? false : undefined,
-    }),
+    async reportSavedDecodeFailure(id, sample) {
+      const request = stationRequest?.id === id ? stationRequest : mix.get(id)
+      if (!request) return
+      request.savedDecodeFailed = true
+      await store.markDecodeFailure(id, sample).catch(() => undefined)
+    },
+    prepareAmbientPack: async id => {
+      const attempt = mix.get(id)
+      try {
+        return await prepareNativeAmbientPack({ id, kind: "ambient", concept: getAtmoShaperProductionConcept(id) }, store, {
+          signal: attempt?.controller.signal,
+          isOnline: attempt?.savedOnly ? false : undefined,
+        })
+      } catch (error) {
+        if (!attempt?.savedOnly) throw error
+        throw new OfflinePackVerificationError("Saved recordings could not be verified.", { cause: error })
+      }
+    },
   })
   return runtime
 }
@@ -70,12 +90,13 @@ async function clearStation() {
   await runtime?.stop(previous.id)
 }
 
-function reportLayerFailure(id: string) {
+function reportLayerFailure(id: string, error?: unknown) {
   const attempt = mix.get(id)
   if (!attempt) return
   mix.delete(id)
   attempt.controller.abort()
-  report(`layer-failed:${playingToken}:${attempt.request}`)
+  const status = attempt.savedDecodeFailed || error instanceof OfflinePackVerificationError ? "layer-unreadable" : "layer-failed"
+  report(`${status}:${playingToken}:${attempt.request}`)
 }
 
 window.addEventListener("atmoshaper:offline-audio-error", event => reportLayerFailure((event as CustomEvent).detail.id))
@@ -98,10 +119,11 @@ const player = {
       if (!played) throw new Error("The station could not start.")
       request.ready = true
       report(`station-playing:${token}:${revision}`)
-    } catch {
+    } catch (error) {
       if (stationRequest !== request) return
       void clearStation().catch(() => undefined)
-      report(`station-failed:${token}:${revision}`)
+      const status = request.savedDecodeFailed || error instanceof OfflinePackVerificationError ? "station-unreadable" : "station-failed"
+      report(`${status}:${token}:${revision}`)
     }
   },
 
@@ -136,8 +158,8 @@ const player = {
       if (mix.get(id) !== attempt) return
       if (played) report(`layer-playing:${token}:${request}`)
       else reportLayerFailure(id)
-    } catch {
-      if (mix.get(id) === attempt) reportLayerFailure(id)
+    } catch (error) {
+      if (mix.get(id) === attempt) reportLayerFailure(id, error)
     }
   },
 
