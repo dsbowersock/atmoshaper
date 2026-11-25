@@ -30,7 +30,7 @@ class NativeTimerActivity : ComponentActivity() {
     private val store by lazy { NativeTimerFile(applicationContext) }
     private val scheduler by lazy { TimerAlarmCoordinator(applicationContext) }
     private val sound by lazy { TimerCuePlayer(this) }
-    private val foregroundCue: (TimerAdvance) -> Unit = ::deliverCue
+    private val foregroundCue: (TimerAdvance) -> Boolean = ::deliverCue
     private val mutation = Mutex()
     private var snapshot by mutableStateOf<TimerSnapshot?>(null)
     private var error by mutableStateOf<Int?>(null)
@@ -187,8 +187,8 @@ class NativeTimerActivity : ComponentActivity() {
         showSnapshot(transition.snapshot)
     }
 
-    private fun deliverCue(transition: TimerAdvance) {
-        if (transition.cue == null || !hasWindowFocus() || lifecycle.currentState != Lifecycle.State.RESUMED) return
+    private fun deliverCue(transition: TimerAdvance): Boolean {
+        if (transition.cue == null || !hasWindowFocus() || lifecycle.currentState != Lifecycle.State.RESUMED) return false
         val setup = transition.snapshot.setup
         sound.play(setup)
         if (setup.cue.flash) {
@@ -199,6 +199,7 @@ class NativeTimerActivity : ComponentActivity() {
                 flash = false
             }
         }
+        return true
     }
 
     private fun stopCue() {

@@ -101,6 +101,7 @@ internal class TimerAlarmSystem(private val context: Context) {
     fun alert(transition: TimerAdvance) {
         val signal = transition.cue ?: return
         val setup = transition.snapshot.setup
+        if (!canDeliver(setup)) return
         val channelId = channelFor(setup)
         val channel = NotificationChannel(channelId, context.getString(when (channelId) {
             soundChannel -> R.string.timer_sound_channel

@@ -169,10 +169,14 @@ class NativeTimerJourneyTest {
                 }
             }
         }
+        var endedSessionAction: android.app.PendingIntent? = null
         withFixture(TimerSnapshot().start(setup, System.currentTimeMillis())) {
             ActivityScenario.launch(NativeTimerActivity::class.java).use {
                 text("Timer running")
                 assertNotNull(notice("Timer running"))
+                endedSessionAction = notifications.activeNotifications
+                    .single { it.notification.extras.getString("android.title") == "Timer running" }
+                    .notification.actions.single().actionIntent
                 device.pressHome()
                 device.openNotification()
                 text("End timer").click()
@@ -180,6 +184,16 @@ class NativeTimerJourneyTest {
                 device.pressBack()
             }
             ActivityScenario.launch(NativeTimerActivity::class.java).use { scrollTo("Start timer") }
+        }
+        withFixture(TimerSnapshot().start(setup, System.currentTimeMillis())) {
+            ActivityScenario.launch(NativeTimerActivity::class.java).use {
+                text("Timer running")
+                checkNotNull(endedSessionAction).send()
+                assertFalse("An End action from the prior session must be ignored",
+                    waitFor(1_000) { !hasNotice("Timer running") })
+                text("End timer").click()
+                text("Minutes")
+            }
         }
     }
 

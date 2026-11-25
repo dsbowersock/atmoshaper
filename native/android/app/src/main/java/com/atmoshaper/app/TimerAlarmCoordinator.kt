@@ -42,10 +42,10 @@ internal class TimerAlarmCoordinator(context: Context) {
             return
         }
 
-        val attached = foreground
+        val attached = foreground != null
         val backgroundAllowed = system.canDeliver(current.setup)
         val transition = updateLocked {
-            val advanced = it.advance(now, foreground = attached != null || backgroundAllowed)
+            val advanced = it.advance(now, foreground = attached || backgroundAllowed)
             // A genuine Android delivery may arrive late. A late completion
             // still alerts, while old intervals are skipped rather than replayed.
             if (advanced.snapshot.phase == TimerPhase.Complete && backgroundAllowed && advanced.cue == null) {
@@ -74,8 +74,7 @@ internal class TimerAlarmCoordinator(context: Context) {
             synchronized(lock) {
                 // A pause, adjustment or End can beat a queued UI cue.
                 if (revision == deliveredAtRevision) {
-                    val currentPlayer = foreground
-                    if (currentPlayer != null) currentPlayer(transition) else system.alert(transition)
+                    if (foreground?.invoke(transition) != true) system.alert(transition)
                 }
             }
         }
@@ -101,7 +100,7 @@ internal class TimerAlarmCoordinator(context: Context) {
         private val lock = Any()
         private val main = Handler(Looper.getMainLooper())
         private var revision = 0L
-        @Volatile var foreground: ((TimerAdvance) -> Unit)? = null
+        @Volatile var foreground: ((TimerAdvance) -> Boolean)? = null
         val backgroundChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     }
 }
