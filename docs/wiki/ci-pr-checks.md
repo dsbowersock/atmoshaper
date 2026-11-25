@@ -62,6 +62,28 @@ downloads, settings, and a planner draft runs through the
 | Dependabot | Dependency update and security-update signal. | Informational for this lane; it is not a current `qa` gate. |
 | `npm audit` | Dependency advisory signal that can be run locally. | Informational for this lane; it is not a current `qa` gate. |
 
+### CodeRabbit review for an exact commit range
+
+1. Finish the relevant local checks and note the GitHub PR, repository visibility,
+   base SHA, and candidate head SHA. Verify that the base is an ancestor of the
+   head and confirm that the source-transfer approval covers that committed range.
+2. Make a clean checkout of the approved head from GitHub. On Windows, use the
+   authenticated CodeRabbit CLI in Ubuntu WSL and a checkout on the WSL
+   filesystem. Confirm the checked-out SHA, comparison base, and clean status
+   before running `coderabbit review --agent --committed --base-commit "$review_base"`,
+   with `review_base` set to the approved base SHA. If the CLI needs a branch
+   name, set `coderabbit.baseBranch` in this checkout to a local branch pinned
+   to that SHA. Keep review output outside the checkout and save it before the
+   temporary checkout is retired.
+3. Record the exact range, exit status, and terminal review result. A successful
+   CLI review has a `review_completed` result. Verify each issue against the
+   code, then link the disposition and relevant checks from the PR. When the
+   hosted bot shows **Skipped**, identify the completed CLI review and its range
+   in the PR. [Stage 1 example](https://github.com/dsbowersock/atmoshaper/pull/136)
+4. If corrections change the head, name the range from the last covered commit
+   through the corrected head. Confirm the approval covers that range before
+   submitting it and record the outcome alongside the original review.
+
 ## Caching, artifacts, retries, and cancellation
 
 - **Next.js cache:** Browser build restores and saves `.next/cache` using the

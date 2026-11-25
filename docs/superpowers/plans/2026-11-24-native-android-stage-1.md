@@ -30,8 +30,11 @@ Open one draft PR following the first successful integration and link #82 and #9
 5. Measure launch, warm navigation, station start to actual output, and representative process resources on an installable performance build, with the build configuration and limitations recorded. Measure cold and warm conditions separately. Carry any hardware-dependent measurements and prolonged battery observation to the owner's S24 handoff.
 6. Run affected web and offline contract suites, installed Android tests and hosted Android/CI. Review the full integrated range with the code-review skill and obtain completed CodeRabbit coverage of the range and corrections. Wait for current-head hosted results and review threads, then mark the combined PR ready when its software gates pass.
 7. Link the integrated receipt from the PR’s #94 handoff. The owner retains the merge and physical S24 installation/acceptance. Remove only this batch’s clean implementer worktrees after verifying their commits are integrated and the evidence has been retained.
+8. After physical acceptance, verify the merged PR, the merge SHA, passing post-merge Android and CI runs on that exact SHA, and closure of #94. Update [project state](../../project-state.md) with the merge SHA and links to the PR, S24 acceptance, and both workflow runs.
 
 ## Galaxy S24 Ultra handoff
+
+Record the tested source and APK SHA-256 in one acceptance index and link to the owner observations and available verification. Keep raw device receipts local. See the [completed Stage 1 S24 acceptance index](../../audits/2026-11-25-native-android-stage-1-s24-index.md).
 
 Use the exact APK and signer in the final receipt. Start from the installed preview as an in-place update, and record the Android/One UI build and the before/after app versions. Confirm the existing setting, saved download and draft through the app. Record results by behavior and note conditions that can affect Android delivery or resource measurements, such as notification permission, battery mode, screen state and audio route.
 
