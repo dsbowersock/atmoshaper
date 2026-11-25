@@ -34,11 +34,11 @@ function guard() {
   assert.equal(adb("shell", "settings", "get", "global", "wifi_on"), "0")
 }
 
-async function fixtureApk(apk, label) {
+async function fixtureApk(apk, label, replacement) {
   const unsigned = path.join(output, label + "-unsigned.apk")
   const aligned = path.join(output, label + "-aligned.apk")
   const signed = path.join(output, label + "-synthetic-only.apk")
-  run("python", [path.join(root, "tests/helpers/native-background-fixture-apk.py"), apk, assets, unsigned])
+  run("python", [path.join(root, "tests/helpers/native-background-fixture-apk.py"), apk, replacement, unsigned])
   run(path.join(tools, "sdk/build-tools/35.0.0", executable("zipalign")), ["-P", "16", "4", unsigned, aligned])
   signer("sign", "--ks", path.join(tools, "debug.keystore"), "--ks-pass", "pass:android", "--key-pass", "pass:android", "--out", signed, aligned)
   signer("verify", signed)
@@ -131,8 +131,8 @@ const publicKeyPath = path.join(root, "output/offline-acceptance-native-public-k
 const keyId = "synthetic-native-background-acceptance"
 await writeFile(publicKeyPath, JSON.stringify([{ id: keyId, jwk: publicKey.export({ format: "jwk" }) }]))
 await buildOfflineCore({ testPublicKeysPath: publicKeyPath, outputName: "offline-acceptance-native-backgrounds" })
-const before = await fixtureApk(predecessor, "predecessor")
-const after = await fixtureApk(candidate, "candidate")
+const before = await fixtureApk(predecessor, "predecessor", publicKeyPath)
+const after = await fixtureApk(candidate, "candidate", assets)
 
 async function approve(page, owned, leaseDuration = null) {
   const challenge = randomBytes(32).toString("base64url")
