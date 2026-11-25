@@ -156,29 +156,21 @@ internal object ClockBackgroundAccessChanges {
     class ClockGuard(context: Context) {
         private val preferences = evidence(context)
         private var generation = preferences.getLong(receiptTime, 0L)
-        private var persistedSeen = preferences.getLong(lastSeen, 0L)
+        private var persistedSeen = if (generation > 0L) preferences.getLong(lastSeen, 0L) else 0L
         private var highWater = persistedSeen
-        private var expiredTerm = preferences.getLong(expired, 0L).takeIf { it > 0L }
+        private var expiredTerm = if (generation > 0L) preferences.getLong(expired, 0L).takeIf { it > 0L } else null
 
         fun evaluate(snapshot: ClockBackgroundAccess, wall: Long, elapsed: Long): ClockBackgroundAccess {
             val issuedAt = snapshot.issuedAt
             if (issuedAt == null) {
                 // Only an exact, stable read of missing authority can retire
                 // the generation. Invalid or unavailable exports are ambiguous.
-                if (snapshot.status == ClockAccessStatus.Missing && generation != 0L) resetEvidence(0L)
+                if (snapshot.status == ClockAccessStatus.Missing &&
+                    (generation != 0L || preferences.contains(lastSeen) || preferences.contains(expired))) resetEvidence(0L)
                 return snapshot
             }
             if (issuedAt < generation) return ClockBackgroundAccess.unavailable
-            if (issuedAt > generation) {
-                if (generation == 0L) {
-                    // Bind an earlier preview's unkeyed evidence without
-                    // loosening restrictions on its existing receipt.
-                    preferences.edit().putLong(receiptTime, issuedAt).apply()
-                    generation = issuedAt
-                } else {
-                    resetEvidence(issuedAt)
-                }
-            }
+            if (issuedAt > generation) resetEvidence(issuedAt)
             val checked = snapshot.current(wall, elapsed, highWater, expiredTerm)
             if (checked.status == ClockAccessStatus.Verified && checked.paidThrough != null) {
                 highWater = maxOf(highWater, wall)

@@ -64,9 +64,10 @@ Rain and generated white, pink and brown noise. Additional ambient sounds are
 available in Previous Tools. The catalog shows unavailable engines explicitly.
 Android notification permission controls timer alerts while the screen is
 away. Android can delay timer alarms when precise-alarm access is unavailable.
-An expired timer accepts a matching background callback for up to 30 seconds
-after the deadline, then recovers silently. The timer reconciles its saved
-deadline after reboot and music awaits Play.
+When reopened past its deadline, a timer waits up to 30 seconds past the
+deadline for a matching callback before recovering silently. A genuine late
+callback can deliver while the occurrence is still open. The timer reconciles
+its saved deadline after reboot and music awaits Play.
 
 ## Background access
 

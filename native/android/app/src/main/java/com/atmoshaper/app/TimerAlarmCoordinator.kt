@@ -92,8 +92,7 @@ internal class TimerAlarmCoordinator(context: Context) {
             val advanced = it.advance(now, foreground = attached || backgroundAllowed)
             // A genuine Android delivery may arrive late. A late completion
             // still alerts, while old intervals are skipped rather than replayed.
-            if (advanced.snapshot.phase == TimerPhase.Complete && backgroundAllowed && advanced.cue == null &&
-                now - deadline < backgroundCompletionGraceMs) {
+            if (advanced.snapshot.phase == TimerPhase.Complete && backgroundAllowed && advanced.cue == null) {
                 TimerAdvance(advanced.snapshot.copy(missedCompletion = false), TimerSignal.Completion)
             } else advanced
         }

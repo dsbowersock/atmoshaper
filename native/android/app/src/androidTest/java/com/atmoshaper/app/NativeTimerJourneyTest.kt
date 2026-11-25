@@ -229,6 +229,39 @@ class NativeTimerJourneyTest {
     }
 
     @Test
+    fun aMatchingInexactCallbackCanCompleteAfterTheReopenWaitWouldHaveElapsed() {
+        requireOsFixture()
+        val context = instrumentation.targetContext
+        val alarms = checkNotNull(context.getSystemService(AlarmManager::class.java))
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarms.canScheduleExactAlarms())
+        val notifications = checkNotNull(context.getSystemService(NotificationManager::class.java))
+        assertTrue(notifications.areNotificationsEnabled())
+        val due = System.currentTimeMillis() + 60_000
+        val initial = TimerSnapshot().start(TimerSetup(minutes = 1, cue = TimerCue.Silent), due - 60_000)
+        val coordinator = TimerAlarmCoordinator(context)
+        withFixture(initial) {
+            try {
+                val running = coordinator.open(due - 1_000)
+                val session = checkNotNull(running.sessionId)
+                val observedAt = due + TimerAlarmCoordinator.backgroundCompletionGraceMs + 60_000
+                coordinator.alarm(session, due, due, observedAt)
+                val completed = coordinator.open(observedAt + 1)
+                assertEquals(TimerPhase.Complete, completed.phase)
+                assertFalse(completed.missedCompletion)
+                assertNotNull(notice("Timer complete"))
+                val first = notifications.activeNotifications.single {
+                    it.notification.extras.getString("android.title") == "Timer complete"
+                }
+                notifications.cancel(first.id)
+                coordinator.alarm(session, due, due, observedAt + 2)
+                assertFalse(hasNotice("Timer complete"))
+            } finally {
+                coordinator.change { TimerAdvance(it.end()) }
+            }
+        }
+    }
+
+    @Test
     fun deniedNotificationCallbackHandsFreshCompletionToTheWindowStillOpening() {
         requireOsFixture()
         val context = instrumentation.targetContext

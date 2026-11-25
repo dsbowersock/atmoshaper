@@ -65,6 +65,9 @@ class ClockBackgroundAccessMutationTest {
         try {
             val old = verifiedReceipt(now)
             fun guard() = ClockBackgroundAccessChanges.ClockGuard(context)
+            context.getSharedPreferences(fixture, Context.MODE_PRIVATE).edit()
+                .putLong("last-seen", paidThrough).putLong("expired-term", paidThrough).apply()
+            assertEquals(ClockAccessStatus.Verified, guard().evaluate(old, now, elapsed).status)
             assertEquals(ClockAccessStatus.Verified, guard().evaluate(old, now + 120_000L, elapsed).status)
             assertEquals(ClockAccessStatus.Rollback, guard().evaluate(old, now, elapsed).status)
             assertEquals(ClockAccessStatus.Expired, guard().evaluate(old, paidThrough, elapsed).status)

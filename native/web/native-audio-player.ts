@@ -22,8 +22,9 @@ let runtime: ReturnType<typeof createOfflineAudioRuntime> | undefined
 let paused = false
 let contextChange: Promise<void> = Promise.resolve()
 type StationRequest = { id: string; controller: AbortController; ready: boolean; savedOnly: boolean; savedDecodeFailed?: boolean }
+type MixRequest = { request: number; controller: AbortController; savedOnly: boolean; savedDecodeFailed?: boolean }
 let stationRequest: StationRequest | undefined
-const mix = new Map<string, { request: number; controller: AbortController; savedOnly: boolean }>()
+const mix = new Map<string, MixRequest>()
 
 function ensureSession(token: number) {
   if (playingToken === 0) playingToken = token
@@ -59,8 +60,8 @@ function getRuntime() {
       }
     },
     async reportSavedDecodeFailure(id, sample) {
-      const request = stationRequest
-      if (request?.id !== id) return
+      const request = stationRequest?.id === id ? stationRequest : mix.get(id)
+      if (!request) return
       request.savedDecodeFailed = true
       await store.markDecodeFailure(id, sample).catch(() => undefined)
     },
@@ -94,7 +95,7 @@ function reportLayerFailure(id: string, error?: unknown) {
   if (!attempt) return
   mix.delete(id)
   attempt.controller.abort()
-  const status = error instanceof OfflinePackVerificationError ? "layer-unreadable" : "layer-failed"
+  const status = attempt.savedDecodeFailed || error instanceof OfflinePackVerificationError ? "layer-unreadable" : "layer-failed"
   report(`${status}:${playingToken}:${attempt.request}`)
 }
 
