@@ -33,6 +33,22 @@ class NativeMusicJourneyTest {
     }
 
     @Test
+    fun stationSearchShowsExistingCreditsAndExplainsUnsupportedPlayback() {
+        ActivityScenario.launch(HomeActivity::class.java).use {
+            openMusic()
+            chooseStation("Little Bells")
+            text("Ready to play")
+            text("Credits").click()
+            text("Alex Bainter")
+            text("MIT")
+            device.pressBack()
+            chooseStation("Drone")
+            text("This station's engine is unavailable in the native player.")
+            assertFalse(checkNotNull(text("Play").parent).isEnabled)
+        }
+    }
+
+    @Test
     fun androidFocusResumesAnInterruptionUntilTheUserStops() {
         assumeTrue(InstrumentationRegistry.getArguments().getString("verifyAisatsana") == "true")
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -70,6 +86,16 @@ class NativeMusicJourneyTest {
             }
         }
         text("Music").click()
+    }
+
+    private fun chooseStation(title: String) {
+        text("Search stations").click()
+        val field = checkNotNull(device.wait(Until.findObject(By.res("native_station_query")), 10_000))
+        field.setText(title)
+        // The search textbox and result have identical accessibility text.
+        checkNotNull(device.wait(Until.findObject(By.text(title).clazz("android.widget.TextView")), 10_000)).click()
+        check(device.wait(Until.gone(By.res("native_station_query")), 10_000)) { "Station picker stayed open" }
+        text(title)
     }
 
     private fun text(label: String, timeout: Long = 10_000): UiObject2 =

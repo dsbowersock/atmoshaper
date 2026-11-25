@@ -94,7 +94,7 @@ test('Forget during delayed startup verification releases free-tool readiness wi
  assert.ok(hook)
  const code=ts.transpileModule(hook.getText(ast).replace('export function','function'),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText
  let cursor=0,mounted=false,releaseOld
- const values=[],effects=[],window=new EventTarget(),now=Date.now()
+ const values=[],effects=[],nativeChanges=[],window=new EventTarget(),now=Date.now()
  window.setInterval=()=>1;window.clearInterval=()=>{}
  const claims={device:'fixture-device',challenge:'fixture-challenge',issuedAt:now,owned:['fixture'],premiumUntil:null}
  let record={device:claims.device,receipt:'old',pending:{challenge:claims.challenge,at:now},lastIssuedAt:0,lastSeen:0},queue=Promise.resolve()
@@ -105,6 +105,7 @@ test('Forget during delayed startup verification releases free-tool readiness wi
   useEffect(fn){if(!mounted)effects.push(fn)},createOfflineAccessStore:()=>store,
   verifyOfflineAccessReceipt:receipt=>receipt==='old'?new Promise(resolve=>{releaseOld=()=>resolve({...claims})}):Promise.resolve({...claims}),
   publicKeys:[],OFFLINE_ACCESS_REQUEST_TTL:600000,randomOfflineAccessId:()=> 'replacement-device',
+  notifyNativeAccessChange:status=>nativeChanges.push(status),
   offlineBackgroundSnapshot:value=>({featureKeys:[],ownedBackgroundIds:value.owned}),window,
  }
  const executeHook=new Function(...Object.keys(context),code+';return useOfflineBackgroundAccess')(...Object.values(context))
@@ -119,5 +120,6 @@ test('Forget during delayed startup verification releases free-tool readiness wi
   const result=render();assert.equal(result.loaded,true);assert.equal(result.claims,null)
   assert.equal(result.canForget,false);assert.deepEqual(result.access.ownedBackgroundIds,[])
   assert.equal(record.receipt,null);assert.equal(record.device,'replacement-device')
+  assert.deepEqual(nativeChanges,['replacing','replaced','removing','removed'])
  }finally{for(const cleanup of cleanups)cleanup?.()}
 })

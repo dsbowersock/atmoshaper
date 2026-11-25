@@ -31,3 +31,54 @@ test("station Play requests metadata first, then only the samples used by the ge
   assert.deepEqual(a, b)
   assert.deepEqual(calls, [base + "sample-index.opus.json", base + "manifest.opus.json", first])
 })
+
+test("canceling Play rejects late payloads and never requests queued samples", async () => {
+  const base = "https://media.atmoshaper.com/atmosphere/generative-fm/test/"
+  const first = base + "one.ogg"
+  const second = base + "two.ogg"
+  const bytes = "OggS test"
+  const controller = new AbortController()
+  const started = Promise.withResolvers()
+  const response = Promise.withResolvers()
+  const samples = []
+  const source = await prepareNativeStationSamples({
+    id: "station", kind: "station", station: { runtime: {
+      hostedSampleIndexFormatUrls: { opus: base + "sample-index.opus.json" },
+      hostedManifestFormatUrls: { opus: base + "manifest.opus.json" },
+      sampleNameGroups: ["piano"],
+    } },
+  }, { get: async () => undefined }, {
+    isOnline: true,
+    signal: controller.signal,
+    fetchImpl: async url => {
+      if (url.endsWith("sample-index.opus.json")) return Response.json({ piano: { C4: first, D4: second } })
+      if (url.endsWith("manifest.opus.json")) {
+        return Response.json({ assets: [first, second].map(publicUrl => ({ publicUrl, sizeBytes: bytes.length })) })
+      }
+      samples.push(url)
+      let sent = false
+      return {
+        ok: true, type: "basic", headers: new Headers(),
+        body: { getReader: () => ({
+          async read() {
+            if (!sent) {
+              sent = true
+              return { done: false, value: new TextEncoder().encode(bytes) }
+            }
+            started.resolve()
+            return response.promise
+          },
+          async cancel() {},
+        }) },
+      }
+    },
+  })
+  const active = assert.rejects(source.read(first), { name: "AbortError" })
+  await started.promise
+  const queued = assert.rejects(source.read(second), { name: "AbortError" })
+  assert.deepEqual(samples, [first])
+  controller.abort()
+  response.resolve({ done: true })
+  await Promise.all([active, queued])
+  assert.deepEqual(samples, [first])
+})
