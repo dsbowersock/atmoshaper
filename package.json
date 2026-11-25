@@ -277,6 +277,7 @@
     "test:native-website-browser": "node --test tests/native-website-browser.test.mjs",
     "lint:native-website": "eslint native/web components/native lib/native-*.js lib/planner-export.ts lib/sidebar-calendar-contract.js lib/atmosphere/generative-fm-platform.ts lib/atmoshaper/ambient-platform.ts scripts/build-offline-core.mjs scripts/start-native-website-preview.mjs scripts/verify-native-website-preview.mjs scripts/fixtures/offline-legacy-entry.tsx tests/native-website*.test.mjs app/chimer/chimer-screen.tsx app/tools/business-planner/_components/planner-report.tsx app/browse/workspace.tsx app/layout.tsx components/providers/pwa-install-provider.tsx components/providers/music-provider.tsx components/sidebar/sidebar-calendar-provider.tsx",
     "test:native-website-android": "node scripts/test-native-website-android.mjs",
+    "test:native-background-android": "node scripts/test-native-background-android.mjs",
     "test:native-website-regression": "node --test tests/native-website-contract.test.mjs tests/atmosphere-media-session-controller.test.mjs tests/atmosphere-media-playback-carrier.test.mjs tests/atmosphere-provider-lazy-boundary.test.mjs tests/atmoshaper-runtime-boundary.test.mjs tests/chimer-timer.test.mjs tests/home-dashboard.test.mjs tests/navigation-model.test.mjs"
   },
   "dependencies": {

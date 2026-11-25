@@ -6,9 +6,13 @@ import org.json.JSONArray
 internal data class ClockBackgroundChoice(
     val id: String,
     val label: String,
+    val guestAccess: Boolean,
     val defaults: ClockAppearance?,
+    val customizable: Boolean,
 ) {
-    val canApply: Boolean get() = defaults != null
+    /** Mirrors the canonical enabled-catalog decision emitted at build time. */
+    fun canUse(access: ClockBackgroundAccess): Boolean =
+        guestAccess || access.hasPremiumBackgrounds || id in access.ownedIds
 }
 
 /** Reads public, build-time metadata derived from the canonical registry's
@@ -20,13 +24,15 @@ internal fun loadClockBackgrounds(context: Context): List<ClockBackgroundChoice>
         List(catalog.length()) { index ->
             val entry = catalog.getJSONObject(index)
             val id = entry.getString("id")
-            val defaults = if (entry.getBoolean("guestAccess") && !entry.isNull("defaults")) {
+            val guestAccess = entry.getBoolean("guestAccess")
+            val defaults = if (!entry.isNull("defaults")) {
                 ClockAppearance.decodePackaged(entry.getJSONObject("defaults").toString()).also {
-                    require(it.background != ClockBackground.Neutral && it.background.key == id)
+                    require(it.backgroundStyle.matches(id))
+                    require(guestAccess == (it.background != ClockBackground.Packaged))
                     require(it.rememberedBackgroundId == id)
                 }
             } else null
-            ClockBackgroundChoice(id, entry.getString("label"), defaults)
+            ClockBackgroundChoice(id, entry.getString("label"), guestAccess, defaults, entry.getBoolean("customizable"))
         }.also { choices ->
             require(choices.isNotEmpty() && choices.map { it.id }.distinct().size == choices.size)
         }

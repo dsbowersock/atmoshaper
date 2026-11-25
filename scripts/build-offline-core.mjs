@@ -5,17 +5,23 @@ import { createHash } from "node:crypto"
 import { readFile, writeFile, copyFile, mkdir, readdir, lstat, realpath, rm } from "node:fs/promises"
 import { PUBLIC_PRODUCT_IDENTITY } from "../lib/public-product-identity.js"
 import { backgroundRegistry, userCanUseBackground } from "../components/backgrounds/backgroundRegistry.ts"
+import { backgroundPaletteRegistry } from "../components/backgrounds/backgroundPaletteRegistry.ts"
 import { projectClockAppearance } from "../lib/native-clock-appearance-transfer.js"
 
 const require = createRequire(import.meta.url)
 export const root = fileURLToPath(new URL("..", import.meta.url))
 export const bundleRoot = path.join(root, "output/offline-core")
 export const coreRoot = path.join(bundleRoot, "core")
+const acceptanceKeys = new Map([
+  ["offline-acceptance-backgrounds", "offline-acceptance-public-keys.json"],
+  ["offline-acceptance-native-backgrounds", "offline-acceptance-native-public-keys.json"],
+])
+const outputNames = new Set(["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-website", ...acceptanceKeys.keys()])
 
 /** This build owns this single generated directory, never browser/user data. */
 async function resetOutput(bundleRoot) {
   const target = path.resolve(bundleRoot)
-  if (path.dirname(target) !== path.resolve(root, "output") || !["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds", "offline-acceptance-website"].includes(path.basename(target))) throw new Error("Unexpected offline build directory.")
+  if (path.dirname(target) !== path.resolve(root, "output") || !outputNames.has(path.basename(target))) throw new Error("Unexpected offline build directory.")
   const existing = await lstat(target).catch(error => { if (error.code !== "ENOENT") throw error })
   if (existing?.isSymbolicLink()) throw new Error("The offline build output cannot be a link.")
   const physicalRoot = await realpath(root)
@@ -30,11 +36,13 @@ async function resetOutput(bundleRoot) {
 export async function buildOfflineCore({ testPublicKeysPath = null, outputName = "offline-core", development = false, legacyAcceptance = false } = {}) {
   // Only acceptance can substitute an ephemeral public authority. The normal
   // Android build never supplies this argument and cannot ship a test key.
-  if (testPublicKeysPath && path.resolve(testPublicKeysPath) !== path.join(root, "output/offline-acceptance-public-keys.json")) throw new Error("Unexpected receipt acceptance key path.")
+  const keyName = acceptanceKeys.get(outputName)
+  if (testPublicKeysPath && (!keyName || path.resolve(testPublicKeysPath) !== path.join(root, "output", keyName))) {
+    throw new Error("Synthetic authority requires its isolated acceptance key and output.")
+  }
   // Acceptance readers get independent trees. Parallel wildcard tests cannot
   // delete each other's assets or replace Android's normal trust configuration.
-  if (!["offline-core", "offline-acceptance-core", "offline-acceptance-media", "offline-acceptance-backgrounds", "offline-acceptance-website"].includes(outputName)) throw new Error("Unexpected offline build output.")
-  if (testPublicKeysPath && outputName !== "offline-acceptance-backgrounds") throw new Error("Synthetic authority requires isolated acceptance output.")
+  if (!outputNames.has(outputName)) throw new Error("Unexpected offline build output.")
   if (legacyAcceptance && outputName === "offline-core") throw new Error("The earlier preview is acceptance-only.")
   const bundleRoot = path.join(root, "output", outputName), coreRoot = path.join(bundleRoot, "core")
   await mkdir(path.dirname(bundleRoot), { recursive: true })
@@ -45,6 +53,8 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     entry: legacyAcceptance ? { app: path.join(root, "scripts/fixtures/offline-legacy-entry.tsx") } : {
       app: path.join(root, "native/web/index.tsx"),
       "clock-appearance-export": path.join(root, "native/web/clock-appearance-export.js"),
+      "background-access-export": path.join(root, "native/web/background-access-export.js"),
+      "clock-effect": path.join(root, "native/web/clock-effect.tsx"),
       "timer-export": path.join(root, "native/web/timer-export.js"),
     },
     output: { path: coreRoot, filename: "[name].js", chunkFilename: "chunks/[name].[contenthash:12].js", publicPath: "./" },
@@ -160,18 +170,26 @@ export async function buildOfflineCore({ testPublicKeysPath = null, outputName =
     // public decisions, so it never loads any renderer or account modules.
     const publicBackgrounds = backgroundRegistry.filter(entry => userCanUseBackground(entry)).map(entry => entry.id)
     if (publicBackgrounds.some(id => !/^[a-z0-9-]+$/.test(id))) throw new Error("Invalid public Clock background identifier.")
-    // The Compose picker and export use the same conservative registry decision.
-    // Renderer code remains in the existing Previous Tools asset closure.
+    // The Compose picker and exporter share canonical availability and style
+    // metadata. A packaged style is a visual preference, never access.
     const publicIds = new Set(publicBackgrounds)
-    const clockBackgrounds = backgroundRegistry.filter(entry => entry.enabled && entry.category.includes("clock"))
+    const nativeClockEntries = backgroundRegistry.filter(entry => entry.enabled && entry.category.includes("clock"))
+    const packagedIds = new Set(nativeClockEntries.filter(entry => !publicIds.has(entry.id) && entry.component).map(entry => entry.id))
+    const clockBackgrounds = nativeClockEntries
       .map(entry => {
         const guestAccess = publicIds.has(entry.id)
-        const defaults = guestAccess ? projectClockAppearance({ backgroundId: entry.id }, publicIds) : null
-        if (defaults && defaults.background !== entry.id) throw new Error(`Free Clock background needs a native renderer: ${entry.id}`)
-        return { id: entry.id, label: entry.label, guestAccess, defaults }
+        const defaults = guestAccess || packagedIds.has(entry.id)
+          ? projectClockAppearance({ backgroundId: entry.id }, publicIds, packagedIds) : null
+        if (guestAccess && defaults.background !== entry.id) throw new Error(`Free Clock background needs a native renderer: ${entry.id}`)
+        const adapter = backgroundPaletteRegistry[entry.id]
+        return { id: entry.id, label: entry.label, guestAccess, defaults, customizable: Boolean(adapter && adapter.status !== "unsupported") }
       })
     await writeFile(path.join(coreRoot, "clock-backgrounds.json"), JSON.stringify(clockBackgrounds))
-    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}"></script>`)
+    await writeFile(path.join(coreRoot, "clock-effect.html"), `<!doctype html><html lang="en" class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Clock effect</title><link rel="stylesheet" href="./app.css"><style>html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}#root{position:relative;isolation:isolate}</style><script defer src="./clock-effect.js"></script></head><body><div id="root" aria-hidden="true"></div></body></html>`)
+    const clockIds = clockBackgrounds.map(entry => entry.id)
+    if (clockIds.some(id => !/^[a-z0-9-]{1,100}$/.test(id))) throw new Error("Invalid Clock catalog identifier.")
+    await writeFile(path.join(coreRoot, "background-access-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock background access</title><script defer src="./background-access-export.js" data-clock-backgrounds="${clockIds.join(",")}"></script>`)
+    await writeFile(path.join(coreRoot, "clock-appearance-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Clock appearance transfer</title><script defer src="./clock-appearance-export.js" data-public-backgrounds="${publicBackgrounds.join(",")}" data-packaged-backgrounds="${[...packagedIds].join(",")}"></script>`)
     await writeFile(path.join(coreRoot, "timer-export.html"), `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; base-uri 'none'"><title>Timer transfer</title><script defer src="./timer-export.js"></script>`)
   }
   const files = await fileInventory(coreRoot)

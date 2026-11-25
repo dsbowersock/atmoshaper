@@ -14,14 +14,16 @@ import { resolveDnaTwistedCubesBackgroundHostProps } from "@/lib/dna-twisted-cub
 const structuredDefaults = resolveDnaTwistedCubesBackgroundHostProps({ settings: {}, category: "clock" })
 
 /** A failed effect cannot take the clock/timer with it. A new selection retries. */
-class EffectBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+class EffectBoundary extends Component<{ children: ReactNode; onFailed?: () => void }, { failed: boolean }> {
   state = { failed: false }
   static getDerivedStateFromError() { return { failed: true } }
+  componentDidCatch() { this.props.onFailed?.() }
   render() { return this.state.failed ? null : this.props.children }
 }
 
-export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbColor, motion }: {
+export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbColor, motion, onFailed, onReady }: {
   selectedId: string; access: BackgroundAccessSnapshot; mainColor: string; orbColor: string; motion: boolean
+  onFailed?: () => void; onReady?: () => void
 }) {
   const selected = getBackgroundDefinition(selectedId)
   const entry = userCanUseBackground(selected, access) ? selected : getBackgroundDefinition("massage-lab-moving-gradient")
@@ -30,9 +32,11 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
   const compactViewport = useMediaQuery(BACKGROUND_COMPACT_VIEWPORT_QUERY)
   useEffect(() => {
     let current = true
-    void entry.component?.().then(module => { if (current) setLoaded({ id: entry.id, component: module.default }) }).catch(() => { if (current) setLoaded(null) })
+    void entry.component?.().then(module => { if (current) setLoaded({ id: entry.id, component: module.default }) }).catch(() => {
+      if (current) { setLoaded(null); onFailed?.() }
+    })
     return () => { current = false }
-  }, [entry])
+  }, [entry, onFailed])
   const effectProps = useMemo(() => resolveBackgroundEffectProps({
     selectedId: entry.id, canCustomize: true,
     palette: { mode: "custom", primaryColor: mainColor, swatches: [mainColor, orbColor] },
@@ -40,9 +44,19 @@ export function OfflineBackgroundSurface({ selectedId, access, mainColor, orbCol
       staticGradient: { type: "linear", angle: 145, colorCount: 2, colors: [mainColor, orbColor], stopPositions: [0, 100] } },
   }), [entry.id, mainColor, orbColor, reduce, compactViewport])
   const Effect = loaded?.id === entry.id ? loaded.component : null
+  useEffect(() => {
+    if (!Effect || !onReady) return
+    const frame = window.requestAnimationFrame(onReady)
+    return () => window.cancelAnimationFrame(frame)
+  }, [Effect, onReady])
   return <div className={styles.background} data-offline-background={entry.id} style={entry.fallbackStyle}>
-    {Effect && <OfflineReducedMotion.Provider value={reduce}><EffectBoundary key={entry.id}><Effect {...effectProps} className={styles.surface} /></EffectBoundary></OfflineReducedMotion.Provider>}
+    {Effect && <OfflineReducedMotion.Provider value={reduce}><EffectBoundary key={entry.id} onFailed={onFailed}><Effect {...effectProps} className={styles.surface} /></EffectBoundary></OfflineReducedMotion.Provider>}
   </div>
+}
+
+function notifyNativeAccessChange(status: "replaced" | "removing" | "removed" | "remove-failed") {
+  const port = (window as Window & { AtmoShaperBackgroundAccessChanged?: { postMessage: (value: string) => void } }).AtmoShaperBackgroundAccessChanged
+  port?.postMessage(status)
 }
 
 /** Receipt acceptance is one serialized compare-and-replace, bound to the most
@@ -98,9 +112,13 @@ export function useOfflineBackgroundAccess() {
       }).then(async value => {
         if (operationEpoch !== epoch.current) return
         recordRef.current = value; setRecord(value)
+        // A committed replacement can revoke the old capability. Hide it
+        // while the replacement is checked for the still-mounted web view.
+        setClaims(null)
+        notifyNativeAccessChange("replaced")
         const verified = await verifyOfflineAccessReceipt(value.receipt, value.device, publicKeys)
         if (operationEpoch !== epoch.current || recordRef.current?.device !== value.device || recordRef.current?.receipt !== value.receipt) return
-        setClaims(verified); setRecord(value); setMessage("Background access saved for offline use.")
+        setClaims(verified); setMessage("Background access saved for offline use.")
       }).catch(error => { if (operationEpoch === epoch.current) setMessage(error instanceof Error ? error.message : "Offline access could not be saved.") })
     }
     window.addEventListener("atmoshaper:offline-access", receive)
@@ -119,16 +137,23 @@ export function useOfflineBackgroundAccess() {
     } catch { setMessage("The app could not save a verification request. Retry when local storage is available.") }
   }
   async function forget() {
-    ++epoch.current
+    const operationEpoch = ++epoch.current
+    notifyNativeAccessChange("removing")
     recordRef.current = null
     setClaims(null); setRemovalPending(true)
     try {
       const value = await store.update(() => ({ device: randomOfflineAccessId(), receipt: null, pending: null, lastIssuedAt: 0, lastSeen: Date.now() }))
+      if (operationEpoch !== epoch.current) return
       recordRef.current = value; setRecord(value); setClaims(null); setRemovalPending(false); setMessage("Account access removed from this app. Downloads and free tools are unchanged.")
-    } catch { setMessage("Account access could not be removed. Check local storage and retry.") }
+      notifyNativeAccessChange("removed")
+    } catch {
+      if (operationEpoch !== epoch.current) return
+      notifyNativeAccessChange("remove-failed")
+      setMessage("Account access could not be removed. Check local storage and retry.")
+    }
   }
   return { access: claims ? offlineBackgroundSnapshot(claims, now, record?.lastSeen) : { featureKeys: [], ownedBackgroundIds: [] },
-    claims, loaded, canForget: Boolean(claims) || removalPending, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
+    claims, loaded, canForget: Boolean(record?.receipt) || removalPending, message, refresh, forget, ready: publicKeys.length > 0 && record !== null }
 }
 
 export function OfflineBackgroundChoices({ selectedId, onSelect, account }: {
