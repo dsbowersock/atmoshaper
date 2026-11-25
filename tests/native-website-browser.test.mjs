@@ -136,8 +136,7 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.deepEqual(await readDatabase(page, earlier, "state", "preferences"), storedEarlier)
     assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), earlier), simple)
 
-    // Exercise the saved gradient when its public catalog entry is absent.
-    // The transfer describes the renderer; the native access check gates its use.
+    // The native gradient becomes neutral if its public catalog entry is absent.
     const withoutGradient = publicIds.filter(id => id !== "static-gradient")
     assert.equal(withoutGradient.length, publicIds.length - 1)
     const exportHtml = await readFile(path.join(core,"clock-appearance-export.html"), "utf8")
@@ -146,7 +145,7 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.notEqual(deniedHtml, exportHtml)
     await page.route(exporter, route => route.fulfill({ contentType:"text/html", body:deniedHtml }), { times:1 })
     const denied = await exported()
-    assert.equal(denied.background, "packaged-effect")
+    assert.equal(denied.background, "neutral")
     assert.equal(denied.rememberedBackgroundId, "static-gradient")
     assert.deepEqual(denied.gradientColors, [])
     assert.deepEqual(await readDatabase(page, shared, "clock", "state"), record)
@@ -157,6 +156,7 @@ test("the packaged Clock exporter reads only appearance and leaves both generati
     assert.ok(premium)
     await write(shared, "clock", "state", { ...record, settings: { ...record.settings, backgroundId: premium.id } })
     const locked = await exported()
+    // A packaged effect is renderer metadata. Compose verifies access independently.
     assert.equal(locked.background, "packaged-effect")
     assert.equal(locked.rememberedBackgroundId, premium.id)
     for (const field of ["premiumUntil", "ownedBackgroundIds", "featureKeys"]) assert.equal(field in locked, false)
