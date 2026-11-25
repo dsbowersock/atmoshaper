@@ -35,7 +35,7 @@ class HomeJourneyTest {
         assertNativeHome()
         val categories = listOf("Music", "Clock & timer", "Wellness", "My Calendar", "Study & play", "Practice tools")
         for ((index, category) in categories.withIndex()) {
-            findCategory(category).click()
+            scrollToText(category).click()
             assertFalse(device.hasObject(webView))
             if (category == "Clock & timer") {
                 waitForText("Close Clock").click()
@@ -64,9 +64,9 @@ class HomeJourneyTest {
 
         launchFromAppIcon()
         assertNativeHome()
-        findCategory("Music").click()
+        scrollToText("Music").click()
         waitForText("Ready to play")
-        waitForText("Open previous tools").click()
+        scrollToText("Open previous tools").click()
         assertTrue("Expected previous tools to reopen the existing WebView", device.wait(Until.hasObject(webView), 10_000))
 
         device.pressBack()
@@ -92,13 +92,13 @@ class HomeJourneyTest {
         assertTrue("Expected an accessible public wordmark", device.wait(Until.hasObject(By.desc("AtmoShaper")), 10_000))
     }
 
-    /** The adaptive grid may place later categories below the initial viewport. */
-    private fun findCategory(label: String): UiObject2 {
+    /** The Home grid and expanded native tool panels can extend beyond the initial viewport. */
+    private fun scrollToText(label: String): UiObject2 {
         val selector = By.text(label)
         repeat(6) {
             device.findObject(selector)?.let { return it }
-            val grid = checkNotNull(device.findObject(By.scrollable(true))) { "Expected a scrollable Home grid" }
-            grid.scroll(Direction.DOWN, 0.65f)
+            val container = checkNotNull(device.findObject(By.scrollable(true))) { "Expected a scrollable app panel" }
+            container.scroll(Direction.DOWN, 0.65f)
         }
         return waitForText(label)
     }
